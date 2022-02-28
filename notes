@@ -1,0 +1,22 @@
+2022-02-21: ideas
+	pipelined Mill-like
+	+ cache hierarchy?
+	+ prediction?
+	+ metadata?
+
+2022-02-23: more ideas
+	name: Shed
+
+	+ more execution units?
+	+ split stream encoding?
+	+ phasing?
+	+ proper function calls? ×
+	+ divide?
+	+ scratchpad?
+
+	1 execution unit
+	load-store statically-scheduled
+	belt
+		TODO: elaborate
+
+	assembler
