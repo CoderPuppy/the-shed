@@ -1,0 +1,4 @@
+*.pdf
+__latexindent_temp.tex
+*.synctex.gz
+*.xdv
