@@ -143,18 +143,57 @@
 
 \section{Instruction Format}
 Instruction format, with a complete description of how the instructions will be encoded.
+\subsection{Overview}
+We will have a fixed length instruction format.
+\subsection{opcode}
+We will have 16 opcodes, 5 bits. See Instruction List.
+\subsection{Address Modes}
+We will have N address modes.
+Each address mode will only be used to generate an effective address and can only be used in instructions that access memory.
+
 
 \section{Instruction List}
 A list of all the instructions in your system, including opcode, the mnemonic, a description, and any information about encoding
 
+    \begin{tabular}{llllll}
+    Instruction   & Opcode & Mnemonic & Description                                                             & Encoding                                                              & Expected Cycles \\
+    \multicolumn{5}{l}{Misc}                                                                                                                                                            &                 \\
+    Halt          & 0000   & HLT      & Halt the machine                                                        &                                                                       & 1               \\
+    No op         & 0001   & NOP      & No operation                                                            &                                                                       & 1               \\
+    \multicolumn{5}{l}{ALU}                                                                                                                                                             &                 \\
+    Add           & 0010   & ADD      & Add items at position a and b and add the result to belt                &                                                                       & 1               \\
+    Subtract      & 0011   & SUB      & Subtract items at position a and b and add result to the belt           &                                                                       & 1               \\
+    Multiply      & 0100   & MUL      & Multiple items at position a and b and add high and low values to belt  &                                                                       & 5? idk          \\
+    Divide        & 0101   & DIV      & Divide items at position a and b and add quotient and remainder to belt &                                                                       & 10? idk         \\
+    \multicolumn{5}{l}{Memory}                                                                                                                                                          &                 \\
+    Load          & 0110   & LDB      & Load from memory using address mode and put result onto belt            &                                                                       & 8-16?           \\
+    Store         & 0111   & STB      & Store from position a and store into memory using address mode          &                                                                       & 8-16?           \\
+    \multicolumn{5}{l}{Belt}                                                                                                                                                            &                 \\
+    Duplicate     & 1000   & DUP      & copy item on the belt                                                   & Do we need this? or do we just want to do add 0                       &                 \\
+    Push Belt     & 1001   & PUSH     & push the entire belt onto the stack                                     &                                                                       &                 \\
+    Pop Belt      & 1010   & POP      & pop the entire belt onto the stack                                      &                                                                       &                 \\
+    \multicolumn{5}{l}{Control Flow}                                                                                                                                                    &                 \\
+    Branch if 0   & 1011   & BEZ      &                                                                         &                                                                       &                 \\
+    Function Call & 1100   & CALL     & execute function using address mode, params are the belt                & Do we need this? isn't this just push belt, push return val, and jump &                 \\
+    Return        & 1101   & RET      & return from function, push a, b, c from old belt onto new belt          & pop return val, pop belt, push return data                            &                 \\
+                  & 1110   &          &                                                                         &                                                                       &                 \\
+                  & 1111   &          &                                                                         &                                                                       &                
+    \end{tabular}
+
 \section{Memory Space}
 Information about the memory space, address size, bits-per-addressable-unit, width of the bus to memory (how many units get transfered per load/store)
+Our Address will be N bits and our data will be M bits.
+Each address will be able to access M bits from memory.
+We will be transfering a single item to and from memory with load and store\\
+We may just use that for push belt and pop belt, or we can allow memory to take up to 8*M bits at once to write
 
 \section{Program Visible Registers}
-Name and description of all the program visible registers
+Name and description of all the program visible registers\\
+We don't have any program visible registers? do we want to make the stack visible? 
 
 \section{Address Modes}
 Description of all address modes supported, complete with how the address modes will be encoded
 
+The mill has base, index and offset. that seems easy enough to do
 
 \end{document}
