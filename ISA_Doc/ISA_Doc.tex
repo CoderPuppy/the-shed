@@ -143,6 +143,29 @@
 
 \section{Instruction Format}
 Instruction format, with a complete description of how the instructions will be encoded.
+
+0 operand: halt, nop, return                            (0 belt, 0 imm)
+0 belt, 1 imm, 0 DAM, 0 CAM: const, readStack, alloca   (0 belt, 1 imm)
+2 belt, 0 imm, 0 DAM, 0 CAM: ALU,                       (2 belt, 0 imm)
+1 belt, 1 imm, 0 DAM, 0 CAM: ALU, writeStack            (1 belt, 1 imm)
+0 belt, 0 imm, 1 DAM, 0 CAM: load                       (1 belt, 1 imm)
+1 belt, 0 imm, 1 DAM, 0 CAM: store                      (2 belt, 1 imm)
+1 belt, 0 imm, 0 DAM, 1 CAM: branch                     (1 belt, 1 imm)
+0 belt, 0 imm, 0 DAM, 1 CAM: jump, call                 (0 belt, 1 imm)
+
+belt = 4 bits
+opc = 4 bits
+imm = 32 bits
+|  4+   4+   4| | 32|
+|opc belt belt| |imm|
+
+(0 belt, 0 imm) = 0 bits
+(0 belt, 1 imm) = 32 bits
+(2 belt, 0 imm) = 8 bits
+(1 belt, 1 imm) = 36 bits
+(2 belt, 1 imm) = 40 bits
+
+
 \subsection{Overview}
 We will have a fixed length instruction format.
 \subsection{opcode}
@@ -155,6 +178,7 @@ Each address mode will only be used to generate an effective address and can onl
 \section{Instruction List}
 A list of all the instructions in your system, including opcode, the mnemonic, a description, and any information about encoding
 
+We should specify which AM each instruction useses (if any)
     \begin{tabular}{llllll}
     Instruction   & Opcode & Mnemonic & Description                                                             & Encoding                                                              & Expected Cycles \\
     \multicolumn{5}{l}{Misc}                                                                                                                                                            &                 \\
@@ -164,16 +188,18 @@ A list of all the instructions in your system, including opcode, the mnemonic, a
     Add           & 0010   & ADD      & Add items at position a and b and add the result to belt                &                                                                       & 1               \\
     Subtract      & 0011   & SUB      & Subtract items at position a and b and add result to the belt           &                                                                       & 1               \\
     Multiply      & 0100   & MUL      & Multiple items at position a and b and add high and low values to belt  &                                                                       & 5? idk          \\
-    Divide        & 0101   & DIV      & Divide items at position a and b and add quotient and remainder to belt &                                                                       & 10? idk         \\
+    % Divide        & 0101   & DIV      & Divide items at position a and b and add quotient and remainder to belt &                                                                       & 10? idk         \\
     \multicolumn{5}{l}{Memory}                                                                                                                                                          &                 \\
     Load          & 0110   & LDB      & Load from memory using address mode and put result onto belt            &                                                                       & 8-16?           \\
     Store         & 0111   & STB      & Store from position a and store into memory using address mode          &                                                                       & 8-16?           \\
     \multicolumn{5}{l}{Belt}                                                                                                                                                            &                 \\
-    Duplicate     & 1000   & DUP      & copy item on the belt                                                   & Do we need this? or do we just want to do add 0                       &                 \\
-    Push Belt     & 1001   & PUSH     & push the entire belt onto the stack                                     &                                                                       &                 \\
-    Pop Belt      & 1010   & POP      & pop the entire belt onto the stack                                      &                                                                       &                 \\
+    % Duplicate     & 1000   & DUP      & copy item on the belt                                                   & Do we need this? or do we just want to do add 0                       &                 \\
+    Push item     & 1001   & PUSH     & push the entire belt onto the stack                                     &                                                                       &                 \\
+    Pop item      & 1010   & POP      & pop the entire belt onto the stack                                      &                                                                       &                 \\
+    Load imm      &        & LOADI    & push immidiate value onto the belt                                      &                                                                       &                 \\
     \multicolumn{5}{l}{Control Flow}                                                                                                                                                    &                 \\
     Branch if 0   & 1011   & BEZ      &                                                                         &                                                                       &                 \\
+    jump 
     Function Call & 1100   & CALL     & execute function using address mode, params are the belt                & Do we need this? isn't this just push belt, push return val, and jump &                 \\
     Return        & 1101   & RET      & return from function, push a, b, c from old belt onto new belt          & pop return val, pop belt, push return data                            &                 \\
                   & 1110   &          &                                                                         &                                                                       &                 \\
@@ -195,5 +221,10 @@ We don't have any program visible registers? do we want to make the stack visibl
 Description of all address modes supported, complete with how the address modes will be encoded
 
 The mill has base, index and offset. that seems easy enough to do
+
+2 address modes:
+    data address mode: belt + imm
+    code address mode: pc + imm
+
 
 \end{document}
