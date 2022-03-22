@@ -44,7 +44,7 @@
 		longcall belt
 		longjump belt
 		get_carry belt - lat1
-	1 belt, 1 imm - 15 instrs
+	1 belt, 1 imm - 14 instrs
 		addi belt, sign_ext(imm) - lat1
 		muli belt, sign_ext(imm) - lat5?
 		andi belt, sign_ext(imm) - lat1
