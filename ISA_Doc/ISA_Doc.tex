@@ -1,95 +1,35 @@
 \documentclass{article}
 
-\usepackage{fancyhdr}
+\usepackage[letterpaper,margin=0.5in,top=1in,bottom=1in]{geometry}
+
 \usepackage{extramarks}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
 \usepackage{tikz}
+	\usetikzlibrary{positioning}
 \usepackage[plain]{algorithm}
 \usepackage{algpseudocode}
 \usepackage{enumitem}
+\usepackage{fancyhdr}
+	\pagestyle{fancy}
+	\lhead{\hmwkAuthorName}
+	% \chead{\hmwkClass\ (\hmwkClassInstructor\ \hmwkClassTime): \hmwkTitle}
+	\rhead{\firstxmark}
+	\lfoot{\lastxmark}
+	\cfoot{\thepage}
 
-
-\usetikzlibrary{automata,positioning}
-
-%
-% Basic Document Settings
-%
-
-\topmargin=-0.45in
-\evensidemargin=0in
-\oddsidemargin=0in
-\textwidth=6.5in
-\textheight=9.0in
-\headsep=0.25in
-
+	\renewcommand{\headrulewidth}{0.4pt}
+	\renewcommand{\footrulewidth}{0.4pt}
+	\setlength{\headheight}{14.5pt}
 \usepackage{fontspec}
-\setmainfont{Doulos SIL}
-
-\linespread{1.1}
-
-\pagestyle{fancy}
-\lhead{\hmwkAuthorName}
-% \chead{\hmwkClass\ (\hmwkClassInstructor\ \hmwkClassTime): \hmwkTitle}
-\rhead{\firstxmark}
-\lfoot{\lastxmark}
-\cfoot{\thepage}
-
-\renewcommand\headrulewidth{0.4pt}
-\renewcommand\footrulewidth{0.4pt}
+	\setmainfont{Doulos SIL}
+\usepackage{booktabs}
+\usepackage{lscape}
+\usepackage{longtable}
+\usepackage{hyperref}
 
 \setlength\parindent{0pt}
-
-%
-% Create Problem Sections
-%
-
-% \newcommand{\enterProblemHeader}[1]{
-%     \nobreak\extramarks{}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
-%     \nobreak\extramarks{Problem \arabic{#1} (continued)}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
-% }
-
-% \newcommand{\exitProblemHeader}[1]{
-%     \nobreak\extramarks{Problem \arabic{#1} (continued)}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
-%     \stepcounter{#1}
-%     \nobreak\extramarks{Problem \arabic{#1}}{}\nobreak{}
-% }
-
-% \setcounter{secnumdepth}{0}
-% \newcounter{partCounter}
-% \newcounter{homeworkProblemCounter}
-% \setcounter{homeworkProblemCounter}{1}
-% \nobreak\extramarks{Problem \arabic{homeworkProblemCounter}}{}\nobreak{}
-
-%
-% Homework Problem Environment
-%
-% This environment takes an optional argument. When given, it will adjust the
-% problem counter. This is useful for when the problems given for your
-% assignment aren't sequential. See the last 3 problems of this template for an
-% example.
-%
-% \newenvironment{homeworkProblem}[1][-1]{
-%     \ifnum#1>0
-%         \setcounter{homeworkProblemCounter}{#1}
-%     \fi
-%     \section{Problem \arabic{homeworkProblemCounter}}
-%     \setcounter{partCounter}{1}
-%     \enterProblemHeader{homeworkProblemCounter}
-% }{
-%     \exitProblemHeader{homeworkProblemCounter}
-% }
-
-%
-% Homework Details
-%   - Title
-%   - Due date
-%   - Class
-%   - Section/Time
-%   - Instructor
-%   - Author
-%
 
 \newcommand{\hmwkTitle}{ISA Document}
 \newcommand{\hmwkClass}{CSCI-453 Computer Architecture}
@@ -100,9 +40,9 @@
 %
 
 \title{
-    \vspace{2in}
-    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
-    \vspace{3in}
+	\vspace{2in}
+	\textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+	\vspace{3in}
 }
 
 \author{\hmwkAuthorName}
@@ -117,24 +57,6 @@
 % Useful for algorithms
 \newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
 
-% For derivatives
-\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
-
-% For partial derivatives
-\newcommand{\pderiv}[2]{\frac{\partial}{\partial #1} (#2)}
-
-% Integral dx
-\newcommand{\dx}{\mathrm{d}x}
-
-% Alias for the Solution section header
-\newcommand{\solution}{\textbf{\large Solution}}
-
-% Probability commands: Expectation, Variance, Covariance, Bias
-\newcommand{\E}{\mathrm{E}}
-\newcommand{\Var}{\mathrm{Var}}
-\newcommand{\Cov}{\mathrm{Cov}}
-\newcommand{\Bias}{\mathrm{Bias}}
-
 \begin{document}
 
 \maketitle
@@ -142,108 +64,172 @@
 \pagebreak
 
 \section{Instruction Format}
-Instruction format, with a complete description of how the instructions will be encoded.
+	Instruction format, with a complete description of how the instructions will be encoded.
 
-We will have a fixed length instruction format. Each instruction will be 16 bits.
-We will have several instruction formats
-We will have multiple tables to look up the opcode so there are multiple opcode sections in our instruction formats.\\
-O = opcode(2 or 3 bits)\\
-B = belt position (3 bits)\\
-I = immediate value (8 bits)\\
-\begin{itemize}
-    \item OBBI
-    \item OOBI
-    \item OOI
-    \item OO
-    \item OOBB
-\end{itemize}
-
-
-
-We will have several instruction formats,\\
-0 operand: halt, nop, return                            (0 belt, 0 imm)\\
-0 belt, 1 imm, 0 DAM, 0 CAM: const, readStack, alloca   (0 belt, 1 imm) *\\
-2 belt, 0 imm, 0 DAM, 0 CAM: ALU,                       (2 belt, 0 imm) *\\
-1 belt, 1 imm, 0 DAM, 0 CAM: ALU, writeStack            (1 belt, 1 imm) *\\
-0 belt, 0 imm, 1 DAM, 0 CAM: load                       (1 belt, 1 imm) *\\
-1 belt, 0 imm, 1 DAM, 0 CAM: store                      (2 belt, 1 imm) * \\
-1 belt, 0 imm, 0 DAM, 1 CAM: branch                     (1 belt, 1 imm) * \\
-0 belt, 0 imm, 0 DAM, 1 CAM: jump, call                 (0 belt, 1 imm) * 
-
-not every instruction follows this pattern. when the instruction format requires data that is not needed in the instruction. the extra data is ignored.
-
-% belt = 3 bits
-% opc = 4 bits
-% imm = 8 bits
-% |2  +  3 +  3 |   | 8|
-% |opc belt belt| |imm|
-
-% (0 belt, 0 imm) = 0 bits
-% (0 belt, 1 imm) = 16 bits
-% (2 belt, 0 imm) = 6 bits
-% (1 belt, 1 imm) = 19 bits
-% (2 belt, 1 imm) = 22 bits
+	We will have a fixed length instruction format. Each instruction will be 16 bits.
+	We will have several instruction formats
+	We will have multiple tables to look up the opcode so there are multiple opcode sections in our instruction formats.\\
+	O = opcode(2 or 3 bits)\\
+	B = belt position (3 bits)\\
+	I = immediate value (8 bits)\\
+	\begin{itemize}
+		\item OBBI
+		\item OOBI
+		\item OOI
+		\item OO
+		\item OOBB
+	\end{itemize}
 
 
 
-\subsection{Overview}
-We will have a fixed length instruction format.
-\subsection{opcode}
-We will have 3 tables to lookup the instruction for an opcode.
-The first table will have the store instruction and information on where to look for the next piece of the opcode.
-The next piece can either be put in the spot for the immediate value, or a belt index.
+	We will have several instruction formats,\\
+	0 operand: halt, nop, return                            (0 belt, 0 imm)\\
+	0 belt, 1 imm, 0 DAM, 0 CAM: const, readStack, alloca   (0 belt, 1 imm) *\\
+	2 belt, 0 imm, 0 DAM, 0 CAM: ALU,                       (2 belt, 0 imm) *\\
+	1 belt, 1 imm, 0 DAM, 0 CAM: ALU, writeStack            (1 belt, 1 imm) *\\
+	0 belt, 0 imm, 1 DAM, 0 CAM: load                       (1 belt, 1 imm) *\\
+	1 belt, 0 imm, 1 DAM, 0 CAM: store                      (2 belt, 1 imm) * \\
+	1 belt, 0 imm, 0 DAM, 1 CAM: branch                     (1 belt, 1 imm) * \\
+	0 belt, 0 imm, 0 DAM, 1 CAM: jump, call                 (0 belt, 1 imm) * 
+
+	not every instruction follows this pattern. when the instruction format requires data that is not needed in the instruction. the extra data is ignored.
+
+	% belt = 3 bits
+	% opc = 4 bits
+	% imm = 8 bits
+	% |2  +  3 +  3 |   | 8|
+	% |opc belt belt| |imm|
+
+	% (0 belt, 0 imm) = 0 bits
+	% (0 belt, 1 imm) = 16 bits
+	% (2 belt, 0 imm) = 6 bits
+	% (1 belt, 1 imm) = 19 bits
+	% (2 belt, 1 imm) = 22 bits
 
 
-\subsection{Address Modes}
-Description of all address modes supported, complete with how the address modes will be encoded
 
-2 address modes:
-\begin{itemize}
-    \item data address mode: belt + imm
-    \item code address mode: pc + imm
-\end{itemize}
-the data address mode is used for any instruction that uses data addresses (load, store), and the code address mode is used for any instruction that uses code addresses(branch, jump, call)
+	\subsection{Overview}
+		We will have a fixed length instruction format.
 
+	\subsection{opcode}
+		We will have 3 tables to lookup the instruction for an opcode.
+		The first table will have the store instruction and information on where to look for the next piece of the opcode.
+		The next piece can either be put in the spot for the immediate value, or a belt index.
+
+
+	\subsection{Address Modes}
+		Description of all address modes supported, complete with how the address modes will be encoded
+
+		2 address modes:
+		\begin{itemize}
+			\item data address mode: belt + imm
+			\item code address mode: pc + imm
+		\end{itemize}
+		the data address mode is used for any instruction that uses data addresses (load, store), and the code address mode is used for any instruction that uses code addresses(branch, jump, call)
+
+\clearpage
+% \begin{landscape}
 \section{Instruction List}
-A list of all the instructions in your system, including opcode, the mnemonic, a description, and any information about encoding
+	A list of all the instructions in your system, including opcode, the mnemonic, a description, and any information about encoding
 
-    \begin{tabular}{llllll}
-    Instruction   & Opcode & Mnemonic & Description                                                             & Encoding                                                              & Expected Cycles \\
-    \multicolumn{5}{l}{Misc}                                                                                                                                                            &                 \\
-    Halt          & 0000   & HLT      & Halt the machine                                                        &                                                                       & 1               \\
-    No op         & 0001   & NOP      & No operation                                                            &                                                                       & 1               \\
-    \multicolumn{5}{l}{ALU}                                                                                                                                                             &                 \\
-    Add           & 0010   & ADD      & Add items at position a and b and add the result to belt                &                                                                       & 1               \\
-    Subtract      & 0011   & SUB      & Subtract items at position a and b and add result to the belt           &                                                                       & 1               \\
-    Multiply      & 0100   & MUL      & Multiple items at position a and b and add high and low values to belt  &                                                                       & 5? idk          \\
-    % Divide        & 0101   & DIV      & Divide items at position a and b and add quotient and remainder to belt &                                                                       & 10? idk         \\
-    \multicolumn{5}{l}{Memory}                                                                                                                                                          &                 \\
-    Load          & 0110   & LDB      & Load from memory using address mode and put result onto belt            &                                                                       & 8-16?           \\
-    Store         & 0111   & STB      & Store from position a and store into memory using address mode          &                                                                       & 8-16?           \\
-    \multicolumn{5}{l}{Belt}                                                                                                                                                            &                 \\
-    % Duplicate     & 1000   & DUP      & copy item on the belt                                                   & Do we need this? or do we just want to do add 0                       &                 \\
-    Push item     & 1001   & PUSH     & push the entire belt onto the stack                                     &                                                                       &                 \\
-    Pop item      & 1010   & POP      & pop the entire belt onto the stack                                      &                                                                       &                 \\
-    Load imm      &        & LOADI    & push immidiate value onto the belt                                      &                                                                       &                 \\
-    \multicolumn{5}{l}{Control Flow}                                                                                                                                                    &                 \\
-    Branch if 0   & 1011   & BEZ      &                                                                         &                                                                       &                 \\
-    jump 
-    Function Call & 1100   & CALL     & execute function using address mode, params are the belt                & Do we need this? isn't this just push belt, push return val, and jump &                 \\
-    Return        & 1101   & RET      & return from function, push a, b, c from old belt onto new belt          & pop return val, pop belt, push return data                            &                 \\
-                  & 1110   &          &                                                                         &                                                                       &                 \\
-                  & 1111   &          &                                                                         &                                                                       &                
-    \end{tabular}
+	% \begin{tabular}{l l l l l l}
+	% 	Instruction   & Opcode & Mnemonic & Description                                                             & Encoding        & Expected Cycles \\
+	% 	\midrule
+	% 	\multicolumn{5}{l}{\bfseries Misc} \\
+	% 	Halt          & 0000   & HLT      & Halt the machine                                                        &                 & 1               \\
+	% 	No op         & 0001   & NOP      & No operation                                                            &                 & 1               \\
+	% 	\multicolumn{5}{l}{\bfseries ALU}                                                                                                       &                 \\
+	% 	Add           & 0010   & ADD      & Add items at position a and b and add the result to belt                &                 & 1               \\
+	% 	Subtract      & 0011   & SUB      & Subtract items at position a and b and add result to the belt           &                 & 1               \\
+	% 	Multiply      & 0100   & MUL      & Multiple items at position a and b and add high and low values to belt  &                 & 5? idk          \\
+	% 	\multicolumn{5}{l}{Memory}                                                                                                    &                 \\
+	% 	Load          & 0110   & LDB      & Load from memory using address mode and put result onto belt            &                 & 8-16?           \\
+	% 	Store         & 0111   & STB      & Store from position a and store into memory using address mode          &                 & 8-16?           \\
+	% 	\multicolumn{5}{l}{Belt}                                                                                                      &                 \\
+	% 	Push item     & 1001   & PUSH     & push the entire belt onto the stack                                     &                 &                 \\
+	% 	Pop item      & 1010   & POP      & pop the entire belt onto the stack                                      &                 &                 \\
+	% 	Load imm      &        & LOADI    & push immidiate value onto the belt                                      &                 &                 \\
+	% 	\multicolumn{5}{l}{Control Flow}                                                                                              &                 \\
+	% 	Branch if 0   & 1011   & BEZ      &                                                                         &                 &                 \\
+	% 	jump 
+	% 	Function Call & 1100   & CALL     & execute function using address mode, params are the belt                &                 &                 \\
+	% 	Return        & 1101   & RET      & return from function, push a, b, c from old belt onto new belt          &                 &                 \\
+	% 	% jump
+	% 	              & 1110   &          &                                                                         &                 &                 \\
+	% 	              & 1111   &          &                                                                         &                 &                
+	% \end{tabular}
+
+	\begin{longtable}{c c c c l l}
+		Field 1 & Field 2 & Field 3 & Field 4 & Mnemonic & Description \\
+		\midrule
+		\texttt{00} & belt pos & belt pos & immediate & \texttt{store} & Store to memory \\
+
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0000} & \texttt{add} & Add \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0001} & \texttt{mul} & Multiply \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0010} & \texttt{and} & Bitwise and \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0011} & \texttt{or} & Bitwise or \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0100} & \texttt{xor} & Bitwise exclusive or \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0101} & \texttt{lshift} & Left shift \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0110} & \texttt{rshift} & Logical right shift \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0111} & \texttt{arshift} & Arithmetic right shift \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1000} & \texttt{addc} & Add carry \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1001} & \texttt{sub} & Subtract \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1010} & \texttt{subc} & Subtract carry \\
+		\texttt{01} & & & \texttt{0000 1011} & INVALID & \\
+		            & & & \(\vdots\)         &         & \\
+		\texttt{01} & & & \texttt{1111 1110} & INVALID & \\
+		\texttt{01} & \texttt{000} & belt pos & \texttt{1111 1111} & \texttt{invert} & Bitwise inversion \\
+		\texttt{01} & \texttt{001} & belt pos & \texttt{1111 1111} & \texttt{negate} & Numeric negation \\
+		\texttt{01} & \texttt{010} & belt pos & \texttt{1111 1111} & \texttt{longcall} & Call function with address from belt \\
+		\texttt{01} & \texttt{011} & belt pos & \texttt{1111 1111} & \texttt{longjump} & Unconditional branch with address from belt \\
+		\texttt{01} & \texttt{100} & belt pos & \texttt{1111 1111} & \texttt{get\_carry} & Retrieve carry metadata \\
+		\texttt{01} & \texttt{101} & & \texttt{1111 1111} & INVALID & \\
+		\texttt{01} & \texttt{110} & & \texttt{1111 1111} & INVALID & \\
+		\texttt{01} & \texttt{111} & \texttt{000} & \texttt{1111 1111} & \texttt{halt} & Halt the computer \\
+		\texttt{01} & \texttt{111} & \texttt{001} & \texttt{1111 1111} & \texttt{nop} & No operation \\
+		\texttt{01} & \texttt{111} & \texttt{010} & \texttt{1111 1111} & \texttt{return} & Return from function \\
+		\texttt{01} & \texttt{111} & \texttt{011} & \texttt{1111 1111} & \texttt{get\_pc} & Retrieve the current program counter \\
+		\texttt{01} & \texttt{111} & \texttt{100} & \texttt{1111 1111} & INVALID & \\
+		            &              & \(\vdots\)   &                    &         & \\
+		\texttt{01} & \texttt{111} & \texttt{111} & \texttt{1111 1111} & INVALID & \\
+
+		\texttt{10} & \texttt{000} & belt pos & immediate & \texttt{addi} & Add with immediate \\
+		\texttt{10} & \texttt{001} & belt pos & immediate & \texttt{muli} & Multiply with immediate \\
+		\texttt{10} & \texttt{010} & belt pos & immediate & \texttt{andi} & Bitwise and with immediate \\
+		\texttt{10} & \texttt{011} & belt pos & immediate & \texttt{ori} & Bitwise or with immediate \\
+		\texttt{10} & \texttt{100} & belt pos & immediate & \texttt{xori} & Bitwise exclusive or with immediate \\
+		\texttt{10} & \texttt{101} & belt pos & immediate & \texttt{lshifti} & Left shift with immediate \\
+		\texttt{10} & \texttt{110} & belt pos & immediate & \texttt{rshifti} & Logical right shift with immediate \\
+		\texttt{10} & \texttt{111} & belt pos & immediate & \texttt{arshifti} & Arithmetic right shift with immediate \\
+
+		\texttt{11} & \texttt{000} & belt pos & immediate & \texttt{branch\_zero} & Branch if zero \\
+		\texttt{11} & \texttt{001} & belt pos & immediate & \texttt{branch\_neg} & Branch if negative \\
+		\texttt{11} & \texttt{010} & belt pos & immediate & \texttt{branch\_oflow} & Branch on overflow \\
+		\texttt{11} & \texttt{011} & belt pos & immediate & \texttt{branch\_carry} & Branch on carry \\
+		\texttt{11} & \texttt{100} & belt pos & immediate & \texttt{write\_stack} & Write to stack position \\
+		\texttt{11} & \texttt{101} & belt pos & immediate & \texttt{load} & Load from memory \\
+		\texttt{11} & \texttt{110} &  &  & INVALID & \\
+		\texttt{11} & \texttt{111} & \texttt{000} & immediate & \texttt{constant} & TODO \\
+		\texttt{11} & \texttt{111} & \texttt{001} & immediate & \texttt{upper} & TODO \\
+		\texttt{11} & \texttt{111} & \texttt{010} & immediate & \texttt{call} & Call function \\
+		\texttt{11} & \texttt{111} & \texttt{011} & immediate & \texttt{jump} & Unconditional branch \\
+		\texttt{11} & \texttt{111} & \texttt{100} & immediate & \texttt{read\_stack} & Read from stack position \\
+		\texttt{11} & \texttt{111} & \texttt{101} & immediate & \texttt{alloca} & Allocate stack space \\
+		\texttt{11} & \texttt{111} & \texttt{110} & & INVALID & \\
+		\texttt{11} & \texttt{111} & \texttt{111} & & INVALID & \\
+	\end{longtable}
+% \end{landscape}
 
 \section{Memory Space}
-Information about the memory space, address size, bits-per-addressable-unit, width of the bus to memory (how many units get transfered per load/store)
-Our Address will be N bits and our data will be M bits.
-Each address will be able to access M bits from memory.
-We will be transfering a single item to and from memory with load and store\\
-We may just use that for push belt and pop belt, or we can allow memory to take up to 8*M bits at once to write
+	Information about the memory space, address size, bits-per-addressable-unit, width of the bus to memory (how many units get transfered per load/store)
+	Our Address will be N bits and our data will be M bits.
+	Each address will be able to access M bits from memory.
+	We will be transfering a single item to and from memory with load and store\\
+	We may just use that for push belt and pop belt, or we can allow memory to take up to 8*M bits at once to write
 
 \section{Program Visible Registers}
-Name and description of all the program visible registers\\
-We don't have any program visible registers? do we want to make the stack visible? 
+	Name and description of all the program visible registers\\
+	We don't have any program visible registers? do we want to make the stack visible? 
 
 
 
