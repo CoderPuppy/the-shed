@@ -1,29 +1,30 @@
-﻿Global,,,,,Belt,,,,,,imm,,,
-IF,SIZE,OPC,MNE,,IF,size,OPC,name,,,IF,size,OPC,name
-OBBI,16.00,11,Store,,OOBI,16,00 000,branch,,,OOBB,11,11 000,ALU BB
-,,00 -> belt,,,OOBI,16,00 001,load,,,OOBB,11,11 001,ALU BB
-,,01 -> belt,,,OOBI,16,00 010,ALU BI,,,OOBB,11,11 010,ALU BB
-,,11 -> imm,,,OOBI,16,00 011,ALU BI,,,OOBB,11,11 011,ALU BB
-,,,,,OOBI,16,00 100,ALU BI,,,OOBB,11,11 100,ALU BB
-,,,,,OOBI,16,00 101,ALU BI,,,,,,
-,,,,,OOBI,16,00 011,ALU BI,,,,,,
-,,,,,OOBI,16,00 100,writeStack,,,,,,
-,,,,,OOI,13,00 101,jump,,,,,,
-,,,,,OOI,13,00 110,call,,,,,,
-,,,,,OOI,13,00 111,const,,,,,,
-,,,,,OOI,13,01 000,readStack,,,,,,
-,,,,,OOI,13,01 001,alloca,,,,,,
-,,,,,OO,5,01 010,halt,,,,,,
-,,,,,OO,5,01 011,noop,,,,,,
-,,,,,OO,5,01 100,ret,,,,,,
-,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,
-opc1,1,,,,,,,,,,,,,
-opc2,4,,,,,,,,,,,,,
-belt,3,,,,,,,,,,,,,
-imm,8,,,,,,,,,,,,,
+﻿Global,,,,,Belt,,,,,,,,imm,,,,
+IF,SIZE,OPC,MNE,,IF,size,OPC,name,AM,code,,,IF,size,OPC,name,AM
+OBBI,16.00,10,Store,mem[b1] = b2,OOBI,16,00 000,branch if 0,code,if b0 == 0 then pc = pc + imm,,,OOBB,16,11 000,ALU BB +,b1 + imm
+,,00 -> belt,,,OOBI,16,00 001,load,data,mem[b0 + imm],,,OOBB,16,11 001,ALU BB -,b1 - imm
+,,01 -> belt,,,OOBI,16,00 010,ALU BI +,,b1 + b2,,,OOBB,16,11 010,ALU BB *,b1 * imm
+,,11 -> imm,,,OOBI,16,00 011,ALU BI -,,b1 - b2,,,OOBB,16,11 011,ALU BB &,b1 & imm
+,,,,,OOBI,16,00 100,ALU BI *,,b1 * b2,,,OOBB,16,11 100,ALU BB |,b1 | imm
+,,,,,OOBI,16,00 101,ALU BI &,,b1 & b2,,,,,,,
+,,,,,OOBI,16,00 011,ALU BI |,,b1 | b2,,,,,,,
+,,,,,OOBI,16,00 100,writeStack,,mem[fp +imm] = b1,,,,,,,
+,,,,,OOI,13,00 101,jump,code,pc = pc + imm,,,,,,,
+,,,,,OOI,13,00 110,call,code,,,,,,,,
+,,,,,OOI,13,00 111,const,,imm,,,,,,,
+,,,,,OOI,13,01 000,readStack,,mem[fp +imm],,,,,,,
+key,,,,,OOI,13,01 001,alloca,,sp = sp + imm,,,,,,,
+mem,memory,,,,OO,5,01 010,halt,,nop,,,,,,,
+sp,stack pointer,,,,OO,5,01 011,noop,,nop,,,,,,,
+pc,program counter,,,,OO,5,01 100,ret,,,,,,,,,
+b1,belt[belt arg 1],,,,,,,,,,,,,,,,
+b2,belt[belt arg 2],,,,,,,,,,,,,,,,
+imm,immediate arg,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+opc1,2,,,,,,,,,,,,,,,,
+opc2,3,,,,,,,,,,,,,,,,
+belt,3,,,,,,,,,,,,,,,,
+opc3,8,,,,,,,,,,,,,,,,
+imm,8,,,,,,,,,,,,,,,,
