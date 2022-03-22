@@ -20,3 +20,58 @@
 		TODO: elaborate
 
 	assembler
+
+2022-03-21: ISA
+	code_addr ::= PC + sign_ext(imm)
+	stack_addr ::= FP + imm
+	data_addr ::= belt + sign_ext(imm)
+
+	0 belt, 0 imm - 4 instrs
+		halt
+		nop
+		return
+		get_pc - lat1
+	0 belt, 1 imm - 6 instrs
+		constant sign_ext(imm) - lat1
+		upper imm - lat1
+		jump code_addr
+		call code_addr
+		read_stack stack_addr - lat1
+		alloca imm
+	1 belt, 0 imm - 5 instrs
+		invert belt - lat1
+		negate belt - lat1
+		longcall belt
+		longjump belt
+		get_carry belt - lat1
+	1 belt, 1 imm - 15 instrs
+		addi belt, sign_ext(imm) - lat1
+		muli belt, sign_ext(imm) - lat5?
+		andi belt, sign_ext(imm) - lat1
+		ori belt, imm - lat1
+		xori belt, imm - lat1
+		lshifti belt, imm - lat1
+		rshifti belt, imm - lat1
+		arshifti belt, imm - lat1
+		branch_zero belt, code_addr
+		branch_neg belt, code_addr
+		branch_ofl belt, code_addr
+		branch_car belt, code_addr
+		write_stack belt, stack_addr
+		load data_addr - lat1
+	2 belt, 0 imm - 11 instrs
+		add belt, belt - lat1
+		addc belt, belt - lat1
+		sub belt, belt - lat1
+		subc belt, belt - lat1
+		mul belt, belt - lat5?
+		and belt, belt - lat1
+		or belt, belt - lat1
+		xor belt, belt - lat1
+		lshift belt, belt - lat1
+		rshift belt, belt - lat1
+		arshift belt, belt - lat1
+	2 belt, 1 imm - 1 instr
+		store belt, data_addr
+
+	signed or unsigned multiply?
