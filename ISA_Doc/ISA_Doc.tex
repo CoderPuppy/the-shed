@@ -130,142 +130,141 @@
 \clearpage
 \begin{landscape}
 \section{Instruction List}
-	A list of all the instructions in your system, including opcode, the mnemonic, a description, and any information about encoding
 
-	% \begin{tabular}{l l l l l l}
-	% 	Instruction   & Opcode & Mnemonic & Description                                                             & Encoding        & Expected Cycles \\
-	% 	\midrule
-	% 	\multicolumn{5}{l}{\bfseries Misc} \\
-	% 	Halt          & 0000   & HLT      & Halt the machine                                                        &                 & 1               \\
-	% 	No op         & 0001   & NOP      & No operation                                                            &                 & 1               \\
-	% 	\multicolumn{5}{l}{\bfseries ALU}                                                                                                       &                 \\
-	% 	Add           & 0010   & ADD      & Add items at position a and b and add the result to belt                &                 & 1               \\
-	% 	Subtract      & 0011   & SUB      & Subtract items at position a and b and add result to the belt           &                 & 1               \\
-	% 	Multiply      & 0100   & MUL      & Multiple items at position a and b and add high and low values to belt  &                 & 5? idk          \\
-	% 	\multicolumn{5}{l}{Memory}                                                                                                    &                 \\
-	% 	Load          & 0110   & LDB      & Load from memory using address mode and put result onto belt            &                 & 8-16?           \\
-	% 	Store         & 0111   & STB      & Store from position a and store into memory using address mode          &                 & 8-16?           \\
-	% 	\multicolumn{5}{l}{Belt}                                                                                                      &                 \\
-	% 	Push item     & 1001   & PUSH     & push the entire belt onto the stack                                     &                 &                 \\
-	% 	Pop item      & 1010   & POP      & pop the entire belt onto the stack                                      &                 &                 \\
-	% 	Load imm      &        & LOADI    & push immidiate value onto the belt                                      &                 &                 \\
-	% 	\multicolumn{5}{l}{Control Flow}                                                                                              &                 \\
-	% 	Branch if 0   & 1011   & BEZ      &                                                                         &                 &                 \\
-	% 	jump 
-	% 	Function Call & 1100   & CALL     & execute function using address mode, params are the belt                &                 &                 \\
-	% 	Return        & 1101   & RET      & return from function, push a, b, c from old belt onto new belt          &                 &                 \\
-	% 	% jump
-	% 	              & 1110   &          &                                                                         &                 &                 \\
-	% 	              & 1111   &          &                                                                         &                 &                
-	% \end{tabular}
-
-	\begin{longtable}{c c c c l l r l}
-		Field 1 & Field 2 & Field 3 & Field 4 & Mnemonic & Description & Latency & RTL \\
+	\begin{longtable}{c c c c l l c l}
+		\multicolumn{1}{c}{Field 1} &
+		\multicolumn{1}{c}{Field 2} &
+		\multicolumn{1}{c}{Field 3} &
+		\multicolumn{1}{c}{Field 4} &
+		\multicolumn{1}{c}{Mnemonic} &
+		\multicolumn{1}{c}{Description} &
+		\multicolumn{1}{c}{Latency} &
+		\multicolumn{1}{c}{RTL} \\
 		\midrule
-		\texttt{00} & belt pos & belt pos & immediate & \texttt{store} & Store to memory \\
+		\texttt{00} & belt pos & belt pos & immediate & \texttt{store} & Store to memory & N/A &
+			\(\textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right] \gets B_2\) \\
 
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0000} & \texttt{add}     & Add                    & 1 & \(
-			\textrm{Belt} \gets B_1 + B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0001} & \texttt{mul}     & Multiply               & 5 & \(
-			\begin{array}{l}
-				\textrm{Belt} \gets \left(B_1 \cdot B_2\right) << 16, \\
-				\textrm{Belt} \gets B_1 \cdot B_2
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0000} & \texttt{add}     & Add                    & 1 &
+			\(\textrm{Belt} \gets B_1 + B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0001} & \texttt{mul}     & Unsigned Multiply      & 5 &
+			\(\begin{array}{l}
+				\textrm{Belt} \gets \left(B_1 * B_2\right) << 16, \\
+				\textrm{Belt} \gets B_1 * B_2
 			\end{array}\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0010} & \texttt{and}     & Bitwise and            & 1 & \(
-			\textrm{Belt} \gets B_1 \mathop{\&} B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0011} & \texttt{or}      & Bitwise or             & 1 & \(
-			\textrm{Belt} \gets B_1 \mathop{|} B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0100} & \texttt{xor}     & Bitwise exclusive or   & 1 & \(
-			\textrm{Belt} \gets B_1 \oplus B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0101} & \texttt{lshift}  & Left shift             & 1 & \(
-			\textrm{Belt} \gets B_1 << B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0110} & \texttt{rshift}  & Logical right shift    & 1 & \(
-			\textrm{Belt} \gets B_1 >> B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0111} & \texttt{arshift} & Arithmetic right shift & 1 & \(
-			\textrm{Belt} \gets B_1 >>_a B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 1000} & \texttt{addc}    & Add carry              & 1 & \(
-			\textrm{Belt} \gets B_1 + \operatorname{carry}\left(B_2\right)\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 1001} & \texttt{sub}     & Subtract               & 1 & \(
-			\textrm{Belt} \gets B_1 - B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 1010} & \texttt{subc}    & Subtract carry         & 1 & \(
-			\textrm{Belt} \gets \overline{B_1} + \operatorname{carry}\left(B_2\right)\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0010} & \texttt{and}     & Bitwise and            & 1 &
+			\(\textrm{Belt} \gets B_1 \mathop{\&} B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0011} & \texttt{or}      & Bitwise or             & 1 &
+			\(\textrm{Belt} \gets B_1 \mathop{|} B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0100} & \texttt{xor}     & Bitwise exclusive or   & 1 &
+			\(\textrm{Belt} \gets B_1 \oplus B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0101} & \texttt{lshift}  & Left shift             & 1 &
+			\(\textrm{Belt} \gets B_1 << B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0110} & \texttt{rshift}  & Logical right shift    & 1 &
+			\(\textrm{Belt} \gets B_1 >> B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0111} & \texttt{arshift} & Arithmetic right shift & 1 &
+			\(\textrm{Belt} \gets B_1 >>_a B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1000} & \texttt{addc}    & Add carry              & 1 &
+			\(\textrm{Belt} \gets B_1 + \operatorname{carry}\left(B_2\right)\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1001} & \texttt{sub}     & Subtract               & 1 &
+			\(\textrm{Belt} \gets B_1 - B_2\) \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1010} & \texttt{subc}    & Subtract carry         & 1 &
+			\(\textrm{Belt} \gets \overline{B_1} + \operatorname{carry}\left(B_2\right)\) \\
 		\texttt{01} & & & \texttt{0000 1011} & INVALID & & \\
 								& & & \(\vdots\)         &         & & \\
 		\texttt{01} & & & \texttt{1111 1110} & INVALID & & \\
-		\texttt{01} & belt pos & \texttt{000} & \texttt{1111 1111} & \texttt{invert}     & Bitwise inversion              & 1   & \(
-			\textrm{Belt} \gets \overline{B_1}\) \\
-		\texttt{01} & belt pos & \texttt{001} & \texttt{1111 1111} & \texttt{negate}     & Numeric negation               & 1   & \(
-			\textrm{Belt} \gets -B_1\) \\
-		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call function from belt        & N/A & \(
-			\begin{array}{l}
+		\texttt{01} & belt pos & \texttt{000} & \texttt{1111 1111} & \texttt{invert}     & Bitwise inversion              & 1   &
+			\(\textrm{Belt} \gets \overline{B_1}\) \\
+		\texttt{01} & belt pos & \texttt{001} & \texttt{1111 1111} & \texttt{negate}     & Numeric negation               & 1   &
+			\(\textrm{Belt} \gets -B_1\) \\
+		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call function from belt        & N/A &
+			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
 				\textrm{PC} \gets B_1, \\
 				\textrm{FP} \gets \textrm{SP} + 2 \\
 			\end{array}\) \\
-		\texttt{01} & belt pos & \texttt{011} & \texttt{1111 1111} & \texttt{longjump}   & Unconditional branch from belt & N/A & \(
-			\textrm{PC} \gets B_1\) \\
-		\texttt{01} & belt pos & \texttt{100} & \texttt{1111 1111} & \texttt{get\_carry} & Retrieve carry metadata        & 1   & \(
-			\textrm{Belt} \gets \operatorname{carry}\left(B_1\right)\) \\
+		\texttt{01} & belt pos & \texttt{011} & \texttt{1111 1111} & \texttt{longjump}   & Unconditional branch from belt & N/A &
+			\(\textrm{PC} \gets B_1\) \\
+		\texttt{01} & belt pos & \texttt{100} & \texttt{1111 1111} & \texttt{get\_carry} & Retrieve carry metadata        & 1   &
+			\(\textrm{Belt} \gets \operatorname{carry}\left(B_1\right)\) \\
 		\texttt{01} & & \texttt{101} & \texttt{1111 1111} & INVALID & \\
 		\texttt{01} & & \texttt{110} & \texttt{1111 1111} & INVALID & \\
-		\texttt{01} & \texttt{000} & \texttt{111} & \texttt{1111 1111} & \texttt{halt}    & Halt the computer                    & N/A & HALT \\
-		\texttt{01} & \texttt{001} & \texttt{111} & \texttt{1111 1111} & \texttt{nop}     & No operation                         & N/A & \\
-		\texttt{01} & \texttt{010} & \texttt{111} & \texttt{1111 1111} & \texttt{return}  & Return from function                 & N/A & \(
-			\begin{array}{l}
+		\texttt{01} & \texttt{000} & \texttt{111} & \texttt{1111 1111} & \texttt{halt}    & Halt the computer       & N/A & HALT \\
+		\texttt{01} & \texttt{001} & \texttt{111} & \texttt{1111 1111} & \texttt{nop}     & No operation            & N/A & \\
+		\texttt{01} & \texttt{010} & \texttt{111} & \texttt{1111 1111} & \texttt{return}  & Return from function    & N/A &
+			\(\begin{array}{l}
 				\textrm{PC} \gets \textrm{Mem}\left[\textrm{FP} - 1\right], \\
 				\textrm{FP} \gets \textrm{Mem}\left[\textrm{FP} - 2\right], \\
 				\textrm{SP} \gets \textrm{FP} - 2 \\
 			\end{array}\) \\
-		\texttt{01} & \texttt{011} & \texttt{111} & \texttt{1111 1111} & \texttt{get\_pc} & Retrieve the current program counter & 1   & \(
-			\textrm{Belt} \gets \textrm{PC}\) \\
+		\texttt{01} & \texttt{011} & \texttt{111} & \texttt{1111 1111} & \texttt{get\_pc} & Retrieve the current PC & 1   &
+			\(\textrm{Belt} \gets \textrm{PC}\) \\
 		\texttt{01} & \texttt{100} & \texttt{111} & \texttt{1111 1111} & INVALID & \\
 		            & \(\vdots\)   &              &                    &         & \\
 		\texttt{01} & \texttt{111} & \texttt{111} & \texttt{1111 1111} & INVALID & \\
 
-		\texttt{10} & belt pos & \texttt{000} & immediate & \texttt{addi}     & Add with immediate                    & 1 & \(
-			\textrm{Belt} \gets B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{10} & belt pos & \texttt{001} & immediate & \texttt{muli}     & Multiply with immediate               & 5 & \(
-			\textrm{Belt} \gets B_1 \cdot \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{10} & belt pos & \texttt{010} & immediate & \texttt{andi}     & Bitwise and with immediate            & 1 & \(
-			\textrm{Belt} \gets B_1 \mathop{\&} \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{10} & belt pos & \texttt{011} & immediate & \texttt{ori}      & Bitwise or with immediate             & 1 & \(
-			\textrm{Belt} \gets B_1 \mathop{|} \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{100} & immediate & \texttt{xori}     & Bitwise exclusive or with immediate   & 1 & \(
-			\textrm{Belt} \gets B_1 \oplus \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{101} & immediate & \texttt{lshifti}  & Left shift with immediate             & 1 & \(
-			\textrm{Belt} \gets B_1 << \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{110} & immediate & \texttt{rshifti}  & Logical right shift with immediate    & 1 & \(
-			\textrm{Belt} \gets B_1 >> \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{111} & immediate & \texttt{arshifti} & Arithmetic right shift with immediate & 1 & \(
-			\textrm{Belt} \gets B_1 >>_a \textrm{Imm}\) \\
+		\texttt{10} & belt pos & \texttt{000} & immediate & \texttt{addi}     & Add with immediate                    & 1 &
+			\(\textrm{Belt} \gets B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
+		\texttt{10} & belt pos & \texttt{001} & immediate & \texttt{muli}     & Unsigned multiply with immediate      & 5 &
+			\(\begin{array}{l}
+				\textrm{Belt} \gets \left(B_1 * \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right) << 16, \\
+				\textrm{Belt} \gets B_1 * \operatorname{sign\_ext}\left(\textrm{Imm}\right)
+			\end{array}\) \\
+		\texttt{10} & belt pos & \texttt{010} & immediate & \texttt{andi}     & Bitwise and with immediate            & 1 &
+			\(\textrm{Belt} \gets B_1 \mathop{\&} \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
+		\texttt{10} & belt pos & \texttt{011} & immediate & \texttt{ori}      & Bitwise or with immediate             & 1 &
+			\(\textrm{Belt} \gets B_1 \mathop{|} \textrm{Imm}\) \\
+		\texttt{10} & belt pos & \texttt{100} & immediate & \texttt{xori}     & Bitwise exclusive or with immediate   & 1 &
+			\(\textrm{Belt} \gets B_1 \oplus \textrm{Imm}\) \\
+		\texttt{10} & belt pos & \texttt{101} & immediate & \texttt{lshifti}  & Left shift with immediate             & 1 &
+			\(\textrm{Belt} \gets B_1 << \textrm{Imm}\) \\
+		\texttt{10} & belt pos & \texttt{110} & immediate & \texttt{rshifti}  & Logical right shift with immediate    & 1 &
+			\(\textrm{Belt} \gets B_1 >> \textrm{Imm}\) \\
+		\texttt{10} & belt pos & \texttt{111} & immediate & \texttt{arshifti} & Arithmetic right shift with immediate & 1 &
+			\(\textrm{Belt} \gets B_1 >>_a \textrm{Imm}\) \\
 
-		\texttt{11} & belt pos & \texttt{000} & immediate & \texttt{branch\_zero}  & Branch if zero          & N/A & TODO \\
-		\texttt{11} & belt pos & \texttt{001} & immediate & \texttt{branch\_neg}   & Branch if negative      & N/A & TODO \\
-		\texttt{11} & belt pos & \texttt{010} & immediate & \texttt{branch\_oflow} & Branch on overflow      & N/A & TODO \\
-		\texttt{11} & belt pos & \texttt{011} & immediate & \texttt{branch\_carry} & Branch on carry         & N/A & TODO \\
-		\texttt{11} & belt pos & \texttt{100} & immediate & \texttt{write\_stack}  & Write to stack position & N/A & \(
-			\textrm{Mem}\left[\textrm{FP} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right] \gets B_1\) \\
-		\texttt{11} & belt pos & \texttt{101} & immediate & \texttt{load}          & Load from memory        & 1   & \(
-			\textrm{Belt} \gets \textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right]\) \\
+		\texttt{11} & belt pos & \texttt{000} & immediate & \texttt{branch\_zero}  & Branch if zero          & N/A &
+			\(\begin{array}{l}
+				\textrm{If } B_1 = 0 \textrm{,} \\
+				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
+			\end{array}\) \\
+		\texttt{11} & belt pos & \texttt{001} & immediate & \texttt{branch\_neg}   & Branch if negative      & N/A &
+			\(\begin{array}{l}
+				\textrm{If } B_1\left[15\right] = 1 \textrm{,} \\
+				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
+			\end{array}\) \\
+		\texttt{11} & belt pos & \texttt{010} & immediate & \texttt{branch\_oflow} & Branch on overflow      & N/A &
+			\(\begin{array}{l}
+				\textrm{If } \operatorname{overflow}\left(B_1\right) = 1 \textrm{,} \\
+				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
+			\end{array}\) \\
+		\texttt{11} & belt pos & \texttt{011} & immediate & \texttt{branch\_carry} & Branch on carry         & N/A &
+			\(\begin{array}{l}
+				\textrm{If } \operatorname{carry}\left(B_1\right) = 1 \textrm{,} \\
+				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
+			\end{array}\) \\
+		\texttt{11} & belt pos & \texttt{100} & immediate & \texttt{write\_stack}  & Write to stack position & N/A &
+			\(\textrm{Mem}\left[\textrm{FP} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right] \gets B_1\) \\
+		\texttt{11} & belt pos & \texttt{101} & immediate & \texttt{load}          & Load from memory        & 1   &
+			\(\textrm{Belt} \gets \textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right]\) \\
 		\texttt{11} & & \texttt{110} & & INVALID & \\
-		\texttt{11} & \texttt{000} & \texttt{111} & immediate & \texttt{constant}    & Load immediate           & 1   & \(
-			\textrm{Belt} \gets \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{11} & \texttt{001} & \texttt{111} & immediate & \texttt{upper}       & Load upper immediate     & 1   & \(
-			\textrm{Belt} \gets \textrm{Imm} << 8\) \\
-		\texttt{11} & \texttt{010} & \texttt{111} & immediate & \texttt{call}        & Call function            & N/A & \(
-			\begin{array}{l}
+		\texttt{11} & \texttt{000} & \texttt{111} & immediate & \texttt{constant}    & Load immediate           & 1   &
+			\(\textrm{Belt} \gets \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
+		\texttt{11} & \texttt{001} & \texttt{111} & immediate & \texttt{upper}       & Load upper immediate     & 1   &
+			\(\textrm{Belt} \gets \textrm{Imm} << 8\) \\
+		\texttt{11} & \texttt{010} & \texttt{111} & immediate & \texttt{call}        & Call function            & N/A &
+			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
 				\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right), \\
 				\textrm{FP} \gets \textrm{SP} + 2 \\
 			\end{array}\) \\
-		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Unconditional branch     & N/A & \(
-			\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{read\_stack} & Read from stack position & 1   & \(
-			\textrm{Belt} \gets \textrm{Mem}\left[\textrm{FP} + \textrm{Imm}\right]\) \\
-		\texttt{11} & \texttt{101} & \texttt{111} & immediate & \texttt{alloca}      & Allocate stack space     & N/A & \(
-			\textrm{SP} \gets \textrm{SP} + \textrm{Imm}\) \\
+		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Unconditional branch     & N/A &
+			\(\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
+		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{read\_stack} & Read from stack position & 1   &
+			\(\textrm{Belt} \gets \textrm{Mem}\left[\textrm{FP} + \textrm{Imm}\right]\) \\
+		\texttt{11} & \texttt{101} & \texttt{111} & immediate & \texttt{alloca}      & Allocate stack space     & N/A &
+			\(\textrm{SP} \gets \textrm{SP} + \textrm{Imm}\) \\
 		\texttt{11} & \texttt{110} & \texttt{111} & & INVALID & \\
 		\texttt{11} & \texttt{111} & \texttt{111} & & INVALID & \\
 	\end{longtable}
