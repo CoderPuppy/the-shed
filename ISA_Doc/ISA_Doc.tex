@@ -27,6 +27,8 @@
 \usepackage{booktabs}
 \usepackage{lscape}
 \usepackage{longtable}
+\usepackage{bytefield}
+\usepackage{array}
 \usepackage{hyperref}
 
 \setlength\parindent{0pt}
@@ -64,68 +66,49 @@
 \pagebreak
 
 \section{Instruction Format}
-	Instruction format, with a complete description of how the instructions will be encoded.
 
-	We will have a fixed length instruction format. Each instruction will be 16 bits.
-	We will have several instruction formats
-	We will have multiple tables to look up the opcode so there are multiple opcode sections in our instruction formats.\\
-	O = opcode(2 or 3 bits)\\
-	B = belt position (3 bits)\\
-	I = immediate value (8 bits)\\
-	\begin{itemize}
-		\item OBBI
-		\item OOBI
-		\item OOI
-		\item OO
-		\item OOBB
-	\end{itemize}
+	Our instructions will be a 16-bits each, no variable-length instructions.
+	To handle different configurations of operands, we will have 6 different instruction formats.
+	Instructions take 0, 1 or 2 belt positions and 0 or 1 immediates.
 
+	The instruction is split into 4 fields of sizes 2-bits, 3-bits, 3-bits and 4-bits respectively.
+	Each field has a designated purpose, but may be used for opcode space if its purpose is unnecessary for a set of instructions.
 
+	\vspace{5mm}
 
-	We will have several instruction formats,\\
-	0 operand: halt, nop, return                            (0 belt, 0 imm)\\
-	0 belt, 1 imm, 0 DAM, 0 CAM: const, readStack, alloca   (0 belt, 1 imm) *\\
-	2 belt, 0 imm, 0 DAM, 0 CAM: ALU,                       (2 belt, 0 imm) *\\
-	1 belt, 1 imm, 0 DAM, 0 CAM: ALU, writeStack            (1 belt, 1 imm) *\\
-	0 belt, 0 imm, 1 DAM, 0 CAM: load                       (1 belt, 1 imm) *\\
-	1 belt, 0 imm, 1 DAM, 0 CAM: store                      (2 belt, 1 imm) * \\
-	1 belt, 0 imm, 0 DAM, 1 CAM: branch                     (1 belt, 1 imm) * \\
-	0 belt, 0 imm, 0 DAM, 1 CAM: jump, call                 (0 belt, 1 imm) * 
-
-	not every instruction follows this pattern. when the instruction format requires data that is not needed in the instruction. the extra data is ignored.
-
-	% belt = 3 bits
-	% opc = 4 bits
-	% imm = 8 bits
-	% |2  +  3 +  3 |   | 8|
-	% |opc belt belt| |imm|
-
-	% (0 belt, 0 imm) = 0 bits
-	% (0 belt, 1 imm) = 16 bits
-	% (2 belt, 0 imm) = 6 bits
-	% (1 belt, 1 imm) = 19 bits
-	% (2 belt, 1 imm) = 22 bits
+	\begin{bytefield}[endianness=big,bitwidth=3em,bitheight=6ex]{16}
+		\bitheader[bitformatting={}]{0,7,8,10,11,13,14,15} \\
+		\bitbox{2}{Field 1 \\ Opcode} &
+		\bitbox{3}{Field 2 \\ Belt Position (\(B_1\))} &
+		\bitbox{3}{Field 3 \\ Belt Position (\(B_2\))} &
+		\bitbox{8}{Field 4 \\ Immediate (\(\textrm{Imm}\))} \\
+	\end{bytefield}
 
 
+\section{Address Modes}
 
-	\subsection{Overview}
-		We will have a fixed length instruction format.
+	We have 4 address modes:
+	\begin{description}[font=\sffamily\bfseries]
+		\item[data] \(\textrm{Addr} = B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\)
 
-	\subsection{opcode}
-		We will have 3 tables to lookup the instruction for an opcode.
-		The first table will have the store instruction and information on where to look for the next piece of the opcode.
-		The next piece can either be put in the spot for the immediate value, or a belt index.
+			Used by \texttt{load} and \texttt{store}.
 
+		\item[stack] \(\textrm{Addr} = \textrm{FP} + \textrm{Imm}\)
 
-	\subsection{Address Modes}
-		Description of all address modes supported, complete with how the address modes will be encoded
+			Used by \texttt{read\_stack} and \texttt{write\_stack}.
 
-		2 address modes:
-		\begin{itemize}
-			\item data address mode: belt + imm
-			\item code address mode: pc + imm
-		\end{itemize}
-		the data address mode is used for any instruction that uses data addresses (load, store), and the code address mode is used for any instruction that uses code addresses(branch, jump, call)
+		\item[code] \(\textrm{Addr} = \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\)
+
+			Used by \texttt{jump}, \texttt{call}, \texttt{branch\_zero}, \texttt{branch\_neg}, \texttt{branch\_oflow} and \texttt{branch\_carry}.
+
+		\item[long code] \(\textrm{Addr} = B_1\)
+
+			Used by \texttt{longjump} and \texttt{longcall}.
+
+	\end{description}
+
+	Which address mode is used is intrinsic to each opcode, for example \texttt{store} always uses the data address mode.
+	There are some instructions which are the same except for the address mode (\texttt{write\_stack} is \texttt{store} with the stack address mode), but we don't have room for the address mode selection to be a separate field.
 
 \clearpage
 \begin{landscape}
@@ -141,7 +124,7 @@
 		\multicolumn{1}{c}{Latency} &
 		\multicolumn{1}{c}{RTL} \\
 		\midrule
-		\texttt{00} & belt pos & belt pos & immediate & \texttt{store} & Store to memory & N/A &
+		\texttt{00} & belt pos & belt pos & immediate & \texttt{store} & Store to data address mode & N/A &
 			\(\textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right] \gets B_2\) \\
 
 		\texttt{01} & belt pos & belt pos & \texttt{0000 0000} & \texttt{add}     & Add                    & 1 &
@@ -176,14 +159,14 @@
 			\(\textrm{Belt} \gets \overline{B_1}\) \\
 		\texttt{01} & belt pos & \texttt{001} & \texttt{1111 1111} & \texttt{negate}     & Numeric negation               & 1   &
 			\(\textrm{Belt} \gets -B_1\) \\
-		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call function from belt        & N/A &
+		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call to long code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
 				\textrm{PC} \gets B_1, \\
 				\textrm{FP} \gets \textrm{SP} + 2 \\
 			\end{array}\) \\
-		\texttt{01} & belt pos & \texttt{011} & \texttt{1111 1111} & \texttt{longjump}   & Unconditional branch from belt & N/A &
+		\texttt{01} & belt pos & \texttt{011} & \texttt{1111 1111} & \texttt{longjump}   & Jump to long code address mode & N/A &
 			\(\textrm{PC} \gets B_1\) \\
 		\texttt{01} & belt pos & \texttt{100} & \texttt{1111 1111} & \texttt{get\_carry} & Retrieve carry metadata        & 1   &
 			\(\textrm{Belt} \gets \operatorname{carry}\left(B_1\right)\) \\
@@ -223,22 +206,22 @@
 		\texttt{10} & belt pos & \texttt{111} & immediate & \texttt{arshifti} & Arithmetic right shift with immediate & 1 &
 			\(\textrm{Belt} \gets B_1 >>_a \textrm{Imm}\) \\
 
-		\texttt{11} & belt pos & \texttt{000} & immediate & \texttt{branch\_zero}  & Branch if zero          & N/A &
+		\texttt{11} & belt pos & \texttt{000} & immediate & \texttt{branch\_zero}  & Branch if zero to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{If } B_1 = 0 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{001} & immediate & \texttt{branch\_neg}   & Branch if negative      & N/A &
+		\texttt{11} & belt pos & \texttt{001} & immediate & \texttt{branch\_neg}   & Branch if negative to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{If } B_1\left[15\right] = 1 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{010} & immediate & \texttt{branch\_oflow} & Branch on overflow      & N/A &
+		\texttt{11} & belt pos & \texttt{010} & immediate & \texttt{branch\_oflow} & Branch on overflow to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{If } \operatorname{overflow}\left(B_1\right) = 1 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{011} & immediate & \texttt{branch\_carry} & Branch on carry         & N/A &
+		\texttt{11} & belt pos & \texttt{011} & immediate & \texttt{branch\_carry} & Branch on carry to code address mode    & N/A &
 			\(\begin{array}{l}
 				\textrm{If } \operatorname{carry}\left(B_1\right) = 1 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
@@ -248,22 +231,22 @@
 		\texttt{11} & belt pos & \texttt{101} & immediate & \texttt{load}          & Load from memory        & 1   &
 			\(\textrm{Belt} \gets \textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right]\) \\
 		\texttt{11} & & \texttt{110} & & INVALID & \\
-		\texttt{11} & \texttt{000} & \texttt{111} & immediate & \texttt{constant}    & Load immediate           & 1   &
+		\texttt{11} & \texttt{000} & \texttt{111} & immediate & \texttt{constant}    & Load immediate            & 1   &
 			\(\textrm{Belt} \gets \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{11} & \texttt{001} & \texttt{111} & immediate & \texttt{upper}       & Load upper immediate     & 1   &
+		\texttt{11} & \texttt{001} & \texttt{111} & immediate & \texttt{upper}       & Load upper immediate      & 1   &
 			\(\textrm{Belt} \gets \textrm{Imm} << 8\) \\
-		\texttt{11} & \texttt{010} & \texttt{111} & immediate & \texttt{call}        & Call function            & N/A &
+		\texttt{11} & \texttt{010} & \texttt{111} & immediate & \texttt{call}        & Call to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
 				\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right), \\
 				\textrm{FP} \gets \textrm{SP} + 2 \\
 			\end{array}\) \\
-		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Unconditional branch     & N/A &
+		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Jump to code address mode & N/A &
 			\(\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{read\_stack} & Read from stack position & 1   &
+		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{read\_stack} & Read from stack position  & 1   &
 			\(\textrm{Belt} \gets \textrm{Mem}\left[\textrm{FP} + \textrm{Imm}\right]\) \\
-		\texttt{11} & \texttt{101} & \texttt{111} & immediate & \texttt{alloca}      & Allocate stack space     & N/A &
+		\texttt{11} & \texttt{101} & \texttt{111} & immediate & \texttt{alloca}      & Allocate stack space      & N/A &
 			\(\textrm{SP} \gets \textrm{SP} + \textrm{Imm}\) \\
 		\texttt{11} & \texttt{110} & \texttt{111} & & INVALID & \\
 		\texttt{11} & \texttt{111} & \texttt{111} & & INVALID & \\
@@ -279,7 +262,7 @@
 
 \section{Program Visible Registers}
 	Name and description of all the program visible registers\\
-	We don't have any program visible registers? do we want to make the stack visible? 
+	We don't have any program visible registers? do we want to make the stack visible?
 
 
 
