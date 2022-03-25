@@ -110,6 +110,11 @@
 	Which address mode is used is intrinsic to each opcode, for example \texttt{store} always uses the data address mode.
 	There are some instructions which are the same except for the address mode (\texttt{write\_stack} is \texttt{store} with the stack address mode), but we don't have room for the address mode selection to be a separate field.
 
+\section{Scheduling}
+	Each of our instructions are statically scheduled. 
+	Each instruction has a specified latency between when the instruction is issued and when the result is visible to the program.
+	Our instruction list has an estimated latency, these may change when we actually implement each instruction.
+
 \clearpage
 \begin{landscape}
 \section{Instruction List}
