@@ -164,7 +164,7 @@
 			\(\textrm{Belt} \gets \overline{B_1}\) \\
 		\texttt{01} & belt pos & \texttt{001} & \texttt{1111 1111} & \texttt{negate}     & Numeric negation               & 1   &
 			\(\textrm{Belt} \gets -B_1\) \\
-		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call to long code address mode & N/A &
+		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call to long code address mode & 2 &
 			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
@@ -179,7 +179,7 @@
 		\texttt{01} & & \texttt{110} & \texttt{1111 1111} & INVALID & \\
 		\texttt{01} & \texttt{000} & \texttt{111} & \texttt{1111 1111} & \texttt{halt}    & Halt the computer       & N/A & HALT \\
 		\texttt{01} & \texttt{001} & \texttt{111} & \texttt{1111 1111} & \texttt{nop}     & No operation            & N/A & \\
-		\texttt{01} & \texttt{010} & \texttt{111} & \texttt{1111 1111} & \texttt{return}  & Return from function    & N/A &
+		\texttt{01} & \texttt{010} & \texttt{111} & \texttt{1111 1111} & \texttt{return}  & Return from function    & 2 &
 			\(\begin{array}{l}
 				\textrm{PC} \gets \textrm{Mem}\left[\textrm{FP} - 1\right], \\
 				\textrm{FP} \gets \textrm{Mem}\left[\textrm{FP} - 2\right], \\
@@ -240,14 +240,14 @@
 			\(\textrm{Belt} \gets \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
 		\texttt{11} & \texttt{001} & \texttt{111} & immediate & \texttt{upper}       & Load upper immediate      & 1   &
 			\(\textrm{Belt} \gets \textrm{Imm} << 8\) \\
-		\texttt{11} & \texttt{010} & \texttt{111} & immediate & \texttt{call}        & Call to code address mode & N/A &
+		\texttt{11} & \texttt{010} & \texttt{111} & immediate & \texttt{call}        & Call to code address mode & 2 &
 			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
 				\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right), \\
 				\textrm{FP} \gets \textrm{SP} + 2 \\
 			\end{array}\) \\
-		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Jump to code address mode & N/A &
+		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Jump to code address mode & 2 &
 			\(\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
 		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{read\_stack} & Read from stack position  & 1   &
 			\(\textrm{Belt} \gets \textrm{Mem}\left[\textrm{FP} + \textrm{Imm}\right]\) \\
