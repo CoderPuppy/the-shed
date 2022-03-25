@@ -255,15 +255,36 @@
 
 \section{Memory Space}
 	Information about the memory space, address size, bits-per-addressable-unit, width of the bus to memory (how many units get transfered per load/store)
-	Our Address will be N bits and our data will be M bits.
-	Each address will be able to access M bits from memory.
-	We will be transfering a single item to and from memory with load and store\\
-	We may just use that for push belt and pop belt, or we can allow memory to take up to 8*M bits at once to write
+
+	We will split memory up into 3 sections. Code, stack, and heap.
+	This will allow us to enforce the separation of the different sections and will reduce hazards.
+
+	Each section will have an address size of 16 bits, and each piece of data will also be 16 bits.
+
+	\subsection*{Code}
+	The code section will only be accessible by fetch.
+	This means that self modifying code is not possible but we think that this is a reasonable tradeoff. 
+	Any instruction that uses the code or long code address modes will be addressing into the code section.
+
+	\subsection*{Stack}
+	The stack will only be directly accessible by read\_stack and write\_stack.
+	The alloca instruction will be used to allocate stack space and function calls and returns will use the stack to maintain the frame and stack pointers and return address.
+	We will enforce stack safety. If any instruction attempts to access stack space that it isn't supposed to be able to access, we will throw and error.
+	Any instruction that uses the stack address mode will be able to access the stack section. 
+
+	\subsection*{Heap}
+	The heap will be directly accessed by load and store.
+	Any instruction that uses the data address mode will be able ot access the heap section.
 
 \section{Program Visible Registers}
 	Name and description of all the program visible registers\\
-	We don't have any program visible registers? do we want to make the stack visible?
 
+	The general purpose registers will be represented as a belt. 
+	Each instruction implicitly puts the result of the operation at the beginning of the belt and shifts the rest of the values down.
+	Any value that overflows off the end of the belt is lost.
+
+	We will also have a stack pointer, frame pointer, program counter.
+	These registers aren't directly accessible, but they are visible through several instructions. 
 
 
 \end{document}
