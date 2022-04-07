@@ -75,3 +75,18 @@
 		store belt, data_addr
 
 	signed or unsigned multiply?
+
+2022-04-07
+	call1
+		SMem[FP + SS + 1] = PC + 2
+		PC = Addr
+	call2
+		SMem[FP + SS] = FP
+		FP = FP + SS + 1
+	
+	return1
+		FP = SMem[FP - 1]
+		PC = RA
+		SS = FP - FP
+	return2
+		RA = SMem[FP - 2]
