@@ -102,54 +102,149 @@
 		\begin{figure}[h]
 			\centering
 			\begin{tikzpicture}
-				\node[draw,rectangle,anchor=west,minimum width=10cm](belt) at (0, 4) {Belt};
+				\node[rectangle,minimum width=5cm,anchor=west] (fetch) at (0cm, 0cm) {};
+				\node[rectangle,minimum width=6cm,anchor=west] (execute1) at (fetch.east) {};
+				\node[rectangle,minimum width=8cm,anchor=west] (execute2) at (execute1.east) {};
 
-				\node[draw,rectangle,anchor=east,minimum width=3cm,minimum height=2.5cm](imem) at (-2, 2) {Instr Mem};
+				\draw [dashed] (fetch.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
+				\draw [dashed] (execute1.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
+				\draw [dashed] (execute2.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
+				\draw [dashed] (execute2.east |- {0cm, 5cm}) to[|] (0cm, -6cm);
+
+				\node[draw,rectangle,anchor=west,minimum width=15cm,fill=white] (belt) at (execute1.west |- {0cm, 5cm}) {Belt};
+
+				\node[draw,rectangle,anchor=east,minimum width=3cm,minimum height=2.5cm] (imem) at ($(fetch.east) + (-1cm, 3cm)$) {IMem};
 				\node[anchor=north east,inner sep=1mm] (imem data) at (imem.north east) {Data};
-				\node[anchor=south east,inner sep=1mm] (imem addr) at (imem.south east) {Addr};
+				\node[anchor=south east,inner sep=1mm,draw,rectangle] (imem addr) at (imem.south east) {MAR};
 
-				\node[draw,rectangle,anchor=west] (ir) at (0, 3) {IR};
-				\draw (imem data.east) to[->] (ir.west);
+				\node[draw,rectangle,anchor=center,fill=white] (ir x1) at (execute1.west |- imem data.east) {\shortstack{IR \\ \(X_1\)}};
+				\draw (imem data.east) [->] to (ir x1.west);
 
-				\node[draw,rectangle,anchor=north] (imm) at ($(ir.south) + (0, -0.2)$) {Imm};
-				\draw (ir.south) to[->] (imm.north);
+				\node[draw,rectangle,anchor=center,fill=white] (ir x2) at (execute2.west |- ir x1.center) {\shortstack{IR \\ \(X_2\)}};
 
-				\node[ALU,anchor=west] (alu1) at (3, 0) {ALU1};
+				\node[draw,rectangle,anchor=north west] (imm x1) at ($(ir x1.south east) + (0.2cm, -0.2cm)$) {Imm};
 
-				\node[draw,rectangle,anchor=east](fp) at ($(alu1.top left)!1/5!(alu1.inset top left) + (-1, 0)$) {FP};
-				\node[draw,rectangle,anchor=east](pc) at ($(alu1.top left)!4/5!(alu1.inset top left) + (-1, 0)$) {PC};
-				\node[draw,rectangle,anchor=east](ra) at ($(pc.west) + (-0.5, -0.1)$) {RA};
-				\node[draw,rectangle,anchor=east](rfp) at ($(fp.west) + (-0.5, 0)$) {RFP};
+				\node[draw,rectangle,anchor=center,fill=white] (addr) at ($(execute1.east) + (0cm, 0cm)$) {Addr};
 
-				\draw (pc.south) to +(0, -0.3) to[->, -|] (imem addr.south);
-				\draw (fp.east) to +(0.5, 0) to[->, |-] ($(alu1.top left)!1/5!(alu1.inset top left)$);
-				\draw (pc.east) to +(0.5, 0) to[->, |-] ($(alu1.top left)!4/5!(alu1.inset top left)$);
-				\draw (belt.south -| {$(alu1.left) + (-0.4, 0)$})
-					to[|] ($(fp.north) + (0, 0.5)$) to[crossing] +(0, -0.2)
-					to[|] ($(fp.north) + (0, 0.3)$) to[crossing] +(0, -0.2)
-					edge[->, |-] ($(alu1.top left)!2/5!(alu1.inset top left)$)
+				\node[ALU,anchor=east] (alu1) at ($(addr.west) + (-1cm, 0cm)$) {ALU1};
+
+				\node[draw,rectangle,anchor=center] (pc) at (imem addr |- {$(alu1.south) + (0cm, -0.2cm)$}) {PC};
+				\node[draw,rectangle,anchor=center,fill=white] (pc x1) at (execute1.west |- {$(alu1.top left)!4/5!(alu1.inset top left)$}) {\shortstack{PC \\ \(X_1\)}};
+
+				\node[draw,rectangle,anchor=east] (fp) at ($(alu1.top left)!1/5!(alu1.inset top left) + (-1cm, 0cm)$) {FP};
+
+				\node[draw,rectangle,anchor=south,fill=white] (data) at (execute2.west |- {$(fp.north) + (0cm, 0.7cm)$}) {Data};
+
+				\draw (ir x1.east)
+					to[--] (imm x1.north)
+					edge[->] (imm x1.north)
+					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(alu1.right) + (0.2cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(data.west) + (-0.4cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to (ir x2.west);
+				\draw (pc.north)
+					to[|] (pc x1)
+					edge[->] (pc x1.west)
+					[->] to (imem addr.south);
+				\draw (fp.east) 
+					to[--] ($(alu1.left) + (-0.8cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to ($(alu1.top left)!1/5!(alu1.inset top left)$);
+				\draw (pc x1.east)
+					to[--] ($(fp) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.8cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to ($(alu1.top left)!4/5!(alu1.inset top left)$);
+				\draw ($(alu1.top left)!2/5!(alu1.inset top left) + (-0.4cm, 0cm)$)
+					edge[|] (belt.south)
+					edge[->, --] (alu1.left)
 					edge[->, |-] ($(alu1.inset bottom left)!1/3!(alu1.bottom left)$);
-				\draw (imm.east) -- (imm.east -| {$(alu1.left) + (-0.7, 0)$})
-					to[|] ($(fp.north) + (0, 0.5)$) to[crossing] +(0, -0.2)
-					to[|] ($(fp.north) + (0, 0.3)$) to[crossing] +(0, -0.2)
-					edge[->, |-] ($(alu1.top left)!3/5!(alu1.inset top left)$)
+				\draw ($(alu1.top left)!3/5!(alu1.inset top left) + (-0.7cm, 0cm)$)
+					edge[|-] (imm x1.east)
+					edge[->, --] (alu1.left)
 					edge[->, |-] ($(alu1.inset bottom left)!2/3!(alu1.bottom left)$);
-				\draw (alu1.right) to +(0.3, 0)
+				\draw (alu1.right) to +(0.3cm, 0cm)
+					edge[->] (addr.west)
 					edge[->, |] (belt.south)
-					to[|-] ($(fp.north) + (0, 0.2)$) to[-|] ($(pc.north west) + (-0.3, 0)$)
-					to[->, |-] ($(pc.west)+(0,0.1)$);
+					to[|] ($(alu1.south) + (0cm, -0.2cm)$)
+					to[--] ($(fp) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					[->] to (pc.east);
+				\draw (belt.south -| {$(data.west) + (-0.3cm, 0cm)$}) [->] to[|-] (data.west);
 
-				\draw (ra.east) to[->] ($(pc.west) + (0, -0.1)$);
-				\draw (rfp.east) to[--] ($(pc.west) + (-0.4, 0)$) to[crossing] +(0.2, 0) to[->] (fp.west);
+				\node[draw,rectangle,anchor=north west,minimum width=3cm,minimum height=2.5cm] (dmem) at ($(execute2.west) + (0.3cm, -3cm)$) {DMem};
+				\node[anchor=north,inner sep=1mm] (dmem data) at (dmem.north) {Data};
+				\node[anchor=north east,inner sep=1mm,draw,rectangle] (dmem addr) at (dmem.north east) {MAR};
 
-				\node[ALU,anchor=west] (alu2) at (10, 0) {ALU2};
+				\node[draw,rectangle,anchor=north east,minimum width=3cm,minimum height=2.5cm] (smem) at (dmem.north -| {$(execute2.east) + (-0.3cm, 0cm)$}) {SMem};
+				\node[anchor=north,inner sep=1mm,draw,rectangle] (smem addr) at (smem.north) {MAR};
+				\node[anchor=north east,inner sep=1mm] (smem data) at (smem.north east) {Data};
 
-				\node[draw,rectangle,anchor=east](sp) at ($(alu2.top left)!1/2!(alu2.inset top left) + (-1, 0)$) {SP};
+				\node[draw,rectangle,anchor=center] (ra) at (pc |- {$(smem.north) + (0cm, 0.7cm)$}) {RA};
 
-				\draw (sp) to[->] ($(alu2.top left)!1/2!(alu2.inset top left)$);
-				\draw (alu2.right) to +(0.3, 0) to[|] ($(fp.north) + (0, 0.4)$) to[--] (sp.north)
-					edge[->, -|] (sp.north)
-					to[-|] ($(fp.north) + (0, 0.3)$) to[crossing] +(0, -0.2) to[->] (fp.north);
+				\node[ALU,anchor=north east] (alu2) at ({$(smem addr.north west)!2/3!(smem addr.north east) + (-0.3cm, 0cm)$} |- fp.north) {ALU2};
+
+				\node[draw,rectangle,anchor=east] (sp) at ($(alu2.top left)!1/2!(alu2.inset top left) + (-1cm, 0cm)$) {SP};
+				\node[draw,rectangle,anchor=north] (imm x2) at ({$(alu2.left) + (-0.5cm, 0cm)$} |- {$(ir x2.south) + (0cm, -0.2cm)$}) {Imm};
+
+				\node[draw,rectangle,anchor=east] (rfp) at (alu2.east |- {$(smem.north) + (0cm, 1cm)$}) {RFP};
+
+				\draw (ra.north) [->] to (pc.south);
+				\draw (rfp.west)
+					to[--] ($(dmem addr.north) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					[->] to[-|] (fp.south);
+				\draw (ir x2.east)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[->, -|] (imm x2.north);
+				\draw (imm x2.south) [->] to[|-] ($(alu2.inset bottom left)!1/3!(alu2.bottom left)$);
+				\draw (sp)
+					to[--] ($(imm x2.center) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to ($(alu2.top left)!1/2!(alu2.inset top left)$);
+				\draw (alu2.right) to +(0.3cm, 0cm)
+					edge[->, -|] ($(smem addr.north west)!2/3!(smem addr.north east)$)
+					to[|] ($(fp.north) + (0cm, 0.4cm)$)
+					to[--] ($(imm x2.center) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] (sp.north)
+					edge[->] (sp.north)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(alu1.right) + (0.4cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.3cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.6cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					[->] to[-|] (fp.north);
+				\draw (addr.east)
+					to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] (dmem addr.north)
+					to[|] ($(alu2.inset bottom left)!2/3!(alu2.bottom left)$)
+					edge[->, --] (alu2.left)
+					to[|] ($(dmem.north) + (0cm, 0.4cm)$)
+					edge[->] (dmem addr.north)
+					edge[->, -|] ($(smem addr.north west)!1/3!(smem addr.north east)$);
+				\draw (data.east)
+					edge[->, -|] ($(dmem data.north west)!1/3!(dmem data.north east)$)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(imm x2.center) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					edge[->, -|] ($(smem data.north west)!3/5!(smem data.north east)$);
+				\draw ($(dmem data.north west)!2/3!(dmem data.north east)$) [->] to[|] (belt.south);
+				\draw ($(smem data.north west)!4/5!(smem data.north east)$) [->] to[|] (belt.south);
+				\path (ra.east) +(0.1cm, 0cm) [draw]
+					edge[->] (ra.east)
+					to[|] ($(smem.north) + (0cm, 0.7cm)$)
+					to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(dmem addr.north) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(smem addr.north west)!2/3!(smem addr.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to[-|] ($(smem data.north west)!1/5!(smem data.north east)$);
+				\path (rfp.east) +(0.1cm, 0cm) [draw]
+					edge[->] (rfp.east)
+					% to[|] ($(smem.north) + (0cm, 1cm)$)
+					% to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					% to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					% to[--] ($(dmem addr.north) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(smem addr.north west)!2/3!(smem addr.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to[-|] ($(smem data.north west)!2/5!(smem data.north east)$);
 			\end{tikzpicture}
 			\caption{Hardware Diagram}
 		\end{figure}
