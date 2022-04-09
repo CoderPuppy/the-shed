@@ -171,3 +171,74 @@
 			SMem[SP + 2] = RA
 	
 	SP - next free position
+
+2022-04-09
+	IF: PC
+	X₁: FP, RA
+	X₂: SP, RFP
+
+	call
+		1-1: PC = Addr
+		1-2: RA = PC + 2
+		2-3: SMem[SP + 1] = RA
+		2-2: FP = SP + 2
+		1-3: RFP = FP
+		2-3: SMem[SP] = RFP
+		2-3: SP = SP + 2
+
+        0  1  2  3  4
+		C₁ IF X₁ X₂
+		C₂    IF X₁ X₂
+		?        IF X₁ X₂
+
+		1
+			PC = Addr
+		2
+			FP = SP + 2
+			RFP = FP
+			SMem[SP] = RFP
+			SP = SP + 2
+			RA = PC + 2
+		3
+			SMem[SP + 1] = RA
+
+		1
+			PC = Addr
+		2
+			RA = PC + 2
+			SMem[SP + 1] = RA
+			FP = SP + 2
+			SP = SP + 2
+		3
+			RFP = FP
+			SMem[SP] = RFP
+
+		1
+			PC = Addr
+		2
+			SMem.MAR = ALU2[SP + 1]
+			FP = ALU2[SP + 1]
+			SP = ALU2[SP + 1]
+			Addr = ALU1[FP]
+
+			RA = ALU1[PC X₁ + 1]
+			SMem[SMem.MAR] = RA
+			FP++
+		3
+			SMem.MAR = ALU2[SP]
+			SP++
+
+			RFP = ALU2[Addr]
+			SMem[SMem.MAR] = RFP
+
+	return
+		1-1: PC = RA
+		2-2: RA = SMem[FP - 1]
+		2-2: FP = RFP
+		3-3: RFP = SMem[FP - 2]
+		1-3: SP = FP - 2
+
+        0  1  2  3  4
+		R₁ IF X₁ X₂
+		R₂    IF X₁ X₂
+		?        IF X₁ X₂
