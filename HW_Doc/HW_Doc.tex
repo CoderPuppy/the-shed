@@ -166,8 +166,9 @@
 					edge[->, |-] ($(alu1.inset bottom left)!1/3!(alu1.bottom left)$);
 				\draw ($(alu1.top left)!3/5!(alu1.inset top left) + (-0.7cm, 0cm)$)
 					edge[|-] (imm x1.east)
-					edge[->, --] (alu1.left)
-					edge[->, |-] ($(alu1.inset bottom left)!2/3!(alu1.bottom left)$);
+					edge[->, |-] ($(alu1.inset bottom left)!2/3!(alu1.bottom left)$)
+					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					edge[->, --] (alu1.left);
 				\draw (belt.south -| {$(data.west) + (-0.3cm, 0cm)$}) [->] to[|-] (data.west);
 
 				\node[draw,rectangle,anchor=north west,minimum width=3cm,minimum height=2.5cm] (dmem) at ($(execute2.west) + (0.3cm, -3cm)$) {DMem};
