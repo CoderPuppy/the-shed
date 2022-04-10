@@ -13,6 +13,7 @@
 	\usetikzlibrary{positioning}
 	\usetikzlibrary{calc}
 	\usetikzlibrary{quotes}
+	\usetikzlibrary{math}
 \usepackage{circuitikz}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
@@ -61,44 +62,43 @@
 
 \chapter{Hardware}
 
-	\begin{landscape}
-	\section{Diagram}
-
-		\tikzset{
-			ALU/.style={
-				muxdemux,
-				muxdemux def={
-					Lh=5, Rh=2,
-					inset Lh=2, inset Rh=0,
-					w=3, inset w=1,
-					NL=0, NR=0, NB=0
-				}
-			},
-			-|/.style={
-				to path={
-					(\tikztostart) -| (\tikztotarget)
-					\tikztonodes
-				}
-			},
-			|-/.style={
-				to path={
-					(\tikztostart) |- (\tikztotarget)
-					\tikztonodes
-				}
-			},
-			|/.style={
-				to path={
-					(\tikztostart) -- (\tikztotarget -| \tikztostart)
-					\tikztonodes
-				}
-			},
-			--/.style={
-				to path={
-					(\tikztostart) -- (\tikztotarget |- \tikztostart)
-					\tikztonodes
-				}
+	\tikzset{
+		ALU/.style={
+			muxdemux,
+			muxdemux def={
+				Lh=5, Rh=2,
+				inset Lh=2, inset Rh=0,
+				w=3, inset w=1,
+				NL=0, NR=0, NB=0
+			}
+		},
+		-|/.style={
+			to path={
+				(\tikztostart) -| (\tikztotarget)
+				\tikztonodes
+			}
+		},
+		|-/.style={
+			to path={
+				(\tikztostart) |- (\tikztotarget)
+				\tikztonodes
+			}
+		},
+		|/.style={
+			to path={
+				(\tikztostart) -- (\tikztotarget -| \tikztostart)
+				\tikztonodes
+			}
+		},
+		--/.style={
+			to path={
+				(\tikztostart) -- (\tikztotarget |- \tikztostart)
+				\tikztonodes
 			}
 		}
+	}
+	\begin{landscape}
+	\section{Diagram}
 
 		\begin{figure}[h]
 			\centering
@@ -257,6 +257,34 @@
 			\caption{Hardware Diagram}
 		\end{figure}
 	\end{landscape}
+
+	\begin{figure}[h]
+		\centering
+		\begin{tikzpicture}
+			\node[rectangle,minimum width=8cm,anchor=west] (execute1) at (0cm, 0cm) {};
+			\node[rectangle,minimum width=8cm,anchor=west] (execute2) at (execute1.east) {};
+
+			% \draw [dashed] (execute1.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
+			% \draw [dashed] (execute2.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
+			% \draw [dashed] (execute2.east |- {0cm, 5cm}) to[|] (0cm, -6cm);
+
+			\tikzmath{ let \myscale = 0.5; }
+			\foreach \x in {1,2,...,15} {
+				\node[ALU, scale=\myscale] (alu 0 \x) at (\myscale * 0cm, \x * \myscale * -3cm) {\scalebox{2.5}{\(<<\)}};
+			}
+			\foreach \x in {0,1,...,7} {
+				\node[ALU, scale=\myscale] (alu 1 \x) at (\myscale * 3cm, \x * \myscale * -6cm + \myscale * -1.5cm) {\scalebox{2.7}{\(+\)}};
+			}
+			\foreach \x in {0,1,...,3} {
+				\node[ALU, scale=\myscale] (alu 2 \x) at (\myscale * 6cm, \x * \myscale * -12cm + \myscale * -4.5cm) {\scalebox{2.7}{\(+\)}};
+			}
+			\foreach \x in {0,1} {
+				\node[ALU, scale=\myscale] (alu 3 \x) at (\myscale * 9cm, \x * \myscale * -24cm + \myscale * -10.5cm) {\scalebox{2.7}{\(+\)}};
+			}
+			\node[ALU, scale=\myscale] (alu 4) at (\myscale * 12cm, \myscale * -22.5cm) {\scalebox{2.7}{\(+\)}};
+		\end{tikzpicture}
+		\caption{Multiplier Diagram}
+	\end{figure}
 
 \chapter{RTL}
 
