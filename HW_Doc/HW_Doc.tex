@@ -261,27 +261,87 @@
 	\begin{figure}[h]
 		\centering
 		\begin{tikzpicture}
-			\node[rectangle,minimum width=8cm,anchor=west] (execute1) at (0cm, 0cm) {};
-			\node[rectangle,minimum width=8cm,anchor=west] (execute2) at (execute1.east) {};
+			\tikzmath{ let \myscale = 0.4; }
 
-			% \draw [dashed] (execute1.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
-			% \draw [dashed] (execute2.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
-			% \draw [dashed] (execute2.east |- {0cm, 5cm}) to[|] (0cm, -6cm);
+			\node[rectangle,minimum width={\myscale * 6cm},anchor=west] (execute1) at (0cm, 0cm) {};
+			\node[rectangle,minimum width={\myscale * 12cm},anchor=west] (execute2) at (execute1.east) {};
+			\node[rectangle,minimum width={\myscale * 12cm},anchor=west] (execute3) at (execute2.east) {};
+			\node[rectangle,minimum width={\myscale * 6cm},anchor=west] (execute4) at (execute3.east) {};
 
-			\tikzmath{ let \myscale = 0.5; }
-			\foreach \x in {1,2,...,15} {
-				\node[ALU, scale=\myscale] (alu 0 \x) at (\myscale * 0cm, \x * \myscale * -3cm) {\scalebox{2.5}{\(<<\)}};
+			\draw [dashed] (execute1.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute2.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute3.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute4.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute4.east |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
+
+			\foreach \x in {0,1,...,15} {
+				\node[draw,rectangle,fill=white] (reg 0 \x) at (execute1.east |- {0cm, \x * \myscale * -3cm}) {Reg};
 			}
 			\foreach \x in {0,1,...,7} {
-				\node[ALU, scale=\myscale] (alu 1 \x) at (\myscale * 3cm, \x * \myscale * -6cm + \myscale * -1.5cm) {\scalebox{2.7}{\(+\)}};
+				\node[draw,rectangle] (reg 1 \x) at (execute2 |- {0cm, \myscale * (\x * -6cm + -1.5cm)}) {Reg};
 			}
 			\foreach \x in {0,1,...,3} {
-				\node[ALU, scale=\myscale] (alu 2 \x) at (\myscale * 6cm, \x * \myscale * -12cm + \myscale * -4.5cm) {\scalebox{2.7}{\(+\)}};
+				\node[draw,rectangle,fill=white] (reg 2 \x) at (execute2.east |- {0cm, \myscale * (\x * -12cm + -4.5cm)}) {Reg};
 			}
 			\foreach \x in {0,1} {
-				\node[ALU, scale=\myscale] (alu 3 \x) at (\myscale * 9cm, \x * \myscale * -24cm + \myscale * -10.5cm) {\scalebox{2.7}{\(+\)}};
+				\node[draw,rectangle] (reg 3 \x) at (execute3 |- {0cm, \myscale * (\x * -24cm + -10.5cm)}) {Reg};
 			}
-			\node[ALU, scale=\myscale] (alu 4) at (\myscale * 12cm, \myscale * -22.5cm) {\scalebox{2.7}{\(+\)}};
+			\node[draw,rectangle,fill=white] (reg 4) at (execute3.east |- {0cm, \myscale * -22.5cm}) {Reg};
+
+			\foreach \x in {1,2,...,15} {
+				\node[ALU, scale=\myscale, anchor=east] (alu 0 \x) at ($(reg 0 \x.west) + (-0.5cm, 0cm)$) {\scalebox{2}{\(<<\)}};
+				\draw (alu 0 \x.east) [->] to (reg 0 \x.west);
+			}
+			\foreach \x in {0,1,...,7} {
+				\node[ALU, scale=\myscale, anchor=east] (alu 1 \x) at ($(reg 1 \x.west) + (-0.5cm, 0cm)$) {\scalebox{2.7}{\(+\)}};
+				\draw (alu 1 \x.east) [->] to (reg 1 \x.west);
+			}
+			\foreach \x in {0,1,...,3} {
+				\node[ALU, scale=\myscale, anchor=east] (alu 2 \x) at ($(reg 2 \x.west) + (-0.5cm, 0cm)$) {\scalebox{2.7}{\(+\)}};
+				\draw (alu 2 \x.east) [->] to (reg 2 \x.west);
+			}
+			\foreach \x in {0,1} {
+				\node[ALU, scale=\myscale, anchor=east] (alu 3 \x) at ($(reg 3 \x.west) + (-0.5cm, 0cm)$) {\scalebox{2.7}{\(+\)}};
+				\draw (alu 3 \x.east) [->] to (reg 3 \x.west);
+			}
+			\node[ALU, scale=\myscale, anchor=east] (alu 4) at ($(reg 4.west) + (-0.5cm, 0cm)$) {\scalebox{2.7}{\(+\)}};
+			\draw (alu 4.east) [->] to (reg 4.west);
+
+			\foreach \x in {0,2,...,14} {
+				\pgfmathparse{div(\x, 2)}
+				\let\y\pgfmathresult
+				\draw (reg 0 \x.east) to +(0.2cm, 0cm) [->] to[|-] ($(alu 1 \y.top left)!1/2!(alu 1 \y.inset top left)$);
+			}
+			\foreach \x in {1,3,...,15} {
+				\pgfmathparse{div(\x, 2)}
+				\let\y\pgfmathresult
+				\draw (reg 0 \x.east) to +(0.2cm, 0cm) [->] to[|-] ($(alu 1 \y.inset bottom left)!1/2!(alu 1 \y.bottom left)$);
+			}
+
+			\foreach \x in {0,2,...,6} {
+				\pgfmathparse{div(\x, 2)}
+				\let\y\pgfmathresult
+				\draw (reg 1 \x.south) [->] to[|-] ($(alu 2 \y.top left)!1/2!(alu 2 \y.inset top left)$);
+			}
+			\foreach \x in {1,3,...,7} {
+				\pgfmathparse{div(\x, 2)}
+				\let\y\pgfmathresult
+				\draw (reg 1 \x.north) [->] to[|-] ($(alu 2 \y.inset bottom left)!1/2!(alu 2 \y.bottom left)$);
+			}
+
+			\foreach \x in {0,2} {
+				\pgfmathparse{div(\x, 2)}
+				\let\y\pgfmathresult
+				\draw (reg 2 \x.east) to +(0.2cm, 0cm) [->] to[|-] ($(alu 3 \y.top left)!1/2!(alu 3 \y.inset top left)$);
+			}
+			\foreach \x in {1,3} {
+				\pgfmathparse{div(\x, 2)}
+				\let\y\pgfmathresult
+				\draw (reg 2 \x.east) to +(0.2cm, 0cm) [->] to[|-] ($(alu 3 \y.inset bottom left)!1/2!(alu 3 \y.bottom left)$);
+			}
+
+			\draw (reg 3 0.south) [->] to[|-] ($(alu 4.top left)!1/2!(alu 4.inset top left)$);
+			\draw (reg 3 1.north) [->] to[|-] ($(alu 4.inset bottom left)!1/2!(alu 4.bottom left)$);
 		\end{tikzpicture}
 		\caption{Multiplier Diagram}
 	\end{figure}
