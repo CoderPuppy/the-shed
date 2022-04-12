@@ -103,16 +103,26 @@
 		\begin{figure}[h]
 			\centering
 			\begin{tikzpicture}
-				\node[rectangle,minimum width=5cm,anchor=west] (fetch) at (0cm, 0cm) {};
+				\node[rectangle,minimum width=4.5cm,anchor=west] (fetch) at (0cm, 0cm) {};
 				\node[rectangle,minimum width=8cm,anchor=west] (execute1) at (fetch.east) {};
 				\node[rectangle,minimum width=8cm,anchor=west] (execute2) at (execute1.east) {};
+				\node[rectangle,minimum width=1cm,anchor=west] (execute3) at (execute2.east) {};
+				\node[rectangle,minimum width=2cm,anchor=west] (execute4) at (execute3.east) {};
 
-				\draw [dashed] (fetch.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
-				\draw [dashed] (execute1.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
-				\draw [dashed] (execute2.west |- {0cm, 5cm}) to[|] (0cm, -6cm);
-				\draw [dashed] (execute2.east |- {0cm, 5cm}) to[|] (0cm, -6cm);
+				\node[anchor=south] at (   fetch |- {0cm, 6cm}) {\(F\)};
+				\node[anchor=south] at (execute1 |- {0cm, 6cm}) {\(X_1\)};
+				\node[anchor=south] at (execute2 |- {0cm, 6cm}) {\(X_2\)};
+				\node[anchor=south] at (execute3 |- {0cm, 6cm}) {\(X_3\)};
+				\node[anchor=south] at (execute4 |- {0cm, 6cm}) {\(X_4\)};
 
-				\node[draw,rectangle,anchor=west,minimum width=16cm,fill=white] (belt) at (execute1.west |- {0cm, 5cm}) {Belt};
+				\draw [dashed] (   fetch.west |- {0cm, 6cm}) to[|] (0cm, -7cm);
+				\draw [dashed] (execute1.west |- {0cm, 6cm}) to[|] (0cm, -7cm);
+				\draw [dashed] (execute2.west |- {0cm, 6cm}) to[|] (0cm, -7cm);
+				\draw [dashed] (execute3.west |- {0cm, 6cm}) to[|] (0cm, -7cm);
+				\draw [dashed] (execute4.west |- {0cm, 6cm}) to[|] (0cm, -7cm);
+				\draw [dashed] (execute4.east |- {0cm, 6cm}) to[|] (0cm, -7cm);
+
+				\node[draw,rectangle,anchor=west,minimum width=19cm,fill=white] (belt) at (execute1.west |- {0cm, 5cm}) {Belt};
 
 				\node[draw,rectangle,anchor=east,minimum width=3cm,minimum height=2.5cm] (imem) at ($(fetch.east) + (-1cm, 3cm)$) {IMem};
 				\node[anchor=north east,inner sep=1mm] (imem data) at (imem.north east) {Data};
@@ -136,6 +146,16 @@
 				\node[draw,rectangle,anchor=east] (fp) at ($(alu1.top left)!1/5!(alu1.inset top left) + (-1cm, 0cm)$) {FP};
 
 				\node[draw,rectangle,anchor=north,fill=white] (data) at (execute2.west |- {$(ir x2.south) + (0cm, -0.1cm)$}) {Data};
+
+				\node[draw,rectangle,anchor=north west,minimum width=19cm,minimum height=1cm,fill=white] (mult) at (execute1.west |- {0cm, -6cm}) {Multiplier};
+				\node[anchor=north,inner sep=1mm] (mult imm) at (imm x1 |- mult.north) {Imm};
+				\node[anchor=north,inner sep=1mm] (mult belt) at ({$(alu1.left) + (-0.4cm, 0cm)$} |- mult.north) {Belt};
+				\node[anchor=north west,inner sep=1mm] (mult lo) at ({$(execute4.west) + (0.2cm, 0cm)$} |- mult.north) {Lo};
+				\node[anchor=north east,inner sep=1mm] (mult hi) at ({$(execute4.east) + (-0.2cm, 0cm)$} |- mult.north) {Hi};
+
+				\draw (imm x1.south) [->] to (mult imm.north);
+				\draw (mult lo.north) [->] to[|] (belt.south);
+				\draw (mult hi.north) [->] to[|] (belt.south);
 
 				\draw (ir x1.east)
 					to[--] ($(sign ext.top left) + (-0.3cm, 0cm)$)
@@ -163,7 +183,9 @@
 				\draw ($(alu1.top left)!2/5!(alu1.inset top left) + (-0.4cm, 0cm)$)
 					edge[|] (belt.south)
 					edge[->, --] (alu1.left)
-					edge[->, |-] ($(alu1.inset bottom left)!1/3!(alu1.bottom left)$);
+					to[|] ($(alu1.inset bottom left)!1/3!(alu1.bottom left)$)
+					edge[->, --] (alu1.left)
+					edge[->] (mult belt.north);
 				\draw ($(alu1.top left)!3/5!(alu1.inset top left) + (-0.7cm, 0cm)$)
 					edge[|-] (imm x1.east)
 					edge[->, |-] ($(alu1.inset bottom left)!2/3!(alu1.bottom left)$)
@@ -192,7 +214,9 @@
 					edge[->] (addr.west)
 					edge[->, |] (belt.south)
 					to[|] ($(alu1.south) + (0cm, -0.3cm)$)
+					to[--] ($(alu1.left) + (-0.3cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] ($(fp) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(imm x1) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] ($(pc.east) + (0.4cm, 0cm)$)
 					edge[->, |-] (pc.east)
 					edge[->, |-] ($(ra.north east)!1/3!(ra.south east)$);
@@ -202,6 +226,7 @@
 					to[--] ($(dmem addr.north) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.3cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					[->] to[-|] (fp.south);
 				\draw (imm x1.east -| {$(alu1.top left)!3/5!(alu1.inset top left) + (-0.7cm, 0cm)$})
 					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
@@ -237,13 +262,16 @@
 					edge[->] (dmem addr.north)
 					edge[->, -|] ($(smem addr.north west)!1/3!(smem addr.north east)$);
 				\draw (data.east)
-					edge[->, -|] ($(dmem data.north west)!1/3!(dmem data.north east)$)
+					to[--] ($(dmem data.north west)!1/3!(dmem data.north east)$)
+					edge[->, |] (dmem data.north)
 					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					edge[->, -|] ($(smem data.north west)!3/5!(smem data.north east)$);
 				\draw ($(dmem data.north west)!2/3!(dmem data.north east)$) [->] to[|] (belt.south);
 				\draw ($(smem data.north west)!4/5!(smem data.north east)$) [->] to[|] (belt.south);
 				\draw ($(ra.north east)!2/3!(ra.south east) + (0.1cm, 0cm)$)
 					edge[->, --] (ra.east)
+					to[--] ($(imm x1) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(dmem data.north west)!1/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(dmem addr.north) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
@@ -263,16 +291,21 @@
 		\begin{tikzpicture}
 			\tikzmath{ let \myscale = 0.4; }
 
-			\node[rectangle,minimum width={\myscale * 6cm},anchor=west] (execute1) at (0cm, 0cm) {};
+			\node[rectangle,minimum width={\myscale * 12cm},anchor=west] (execute1) at (0cm, 0cm) {};
 			\node[rectangle,minimum width={\myscale * 12cm},anchor=west] (execute2) at (execute1.east) {};
 			\node[rectangle,minimum width={\myscale * 12cm},anchor=west] (execute3) at (execute2.east) {};
-			\node[rectangle,minimum width={\myscale * 6cm},anchor=west] (execute4) at (execute3.east) {};
+			\node[rectangle,minimum width={\myscale * 8cm},anchor=west] (execute4) at (execute3.east) {};
 
-			\draw [dashed] (execute1.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
-			\draw [dashed] (execute2.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
-			\draw [dashed] (execute3.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
-			\draw [dashed] (execute4.west |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
-			\draw [dashed] (execute4.east |- {0cm, 2cm}) to[|] (0cm, \myscale * -47cm);
+			\node[anchor=south] at (execute1 |- {0cm, 1.8cm}) {\(X_1\)};
+			\node[anchor=south] at (execute2 |- {0cm, 1.8cm}) {\(X_2\)};
+			\node[anchor=south] at (execute3 |- {0cm, 1.8cm}) {\(X_3\)};
+			\node[anchor=south] at (execute4 |- {0cm, 1.8cm}) {\(X_4\)};
+
+			\draw [dashed] (execute1.west |- {0cm, 1.8cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute2.west |- {0cm, 1.8cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute3.west |- {0cm, 1.8cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute4.west |- {0cm, 1.8cm}) to[|] (0cm, \myscale * -47cm);
+			\draw [dashed] (execute4.east |- {0cm, 1.8cm}) to[|] (0cm, \myscale * -47cm);
 
 			\foreach \x in {0,1,...,15} {
 				\node[draw,rectangle,fill=white] (reg 0 \x) at (execute1.east |- {0cm, \x * \myscale * -3cm}) {Reg};
@@ -287,6 +320,12 @@
 				\node[draw,rectangle] (reg 3 \x) at (execute3 |- {0cm, \myscale * (\x * -24cm + -10.5cm)}) {Reg};
 			}
 			\node[draw,rectangle,fill=white] (reg 4) at (execute3.east |- {0cm, \myscale * -22.5cm}) {Reg};
+
+			\node[anchor=west] (imm) at ($(execute1.west) + (0.3cm, 1.3cm)$) {Imm};
+			\node[anchor=west] (belt) at ($(imm.east) + (0.3cm, 0cm)$) {Belt};
+			\node[draw,rectangle,anchor=north west] (mult) at ($(belt.south east) + (0.2cm, -0.2cm)$) {Mult};
+			\node (lo) at ({$(reg 4.east) + (0.3cm, 0cm)$} |- {0cm, 1.3cm}) {Lo};
+			\node[anchor=east] (hi) at ($(execute4.east) + (-0.3cm, 1.3cm)$) {Hi};
 
 			\foreach \x in {1,2,...,15} {
 				\node[ALU, scale=\myscale, anchor=east] (alu 0 \x) at ($(reg 0 \x.west) + (-0.5cm, 0cm)$) {\scalebox{2}{\(<<\)}};
@@ -306,6 +345,34 @@
 			}
 			\node[ALU, scale=\myscale, anchor=east] (alu 4) at ($(reg 4.west) + (-0.5cm, 0cm)$) {\scalebox{2.7}{\(+\)}};
 			\draw (alu 4.east) [->] to (reg 4.west);
+			\node[ALU, scale=\myscale, anchor=north] (alu 5) at (execute4 |- reg 4) {\scalebox{2}{\(>>\)}};
+
+			\draw (belt.south)
+				to[|] (mult.west)
+				edge[->, --] (mult.west)
+				to[|] ($(reg 0 0.north west)!1/3!(reg 0 0.south west)$)
+				edge[->, --] (reg 0 0.west)
+				foreach \x in {1,2,...,15} {
+					to[|] ($(alu 0 \x.top left)!1/3!(alu 0 \x.inset top left)$)
+					edge[->, --] (alu 0 \x.left)
+				};
+
+			\draw (imm.south)
+				to[|] ($(reg 0 0.north west)!2/3!(reg 0 0.south west)$)
+				to[--] ($(belt.center) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+				[->] to[--] (reg 0 0.west);
+			\draw (imm.south |- {$(reg 0 0.north west)!2/3!(reg 0 0.south west)$})
+				to[|] ($(alu 0 1.top left)!2/3!(alu 0 1.inset top left)$)
+				to[--] ($(belt.center) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+				[->] to[--] (alu 0 1.left);
+			\foreach \x in {2,3,...,15} {
+				\pgfmathparse{int(\x - 1)}
+				\let\y\pgfmathresult
+				\draw (imm.south |- {$(alu 0 \y.top left)!2/3!(alu 0 \y.inset top left)$})
+					to[|] ($(alu 0 \x.top left)!2/3!(alu 0 \x.inset top left)$)
+					to[--] ($(belt.center) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to[--] (alu 0 \x.left);
+			}
 
 			\foreach \x in {0,2,...,14} {
 				\pgfmathparse{div(\x, 2)}
@@ -342,6 +409,13 @@
 
 			\draw (reg 3 0.south) [->] to[|-] ($(alu 4.top left)!1/2!(alu 4.inset top left)$);
 			\draw (reg 3 1.north) [->] to[|-] ($(alu 4.inset bottom left)!1/2!(alu 4.bottom left)$);
+
+			\draw (reg 4.east)
+				to[--] (lo)
+				edge[->, |-] ($(alu 5.top left)!1/2!(alu 5.inset top left)$)
+				edge[->] (lo.south);
+			\draw (alu 5.east)
+				[->] to[-|] (hi.south);
 		\end{tikzpicture}
 		\caption{Multiplier Diagram}
 	\end{figure}
