@@ -33,6 +33,8 @@
 \usepackage{lscape}
 \usepackage{longtable}
 \usepackage{bytefield}
+\usepackage{multirow}
+\usepackage{colortbl}
 \usepackage{array}
 \usepackage{hyperref}
 	\hypersetup{
@@ -441,40 +443,67 @@
 	\section{Fetch}
 
 	\section{Instructions}
+		% \begin{landscape}
+				\begin{tabular}{l|llll}
+							   & \multicolumn{1}{c}{\textbf{X1 Tick 1}}    & \multicolumn{1}{c}{X1 Tick 2}                    & \multicolumn{1}{c}{\textbf{X2 Tick 1}} & \multicolumn{1}{c}{\textbf{X2 Tick 2}} \\ \hline
+				ALU            &                                           & Belt$\leftarrow$Belt{[}b1{]} OP Belt{[}b2{]}     &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				ALUI           & Imm$\leftarrow$SignExt(IR)                & Belt$\leftarrow$belt{[}b1{]} OP imm              &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				ADDC           &                                           & Belt$\leftarrow$belt{[}b1{]} + (carry(b2)?1:0)   &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Load           & Imm$\leftarrow$SignExt(IR)                & addr$\leftarrow$imm + belt{[}b1{]}               & DMAR$\leftarrow$Addr                   & Belt $\leftarrow$ Dmem{[}DMAR{]}       \\ \arrayrulecolor{gray}\hline
+				Read Stack     & Imm$\leftarrow$SignExt(IR)                & addr$\leftarrow$imm + fp                         & SMAR$\leftarrow$Addr                   & belt $\leftarrow$ Smem{[}SMAR{]}       \\ \arrayrulecolor{gray}\hline
+				Store          & Imm$\leftarrow$SignExt(IR)                & addr$\leftarrow$imm + belt{[}b1{]}               & DMAR$\leftarrow$Addr                   & Dmem{[}DMAR{]} $\leftarrow$ data       \\ 
+							   &                                           & data$\leftarrow$belt{[}b2{]}                     &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Write Stack    & Imm$\leftarrow$ SignExt(IR)                & addr$\leftarrow$imm + fp                        & SMAR$\leftarrow$Addr                   & Smem{[}SMAR{]} $\leftarrow$ data       \\ 
+							   &                                           & data$\leftarrow$belt{[}b1{]}                     &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Jump           & Imm$\leftarrow$SignExt(IR)                & PC$\leftarrow$PCX1 + imm                         &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Long Jump      &                                           & PC$\leftarrow$PCX1 + belt{[}b1{]}                &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Branch         & IF CONDITION Imm$\leftarrow$SignExt(IR)   & IF COND PC$\leftarrow$PCX1 + imm                 &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Call Pt 1      & Imm$\leftarrow$SignExt(IR)                & PC$\leftarrow$imm                                & SMAR$\leftarrow$SP + 1                 & FP $\leftarrow$ Smem{[}SMAR{]}         \\ 
+							   &                                           & Addr$\leftarrow$FP                               &                                        & SP $\leftarrow$ Smem{[}SMAR{]}         \\ \arrayrulecolor{gray}\hline
+				Long Call pt 1 &                                           &                                                  &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Call pt 2      &                                           &                                                  &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Return pt 1    &                                           &                                                  &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Return pt 2    &                                           &                                                  &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				SAlloc         & Imm1$\leftarrow$IR                        & imm2$\leftarrow$imm                              & sp$\leftarrow$sp + imm2                &                                        \\ \arrayrulecolor{gray}\hline
+				Const          & Imm$\leftarrow$SignExt(IR)                & belt$\leftarrow$imm                              &                                        &                                        \\ \arrayrulecolor{gray}\hline
+				Upper          & imm$\leftarrow$ir                         & belt$\leftarrow$imm \textless{}\textless 8       &                                        &                                       
+				\end{tabular}
+		% \end{landscape}
 
-		\subsection{ALU Operations}
-		\subsection{ALU Operations with Immediate}
-		\subsection{Add with Carry}
-		\subsection{Load}
-		\subsection{Read Stack}
-		\subsection{Store}
-		\subsection{Write Stack}
-		\subsection{Jump}
-		\subsection{Long Jump}
-		\subsection{Branch}
-		\subsection{Call Part 1}
-			% PC ← Addr
 
-			% SMem.MAR ← ALU2[SP + 1]
-			% FP ← ALU2[SP + 1]
-			% SP ← ALU2[SP + 1]
-			% Addr ← ALU1[FP]
+		% \subsection{ALU Operations}
+		% \subsection{ALU Operations with Immediate}
+		% \subsection{Add with Carry}
+		% \subsection{Load}
+		% \subsection{Read Stack}
+		% \subsection{Store}
+		% \subsection{Write Stack}
+		% \subsection{Jump}
+		% \subsection{Long Jump}
+		% \subsection{Branch}
+		% \subsection{Call Part 1}
+		% 	% PC ← Addr
+
+		% 	% SMem.MAR ← ALU2[SP + 1]
+		% 	% FP ← ALU2[SP + 1]
+		% 	% SP ← ALU2[SP + 1]
+		% 	% Addr ← ALU1[FP]
 			
-			% RA ← ALU1[PC X₁ + 1]
-			% SMem[←Mem.MAR] ← MAR
-			% FP++
+		% 	% RA ← ALU1[PC X₁ + 1]
+		% 	% SMem[←Mem.MAR] ← MAR
+		% 	% FP++
 
-			% SMem.MAR ← ALU2[SP]
-			% SP++
+		% 	% SMem.MAR ← ALU2[SP]
+		% 	% SP++
 
-			% RFP ← ALU2[Addr]
-			% SMem[SMem.MAR] ← RFP
-		\subsection{Long Call Part 1}
-		\subsection{Call Part 2}
-		\subsection{Return Part 1}
-		\subsection{Return Part 2}
-		\subsection{Allocate Stack}
-		\subsection{Constant}
-		\subsection{Load Upper Immediate}
+		% 	% RFP ← ALU2[Addr]
+		% 	% SMem[SMem.MAR] ← RFP
+		% \subsection{Long Call Part 1}
+		% \subsection{Call Part 2}
+		% \subsection{Return Part 1}
+		% \subsection{Return Part 2}
+		% \subsection{Allocate Stack}
+		% \subsection{Constant}
+		% \subsection{Load Upper Immediate}
 
 \end{document}
