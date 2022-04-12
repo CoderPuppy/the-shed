@@ -103,11 +103,12 @@
 		\begin{figure}[h]
 			\centering
 			\begin{tikzpicture}
-				\node[rectangle,minimum width=4.5cm,anchor=west] (fetch) at (0cm, 0cm) {};
+				\node[rectangle,minimum width=4.2cm,anchor=west] (fetch) at (0cm, 0cm) {};
 				\node[rectangle,minimum width=8cm,anchor=west] (execute1) at (fetch.east) {};
 				\node[rectangle,minimum width=8cm,anchor=west] (execute2) at (execute1.east) {};
 				\node[rectangle,minimum width=1cm,anchor=west] (execute3) at (execute2.east) {};
 				\node[rectangle,minimum width=2cm,anchor=west] (execute4) at (execute3.east) {};
+				\tikzmath{ let \execwidth = 19cm; }
 
 				\node[anchor=south] at (   fetch |- {0cm, 6cm}) {\(F\)};
 				\node[anchor=south] at (execute1 |- {0cm, 6cm}) {\(X_1\)};
@@ -122,16 +123,16 @@
 				\draw [dashed] (execute4.west |- {0cm, 6cm}) to[|] (0cm, -7cm);
 				\draw [dashed] (execute4.east |- {0cm, 6cm}) to[|] (0cm, -7cm);
 
-				\node[draw,rectangle,anchor=west,minimum width=19cm,fill=white] (belt) at (execute1.west |- {0cm, 5cm}) {Belt};
+				\node[draw,rectangle,anchor=west,minimum width=\execwidth,fill=white] (belt) at (execute1.west |- {0cm, 5cm}) {Belt};
 
 				\node[draw,rectangle,anchor=east,minimum width=3cm,minimum height=2.5cm] (imem) at ($(fetch.east) + (-1cm, 3cm)$) {IMem};
 				\node[anchor=north east,inner sep=1mm] (imem data) at (imem.north east) {Data};
 				\node[anchor=south east,inner sep=1mm,draw,rectangle] (imem addr) at (imem.south east) {MAR};
 
 				\node[draw,rectangle,anchor=center,fill=white] (ir x1) at (execute1.west |- imem data.east) {\shortstack{IR \\ \(X_1\)}};
-				\draw (imem data.east) [->] to (ir x1.west);
-
 				\node[draw,rectangle,anchor=center,fill=white] (ir x2) at (execute2.west |- ir x1.center) {\shortstack{IR \\ \(X_2\)}};
+				\node[draw,rectangle,anchor=center,fill=white] (ir x3) at (execute3.west |- ir x2.center) {\shortstack{IR \\ \(X_3\)}};
+				\node[draw,rectangle,anchor=center,fill=white] (ir x4) at (execute4.west |- ir x3.center) {\shortstack{IR \\ \(X_4\)}};
 
 				\node[ALU,anchor=north west,scale=3/4] (sign ext) at ($(ir x1.south east) + (0.5cm, -0.2cm)$) {\shortstack{sign \\ ext}};
 				\node[draw,rectangle,anchor=west] (imm x1) at ($(sign ext.east) + (0.5cm, 0cm)$) {\shortstack{Imm \\ \(X_1\)}};
@@ -147,7 +148,7 @@
 
 				\node[draw,rectangle,anchor=north,fill=white] (data) at (execute2.west |- {$(ir x2.south) + (0cm, -0.1cm)$}) {Data};
 
-				\node[draw,rectangle,anchor=north west,minimum width=19cm,minimum height=1cm,fill=white] (mult) at (execute1.west |- {0cm, -6cm}) {Multiplier};
+				\node[draw,rectangle,anchor=north west,minimum width=\execwidth,minimum height=1cm,fill=white] (mult) at (execute1.west |- {0cm, -6cm}) {Multiplier};
 				\node[anchor=north,inner sep=1mm] (mult imm) at (imm x1 |- mult.north) {Imm};
 				\node[anchor=north,inner sep=1mm] (mult belt) at ({$(alu1.left) + (-0.4cm, 0cm)$} |- mult.north) {Belt};
 				\node[anchor=north west,inner sep=1mm] (mult lo) at ({$(execute4.west) + (0.2cm, 0cm)$} |- mult.north) {Lo};
@@ -157,6 +158,10 @@
 				\draw (mult lo.north) [->] to[|] (belt.south);
 				\draw (mult hi.north) [->] to[|] (belt.south);
 
+				\draw (imem data.east)
+					to +(0.3cm, 0cm)
+					edge[->, |-, densely dotted] ($(pc.north east)!1/3!(pc.south east)$)
+					edge[->] (ir x1.west);
 				\draw (ir x1.east)
 					to[--] ($(sign ext.top left) + (-0.3cm, 0cm)$)
 					edge[->, |-] ($(sign ext.top left)!1/2!(sign ext.inset top left)$)
@@ -166,16 +171,19 @@
 					to[--] ($(alu1.right) + (0.2cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(data.west) + (-0.4cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					[->] to (ir x2.west);
+				\draw (ir x3.east) [->] to (ir x4.west);
 				\draw (sign ext.east) [->] to (imm x1.west);
 				\draw (pc.north)
 					to[|] (pc x1)
-					edge[->] (pc x1.west)
-					[->] to (imem addr.south);
+					edge[->] (imem addr.south)
+					to[--] ($(imem.east) + (0.2cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to (pc x1.west);
 				\draw (fp.east) 
 					to[--] ($(alu1.left) + (-0.8cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					[->] to ($(alu1.top left)!1/5!(alu1.inset top left)$);
 				\draw (pc x1.east)
+					to[--] ($(imm x1) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(fp) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(alu1.left) + (-0.8cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
@@ -197,7 +205,7 @@
 				\node[anchor=north,inner sep=1mm] (dmem data) at (dmem.north) {Data};
 				\node[anchor=north east,inner sep=1mm,draw,rectangle] (dmem addr) at (dmem.north east) {MAR};
 
-				\node[draw,rectangle,anchor=north east,minimum width=3cm,minimum height=2.5cm] (smem) at (dmem.north -| {$(execute2.east) + (-0.3cm, 0cm)$}) {SMem};
+				\node[draw,rectangle,anchor=north east,minimum width=3cm,minimum height=2.5cm] (smem) at (dmem.north -| {$(execute2.east) + (-0.5cm, 0cm)$}) {SMem};
 				\node[anchor=north,inner sep=1mm,draw,rectangle] (smem addr) at (smem.north) {MAR};
 				\node[anchor=north east,inner sep=1mm] (smem data) at (smem.north east) {Data};
 
@@ -205,10 +213,17 @@
 
 				\node[ALU,anchor=north east] (alu2) at ({$(smem addr.north west)!2/3!(smem addr.north east) + (-0.3cm, 0cm)$} |- fp.north) {ALU2};
 
+				\node[draw,rectangle,anchor=south] (cmp) at ({$(alu2.north east) + (0.3cm, 0cm)$} |- {$(fp.north) + (0cm, 0.6cm)$}) {Cmp};
+
 				\node[draw,rectangle,anchor=east] (sp) at ($(alu2.top left)!1/2!(alu2.inset top left) + (-1cm, 0cm)$) {SP};
 				\node[draw,rectangle,anchor=center,fill=white] (imm x2) at (execute2.west |- imm x1) {\shortstack{Imm \\ \(X_2\)}};
 
 				\node[draw,rectangle,anchor=east] (rfp) at (alu2.east |- {$(smem.north) + (0cm, 1cm)$}) {RFP};
+
+				\draw (ir x2.east)
+					to[--] ($(dmem data.north west)!2/3!(dmem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					to[--] ($(smem data.north west)!4/5!(smem data.north east) + (-0.1cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
+					[->] to (ir x3.west);
 
 				\draw (alu1.right) to +(0.3cm, 0cm)
 					edge[->] (addr.west)
@@ -218,7 +233,7 @@
 					to[--] ($(fp) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] ($(imm x1) + (0.1cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] ($(pc.east) + (0.4cm, 0cm)$)
-					edge[->, |-] (pc.east)
+					edge[->, |-] ($(pc.north east)!2/3!(pc.south east)$)
 					edge[->, |-] ($(ra.north east)!1/3!(ra.south east)$);
 
 				\draw (ra.north) [->] to (pc.south);
@@ -243,6 +258,7 @@
 				\draw (alu2.right) to +(0.3cm, 0cm)
 					edge[->, -|] ($(smem addr.north west)!2/3!(smem addr.north east)$)
 					to[|] ($(fp.north) + (0cm, 0.3cm)$)
+					edge[->] (cmp.south)
 					to[--] ($(alu2.left) + (-0.2cm, 0cm)$) to[crossing, mirrored=true] +(-0.2cm, 0cm)
 					to[--] (sp.north)
 					edge[->] (sp.north)
