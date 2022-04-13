@@ -180,7 +180,7 @@
 					edge[->] (imem addr.south)
 					to[--] ($(imem.east) + (0.2cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					[->] to (pc x1.west);
-				\draw (fp.east) 
+				\draw (fp.east)
 					to[--] ($(alu1.left) + (-0.8cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					to[--] ($(alu1.left) + (-0.5cm, 0cm)$) to[crossing] +(0.2cm, 0cm)
 					[->] to ($(alu1.top left)!1/5!(alu1.inset top left)$);
@@ -441,42 +441,174 @@
 \chapter{RTL}
 
 	\section{Fetch}
-	IMAR $\leftarrow$ PC\\
-	PCX1 $\leftarrow$ PC\\
-	IR <- IMem[IMAR]
-	
+		\(\textrm{IMAR} \gets \textrm{PC}\) \\
+		\(\textrm{PCX1} \gets \textrm{PC}\) \\
+		\(\textrm{IR} \gets \textrm{IMem}[\textrm{IMAR}]\)
+
 	\section{Instructions}
 		% \begin{landscape}
-				\begin{tabular}{l|llll}
-							   & \multicolumn{1}{c}{\textbf{X1 Tick 1}}    & \multicolumn{1}{c}{X1 Tick 2}                    & \multicolumn{1}{c}{\textbf{X2 Tick 1}} & \multicolumn{1}{c}{\textbf{X2 Tick 2}} \\ \hline
-				ALU            &                                           & Belt$\leftarrow$Belt{[}b1{]} OP Belt{[}b2{]}     &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				ALUI           & Imm$\leftarrow$SignExt(IR)                & Belt$\leftarrow$belt{[}b1{]} OP imm              &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				ADDC           &                                           & Belt$\leftarrow$belt{[}b1{]} + (carry(b2)?1:0)   &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				Load           & Imm$\leftarrow$SignExt(IR)                & addr$\leftarrow$imm + belt{[}b1{]}               & DMAR$\leftarrow$Addr                   & Belt $\leftarrow$ Dmem{[}DMAR{]}       \\ \arrayrulecolor{gray}\hline
-				Read Stack     & Imm$\leftarrow$ZeroExt(IR)                & addr$\leftarrow$imm + fp                         & SMAR$\leftarrow$Addr                   & belt $\leftarrow$ Smem{[}SMAR{]}       \\ 
-							   &										   & 												  &										   & cmp <- sp - IMM2    					\\ \arrayrulecolor{gray}\hline
-				Store          & Imm$\leftarrow$SignExt(IR)                & addr$\leftarrow$imm + belt{[}b1{]}               & DMAR$\leftarrow$Addr                   & Dmem{[}DMAR{]} $\leftarrow$ data       \\ 
-							   &                                           & data$\leftarrow$belt{[}b2{]}                     &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				Write Stack    & Imm$\leftarrow$ZeroExt(IR)                & addr$\leftarrow$imm + fp                         & SMAR$\leftarrow$Addr                   & Smem{[}SMAR{]} $\leftarrow$ data       \\ 
-							   &                                           & data$\leftarrow$belt{[}b1{]}                     &                                        & cmp $\leftarrow$ sp - IMM2             \\ \arrayrulecolor{gray}\hline
-				Jump           & Imm$\leftarrow$SignExt(IR)                & PC$\leftarrow$PCX1 + imm                         &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				Long Jump      &                                           & PC$\leftarrow$belt{[}b1{]}                &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				Branch         & IF CONDITION Imm$\leftarrow$SignExt(IR)   & IF COND PC$\leftarrow$PCX1 + imm                 &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				Call Pt 1      & Imm$\leftarrow$SignExt(IR)                & PC$\leftarrow$PCx1 + Imm                         & SMAR$\leftarrow$SP + 1                 & SMem[SMAR]$\leftarrow$RA               \\ 
-							   &                                           &                                                  & FP$\leftarrow$SP + 1                   &                                        \\ 
-							   &                                           &                                                  & SP$\leftarrow$SP + 1                   &                                        \\ \arrayrulecolor{gray}\hline
-				Long Call Pt 1 &                                           & PC$\leftarrow$belt{[}b1{]}                       & SMAR$\leftarrow$SP + 1                 & SMem[SMAR]$\leftarrow$RA               \\ 
-							   &                                           &                                                  & FP$\leftarrow$SP + 1                   &                                        \\ 
-							   &                                           &                                                  & SP$\leftarrow$SP + 1                   &                                        \\ \arrayrulecolor{gray}\hline
-				Call pt 2      & Addr$\leftarrow$FP                        & RA$\leftarrow$PCx1 + 1                           & SMAR$\leftarrow$SP                     & RFP$\leftarrow$ALU2[Addr]              \\ 
-				               &                                           &                                                  & SP++                                   & SMem[SMAR]$\leftarrow$RFP              \\ \arrayrulecolor{gray}\hline
-				Return pt 1    & pc$\leftarrow$RA                          & addr$\leftarrow$FP - 1                           & SMAR$\leftarrow$ADDR                   & RA$\leftarrow$Smem[SMAR]               \\ \arrayrulecolor{gray}\hline
-				Return pt 2    & fp$\leftarrow$rfp                         &                                                  & SMAR$\leftarrow$ADDR                   & RFP$\leftarrow$Smem[SMAR]              \\ 
-				               & addr$\leftarrow$FP - 2                    &                                                  & SP$\leftarrow$ADDR                     &                                        \\ \arrayrulecolor{gray}\hline
-				AllocA         & Imm1$\leftarrow$ZeroExt(IR)               & imm2$\leftarrow$imm                              & sp$\leftarrow$sp + imm2                &                                        \\ \arrayrulecolor{gray}\hline
-				Const          & Imm$\leftarrow$SignExt(IR)                & belt$\leftarrow$imm                              &                                        &                                        \\ \arrayrulecolor{gray}\hline
-				Upper          & imm$\leftarrow$ZeroExt(IR)                & belt$\leftarrow$imm \textless{}\textless 8       &                                        &                                       
-				\end{tabular}
+			\begin{tabular}{l|llll}
+				\multicolumn{1}{c|}{\bfseries Instr} &
+				\multicolumn{1}{c}{\bfseries X1 Tick 1} &
+				\multicolumn{1}{c}{\bfseries X1 Tick 2} &
+				\multicolumn{1}{c}{\bfseries X2 Tick 1} &
+				\multicolumn{1}{c}{\bfseries X2 Tick 2} \\
+				\midrule
+
+				ALU
+					&
+					&
+					\(\textrm{Belt} \gets \textrm{Belt}[\textrm{b1}] \mathop{\textrm{OP}} \textrm{Belt}[\textrm{b2}]\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				ALUI
+					& \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& \(\textrm{Belt} \gets \textrm{Belt}[\textrm{b1}] \mathop{\textrm{OP}} \textrm{ImmX1}\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				ADDC
+					&
+					& \(\textrm{Belt} \gets \textrm{Belt}[\textrm{b1}] + \operatorname{carry}(\textrm{b2})\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Load
+					& \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& \(\textrm{Addr} \gets \textrm{Belt}[\textrm{b1}] + \textrm{ImmX1}\)
+					& \(\textrm{DMAR} \gets \textrm{Addr}\)
+					& \(\textrm{Belt} \gets \textrm{DMem}[\textrm{DMAR}]\)
+					\\ \arrayrulecolor{gray}\hline
+				Read Stack
+					& \(\textrm{ImmX1} \gets \operatorname{ZeroExt}(\textrm{IR})\)
+					& \(\textrm{Addr} \gets \textrm{FP} + \textrm{ImmX1}\)
+					& \(\textrm{SMAR} \gets \textrm{Addr}\)
+					& \(\textrm{Belt} \gets \textrm{SMem}[\textrm{SMAR}]\)
+					\\
+					&
+					&
+					&
+					& \(\textrm{Cmp} \gets \textrm{SP} - \textrm{ImmX2}\)
+					\\ \arrayrulecolor{gray}\hline
+				Store
+					& \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& \(\textrm{Addr} \gets \textrm{Belt}[\textrm{b1}] + \textrm{ImmX1}\)
+					& \(\textrm{DMAR} \gets \textrm{Addr}\)
+					& \(\textrm{DMem}[\textrm{DMAR}] \gets \textrm{Data}\)
+					\\
+					&
+					& \(\textrm{Data} \gets \textrm{Belt}[\textrm{b2}]\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Write Stack
+					& \(\textrm{ImmX1} \gets \operatorname{ZeroExt}(\textrm{IR})\)
+					& \(\textrm{Addr} \gets \textrm{FP} + \textrm{ImmX1}\)
+					& \(\textrm{SMAR} \gets \textrm{Addr}\)
+					& \(\textrm{SMem}[\textrm{SMAR}] \gets \textrm{Data}\)
+					\\
+					&
+					& \(\textrm{Data} \gets \textrm{Belt}[\textrm{b1}]\)
+					&
+					& \(\textrm{Cmp} \gets \textrm{SP} - \textrm{ImmX2}\)
+					\\ \arrayrulecolor{gray}\hline
+				Jump
+					& \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& \(\textrm{PC} \gets \textrm{PCX1} + \textrm{ImmX1}\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Long Jump
+					&
+					& \(\textrm{PC} \gets \textrm{Belt}[\textrm{b1}]\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Branch
+					& If COND \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& If COND \(\textrm{PC} \gets \textrm{PCX1} + \textrm{ImmX1}\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Call pt 1
+					& \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& \(\textrm{PC} \gets \textrm{PCX1} + \textrm{ImmX1}\)
+					& \(\textrm{SMAR} \gets \textrm{SP} + 1\)
+					& \(\textrm{SMem}[\textrm{SMAR}] \gets \textrm{RA}\)
+					\\
+					&
+					&
+					& \(\textrm{FP} \gets \textrm{SP} + 1\)
+					&
+					\\
+					&
+					&
+					& \(\textrm{SP} \gets \textrm{SP} + 1\)
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Long Call pt 1
+					&
+					& \(\textrm{PC} \gets \textrm{Belt}[\textrm{b1}]\)
+					& \(\textrm{SMAR} \gets \textrm{SP} + 1\)
+					& \(\textrm{SMem}[\textrm{SMAR}] \gets \textrm{RA}\)
+					\\
+					&
+					&
+					& \(\textrm{FP} \gets \textrm{SP} + 1\)
+					&
+					\\
+					&
+					&
+					& \(\textrm{SP} \gets \textrm{SP} + 1\)
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Call pt 2
+					& \(\textrm{Addr} \gets \textrm{FP}\)
+					& \(\textrm{RA} \gets \textrm{PCX1} + 1\)
+					& \(\textrm{SMAR} \gets \textrm{SP}\)
+					& \(\textrm{RFP} \gets \textrm{Addr}\)
+					\\
+					&
+					&
+					& SP++
+					& \(\textrm{SMem}[\textrm{SMAR}] \gets \textrm{RFP}\)
+					\\ \arrayrulecolor{gray}\hline
+				Return pt 1
+					& \(\textrm{PC} \gets \textrm{RA}\)
+					& \(\textrm{Addr} \gets \textrm{FP} - 1\)
+					& \(\textrm{SMAR} \gets \textrm{Addr}\)
+					& \(\textrm{RA} \gets \textrm{SMem}[\textrm{SMAR}]\)
+					\\ \arrayrulecolor{gray}\hline
+				Return pt 2
+					& \(\textrm{FP} \gets \textrm{RFP}\)
+					&
+					& \(\textrm{SMAR} \gets \textrm{Addr}\)
+					& \(\textrm{RFP} \gets \textrm{SMem}[\textrm{SMAR}]\)
+					\\
+					& \(\textrm{Addr} \gets \textrm{FP} - 2\)
+					&
+					& \(\textrm{SP} \gets \textrm{Addr}\)
+					&
+					\\ \arrayrulecolor{gray}\hline
+				AllocA
+					& \(\textrm{ImmX1} \gets \operatorname{ZeroExt}(\textrm{IR})\)
+					& \(\textrm{ImmX2} \gets \textrm{ImmX1}\)
+					& \(\textrm{SP} \gets \textrm{SP} + \textrm{ImmX2}\)
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Const
+					& \(\textrm{ImmX1} \gets \operatorname{SignExt}(\textrm{IR})\)
+					& \(\textrm{Belt} \gets \textrm{ImmX1}\)
+					&
+					&
+					\\ \arrayrulecolor{gray}\hline
+				Upper
+					& \(\textrm{ImmX2} \gets \operatorname{ZeroExt}(\textrm{IR})\)
+					& \(\textrm{Belt} \gets \textrm{ImmX1} << 8\)
+					&
+					&
+			\end{tabular}
 		% \end{landscape}
 		%call:
 		% X1T1: ir -> sign extend -> imm
@@ -485,9 +617,9 @@
 		%		FP <- SP + 1
 		%       SP <- SP + 1
 		% X2T2: SMem[SMAR] ← RA
-		
+
 		%call2
-		% X1T1: addr <- fp 
+		% X1T1: addr <- fp
 		% X1T2: RA ← ALU1[PC X₁ + 1]
 		% X2T1: SMem.MAR ← ALU2[SP]
 		%       SP++
@@ -503,7 +635,7 @@
 		%return2:
 		% X1T1: fp$\leftarrow$rfp
 		%       addr$\leftarrow$FP - 2
-		% X1T2: 
+		% X1T2:
 		% X2T1: SMAR$\leftarrow$ADDR
 		%       SP$\leftarrow$ADDR
 		% X2T2: RFP$\leftarrow$SMEM[SMAR]
@@ -525,7 +657,7 @@
 		% 	% FP ← ALU2[SP + 1]
 		% 	% SP ← ALU2[SP + 1]
 		% 	% Addr ← ALU1[FP]
-			
+
 		% 	% RA ← ALU1[PC X₁ + 1]
 		% 	% SMem[←Mem.MAR] ← MAR
 		% 	% FP++

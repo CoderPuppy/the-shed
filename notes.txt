@@ -242,3 +242,10 @@
 		R₁ IF X₁ X₂
 		R₂    IF X₁ X₂
 		?        IF X₁ X₂
+
+		1
+			PC ← RA
+			Addr ← ALU1[FP - 1]
+		2
+			SMem.MAR ← ALU2[Addr]
+			RA ← SMem[FP - 1]
