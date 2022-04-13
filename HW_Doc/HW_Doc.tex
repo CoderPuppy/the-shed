@@ -28,7 +28,7 @@
 	\renewcommand{\footrulewidth}{0.4pt}
 	\setlength{\headheight}{14.5pt}
 \usepackage{fontspec}
-	\setmainfont{Doulos SIL}
+	% \setmainfont{Doulos SIL}
 \usepackage{booktabs}
 \usepackage{lscape}
 \usepackage{longtable}
@@ -63,6 +63,62 @@
 \end{titlepage}
 
 \chapter{Hardware}
+
+	\section{Components}
+
+		\subsection{Belt}
+
+			The belt is a collection of registers which store the working data.
+			It replaces the idea of a register file.
+			It has 8 positions, each of which consists of a 16-bit register for the value and 2 1-bit registers for carry and overflow flags.
+			It is arranged into a circular buffer by the control unit.
+
+			In the diagram below, it is abstracted as a single unit, each connection to the belt component means connections to each register which makes up the belt.
+
+		\subsection{Memories}
+
+			\begin{description}
+				\item[IMem] Instruction memory
+				\item[DMem] Data memory
+				\item[SMem] Stack memory, stores local variables, the return address and the return frame pointer
+
+					Separate from data memory in order to ensure the safety of calls and returns.
+			\end{description}
+
+		\subsection{Misc. Registers}
+
+			All are 16-bit registers.
+
+			\begin{description}
+				\item[PC] Program counter for fetch
+				\item[PC X1] Address of the instruction currently in execute 1
+				\item[RA] Return address, buffered for quick returns
+				\item[FP] Frame pointer, used as the base for stack addresses
+				\item[RFP] Return frame pointer, buffered for quick returns
+				\item[IR X1-4] Instruction register for stages execute 1 to execute 4
+				\item[Imm X1-2] Immediate register for stages execute 1 and execute 2
+				\item[Data] Pipeline register for the value to write to memory
+				\item[Addr] Pipeline register for the address to write to in memory (and some frame/stack pointer manipulation)
+				\item[SP] Stack pointer, used to detect stack accesses outside the current frame
+				\item[Cmp] Compare result, stores the result of the stack bounds check comparison for use by the control unit
+			\end{description}
+
+		\subsection{Main ALUs}
+
+			Two main 16-bit ALUs: ALU1 and ALU2.
+			ALU1 is used for ALU operations and address generation.
+			ALU2 is used for stack pointer manipulation and some specialized stack-related address generation.
+
+		\subsection{Immediate Extension}
+
+			Immediates are sometimes zero-extended and sometimes sign-extended, so we need hardware for both.
+			Zero-extension is handled by an 8-bit bus from IRX1 to ImmX1.
+			Sign-extension is handled by a special sign ext ALU (again from IRX1 to ImmX1).
+
+		\subsection{Multiplier}
+
+			The 16-bit to 32-bit multiplier.
+			It has 31 32-bit ALUs and 31 32-bit registers.
 
 	\tikzset{
 		ALU/.style={
@@ -440,28 +496,6 @@
 		\caption{Multiplier Diagram}
 	\end{figure}
 
-	\section{Components}
-
-		\subsection{Belt}
-		\subsection{Memories}
-		\subsection{Misc. Registers}
-
-			\begin{description}
-				\item[PC] Program counter for fetch
-				\item[PC X1] Address of the instruction currently in execute 1
-				\item[RA] Return address, buffered for quick returns
-				\item[FP] Frame pointer, used as the base for stack addresses
-				\item[RFP] Return frame pointer, buffered for quick returns
-				\item[IR X1-4] Instruction register for stages execute 1 to execute 4
-				\item[Imm X1-2] Immediate register for stages execute 1 and execute 2
-				\item[Data] Pipeline register for the value to write to memory
-				\item[Addr] Pipeline register for the address to write to in memory (and some frame/stack pointer manipulation)
-				\item[SP] Stack pointer, used to detect stack accesses outside the current frame
-				\item[Cmp] Compare result, stores the result of the stack bounds check comparison for use by the control unit
-			\end{description}
-
-		\subsection{ALUs}
-
 \chapter{RTL}
 
 	\section{Fetch}
@@ -469,8 +503,8 @@
 		\(\textrm{PCX1} \gets \textrm{PC}\) \\
 		\(\textrm{IR} \gets \textrm{IMem}[\textrm{IMAR}]\)
 
+	\begin{landscape}
 	\section{Instructions}
-		% \begin{landscape}
 			\begin{tabular}{l|llll}
 				\multicolumn{1}{c|}{\bfseries Instr} &
 				\multicolumn{1}{c}{\bfseries X1 Tick 1} &
@@ -633,7 +667,7 @@
 					&
 					&
 			\end{tabular}
-		% \end{landscape}
+	\end{landscape}
 		%call:
 		% X1T1: ir -> sign extend -> imm
 		% X1T2: pcX1 + imm -> PC
