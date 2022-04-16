@@ -66,6 +66,10 @@ void execute() {
 }
 
 void executeLoop() {
+  fetchT1();
+  Clock::tick();
+  fetchT2();
+  Clock::tick();
   while (programState == RUNNING || programState == HALTING) {
     execute();
   }

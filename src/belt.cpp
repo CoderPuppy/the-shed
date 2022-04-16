@@ -37,12 +37,15 @@ Belt::Belt(int elements) {
   }
 }
 
-void Belt::shift(int amount) { offset = (offset + amount) % numberOfElements; }
+void Belt::shift(int amount) { offset = (offset - amount) % numberOfElements; }
 
 void Belt::shift() { shift(1); }
 
 BeltElement* Belt::get(int index) {
   int i = (index + offset) % numberOfElements;
+  if (i < 0) {
+    i = numberOfElements + i;
+  }
   return belt[i];
 }
 
