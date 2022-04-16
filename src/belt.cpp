@@ -70,7 +70,7 @@ void Belt::addToBelt(OutFlow& dataFlow) {
 string Belt::toString() {
   std::ostringstream ss;
   for (int i = 0; i < numberOfElements; i++) {
-    ss << std::right << std::setfill(' ') << std::setw(8) << get(i)->toString()
+    ss << std::left << std::setfill(' ') << std::setw(8) << get(i)->toString()
        << " | ";
   }
   return ss.str();

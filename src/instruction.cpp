@@ -86,7 +86,7 @@ class ALUC : public Instruction {
   void X4T1(){};
   void X4T2(){};
   string getMnemonic() {
-    return "ALUC (" + opToString(op) + ") B" + std::to_string(b1) + " BC" +
+    return opToString(op) + "C B" + std::to_string(b1) + " B" +
            std::to_string(b2);
   }
   ALUC(int belt1, int belt2, BusALU::Operation operation) {
@@ -137,6 +137,84 @@ class STORE : public Instruction {
   string getMnemonic() { return "STORE (NOT IMPLEMENTED)"; }
 };
 
+class SE_IMM : public Instruction {
+ public:
+  void X1T1() {
+    sign_ext.OP1().pullFrom(instr_reg_X1);
+    sign_ext.OP2().pullFrom(sign_ext_mask);
+    imm_X1.latchFrom(sign_ext.OUT());
+    sign_ext.perform(BusALU::op_extendSign);
+  }
+};
+
+class ZE_IMM : public Instruction {
+ public:
+  void X1T1() {
+    zero_ext.IN().pullFrom(instr_reg_X1);
+    imm_X1.latchFrom(zero_ext.OUT());
+  }
+};
+
+class ALUI : public SE_IMM {
+ public:
+  void X1T2() {
+    alu1.OP1().pullFrom(*(belt.get(b1)->data));
+    alu1.OP2().pullFrom(imm_X1);
+    alu1.perform(op);
+    belt.addToBelt(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
+  };
+  void X2T1(){};
+  void X2T2(){};
+  void X3T1(){};
+  void X3T2(){};
+  void X4T1(){};
+  void X4T2(){};
+  string getMnemonic() {
+    std::ostringstream ss;
+    ss << opToString(op) << "I ";
+    ss << "B" << std::to_string(b1) << " ";
+    ss << toHexString(4, immediate);
+    return ss.str();
+  }
+  ALUI(int belt1, long imm, BusALU::Operation operation) {
+    b1 = belt1;
+    op = operation;
+    immediate = imm;
+  }
+
+ private:
+  int b1;
+  long immediate;
+  BusALU::Operation op;
+};
+
+class MULTI : public SE_IMM {
+ public:
+  void X1T2(){};
+  void X2T1(){};
+  void X2T2(){};
+  void X3T1(){};
+  void X3T2(){};
+  void X4T1(){};
+  void X4T2(){};
+  string getMnemonic() {
+    std::ostringstream ss;
+    ss << "MULT"
+       << " (NOT IMPLEMNTED) I ";
+    ss << "B" << std::to_string(b1) << " ";
+    ss << "I" << toHexString(4, immediate);
+    return ss.str();
+  }
+  MULTI(int belt1, long imm) {
+    b1 = belt1;
+    immediate = imm;
+  }
+
+ private:
+  int b1;
+  long immediate;
+};
+
 Instruction* field1_01_field4_ff_field3_7(long field1, long field2, long field3,
                                           long field4) {
   switch (field2) {
@@ -175,6 +253,37 @@ Instruction* field1_01_field4_ff(long field1, long field2, long field3,
     // get_carry
     case 0x7:
       return field1_01_field4_ff_field3_7(field1, field2, field3, field4);
+    default:
+      return new INVALID();
+  }
+}
+
+Instruction* field1_10(long field1, long field2, long field3, long field4) {
+  switch (field3) {
+    case 0x0:
+      // addi
+      return new ALUI(field2, field4, BusALU::op_add);
+    case 0x1:
+      // mlui
+      return new MULTI(field2, field4);
+    case 0x2:
+      // andi
+      return new ALUI(field2, field4, BusALU::op_and);
+    case 0x3:
+      // ori
+      return new ALUI(field2, field4, BusALU::op_or);
+    case 0x4:
+      // xori
+      return new ALUI(field2, field4, BusALU::op_xor);
+    case 0x5:
+      // lshifti
+      return new ALUI(field2, field4, BusALU::op_lshift);
+    case 0x6:
+      // rshifti
+      return new ALUI(field2, field4, BusALU::op_rshift);
+    case 0x7:
+      // arshifi
+      return new ALUI(field2, field4, BusALU::op_rashift);
     default:
       return new INVALID();
   }
@@ -234,7 +343,7 @@ Instruction* decode(StorageObject& IR) {
     case 0b01:
       return field1_01(field1, field2, field3, field4);
     case 0b10:
-      return new INVALID();  // TODO: decode
+      return field1_10(field1, field2, field3, field4);
     case 0b11:
       // look at field 3 + field 2
       return new INVALID();  // TODO: decode

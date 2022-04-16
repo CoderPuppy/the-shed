@@ -46,6 +46,7 @@ Bus zero_ext("zero_ext", IMM_BITS);
 Bus const_bus("Const Bus", BITS);
 StorageObject nop_instr("nop_instruction", BITS, 0b0100111111111111);
 StorageObject max_value("max_value", BITS, ~(~0u << BITS));
+StorageObject sign_ext_mask("sign_ext_mask", BITS, 1u << IMM_BITS);
 
 STATE_ENUM programState = RUNNING;
 
@@ -92,6 +93,7 @@ void connect(void) {
   instr_reg_X1.connectsTo(instr_reg_X1_bus.IN());
   instr_reg_X1.connectsTo(zero_ext.IN());
   instr_reg_X1.connectsTo(sign_ext.OP1());
+  instr_reg_X1.connectsTo(sign_ext.OP2());
   instr_reg_X1.connectsTo(const_bus.OUT());
 
   instr_reg_X2.connectsTo(instr_reg_X1_bus.OUT());
@@ -129,4 +131,6 @@ void connect(void) {
 
   max_value.connectsTo(const_bus.IN());
   max_value.connectsTo(alu1.IN2());
+
+  sign_ext_mask.connectsTo(sign_ext.IN2());
 }

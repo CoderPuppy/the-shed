@@ -24,6 +24,9 @@ void fetchT2() {
 
   instr_reg_X3_bus.IN().pullFrom(instr_reg_X3);
   instr_reg_X4.latchFrom(instr_reg_X3_bus.OUT());
+
+  imm_X1_bus.IN().pullFrom(imm_X1);
+  imm_X2.latchFrom(imm_X1_bus.OUT());
 }
 
 void execute() {
@@ -33,13 +36,13 @@ void execute() {
   Instruction* x4 = decode(instr_reg_X4);
   cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
        << std::setw(4) << prog_cnt.value() << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(10) << x1->getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(15) << x1->getMnemonic();
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(10) << x2->getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(15) << x2->getMnemonic();
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(10) << x3->getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(15) << x3->getMnemonic();
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(10) << x4->getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(15) << x4->getMnemonic();
   cout << " | ";
   cout << belt.toString();
   cout << "\n";

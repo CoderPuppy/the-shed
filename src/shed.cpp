@@ -6,13 +6,13 @@ void setup(char *file) {
   prog_cnt.latchFrom(instr_mem.READ());
   Clock::tick();
   cout << " ADDR  | ";
-  cout << "X1         | ";
-  cout << "X2         | ";
-  cout << "X3         | ";
-  cout << "X4         | ";
+  cout << "X1              | ";
+  cout << "X2              | ";
+  cout << "X3              | ";
+  cout << "X4              | ";
   cout << "BELT       ";
   cout << "\n";
-  cout << std::string(70, '-');
+  cout << std::string(170, '-');
   cout << "\n";
 }
 

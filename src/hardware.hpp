@@ -58,6 +58,7 @@ extern Bus zero_ext;
 extern StorageObject nop_instr;
 extern StorageObject max_value;
 extern Bus const_bus;
+extern StorageObject sign_ext_mask;
 
 enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE };
 extern STATE_ENUM programState;
