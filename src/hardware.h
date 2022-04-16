@@ -3,48 +3,17 @@
 //
 // Hardware definition
 
-#ifndef _HARDWARE_H
-#define _HARDWARE_H
+#ifndef HARDWARE_H
+#define HARDWARE_H
 
-#include <StorageObject.h>
-#include <Counter.h>
-#include <Clearable.h>
-#include <Memory.h>
-#include <BusALU.h>
-#include <Bus.h>
+#include "includes.h"
 
 static const unsigned int IMM_BITS(8);
 static const unsigned int BITS(16);
 
 // Belt
 static const unsigned int BELT_SIZE(8);
-extern StorageObject belt_0;
-extern StorageObject belt_1;
-extern StorageObject belt_2;
-extern StorageObject belt_3;
-extern StorageObject belt_4;
-extern StorageObject belt_5;
-extern StorageObject belt_6;
-extern StorageObject belt_7;
-extern StorageObject *belt[BELT_SIZE];
-extern Clearable belt_carry_0;
-extern Clearable belt_carry_1;
-extern Clearable belt_carry_2;
-extern Clearable belt_carry_3;
-extern Clearable belt_carry_4;
-extern Clearable belt_carry_5;
-extern Clearable belt_carry_6;
-extern Clearable belt_carry_7;
-extern Clearable *belt_carry[BELT_SIZE];
-extern Clearable belt_oflow_0;
-extern Clearable belt_oflow_1;
-extern Clearable belt_oflow_2;
-extern Clearable belt_oflow_3;
-extern Clearable belt_oflow_4;
-extern Clearable belt_oflow_5;
-extern Clearable belt_oflow_6;
-extern Clearable belt_oflow_7;
-extern Clearable *belt_oflow[BELT_SIZE];
+extern Belt belt;
 
 // Misc registers
 extern Counter prog_cnt;
@@ -84,6 +53,14 @@ extern BusALU sign_ext;
 extern BusALU alu1;
 extern BusALU alu2;
 extern Bus zero_ext;
+
+// consts
+extern StorageObject nop_instr;
+extern StorageObject max_value;
+extern Bus const_bus;
+
+enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE };
+extern STATE_ENUM programState;
 
 void connect(void);
 
