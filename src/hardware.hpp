@@ -3,10 +3,10 @@
 //
 // Hardware definition
 
-#ifndef HARDWARE_H
-#define HARDWARE_H
+#ifndef HARDWARE_HPP
+#define HARDWARE_HPP
 
-#include "includes.h"
+#include "includes.hpp"
 
 static const unsigned int IMM_BITS(8);
 static const unsigned int BITS(16);

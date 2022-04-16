@@ -1,7 +1,4 @@
-
-#include <iostream>
-
-#include "includes.h"
+#include "includes.hpp"
 
 BeltElement::BeltElement(int number) {
   std::string index = std::to_string(number);
@@ -22,6 +19,14 @@ void BeltElement::connectsTo(Flow& f) {
   data->connectsTo(f);
   carry->connectsTo(f);
   oflow->connectsTo(f);
+}
+
+string BeltElement::toString() {
+  std::ostringstream ss;
+  ss << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
+     << std::setw(4) << data->value() << (carry->value() ? "C" : "")
+     << (oflow->value() ? "O" : "");
+  return ss.str();
 }
 
 Belt::Belt(int elements) {
@@ -60,4 +65,12 @@ void Belt::addToBelt(OutFlow& dataFlow) {
   get(0)->data->latchFrom(dataFlow);
   get(0)->carry->clear();
   get(0)->oflow->clear();
+}
+
+string Belt::toString() {
+  std::ostringstream ss;
+  for (int i = 0; i < numberOfElements; i++) {
+    ss << get(i)->toString() << " | ";
+  }
+  return ss.str();
 }

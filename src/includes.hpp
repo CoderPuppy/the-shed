@@ -1,6 +1,12 @@
+#ifndef includes_hpp
+#define includes_hpp
+
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 // 'arch' library
 
@@ -16,6 +22,8 @@
 
 #include "belt.hpp"
 #include "execute.hpp"
-#include "hardware.h"
+#include "hardware.hpp"
 #include "helpers.hpp"
 #include "instruction.hpp"
+
+#endif

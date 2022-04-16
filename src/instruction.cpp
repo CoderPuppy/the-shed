@@ -1,4 +1,4 @@
-#include "includes.h"
+#include "includes.hpp"
 
 class INVALID : public Instruction {
  public:
@@ -55,7 +55,7 @@ class ALU : public Instruction {
   void X4T1(){};
   void X4T2(){};
   string getMnemonic() {
-    return "ALU (" + opToString(op) + ") B" + std::to_string(b1) + " B" +
+    return opToString(op) + " B" + std::to_string(b1) + " B" +
            std::to_string(b2);
   }
   ALU(int belt1, int belt2, BusALU::Operation operation) {

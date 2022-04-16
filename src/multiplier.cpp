@@ -1,8 +1,4 @@
-#include <Bus.h>
-#include <BusALU.h>
-#include <StorageObject.h>
-
-#include "hardware.h"
+#include "includes.hpp"
 
 StorageObject mult_reg("Mult", BITS);
 Bus mult_reg_bus("Mult bus", BITS);

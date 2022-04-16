@@ -1,11 +1,4 @@
-#include <Bus.h>
-#include <BusALU.h>
-#include <Clearable.h>
-#include <Counter.h>
-#include <Memory.h>
-#include <StorageObject.h>
-
-#include "includes.h"
+#include "includes.hpp"
 
 // Belt
 Belt belt(BELT_SIZE);

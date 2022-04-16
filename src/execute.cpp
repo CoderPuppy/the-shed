@@ -1,6 +1,4 @@
-#include <iomanip>
-
-#include "includes.h"
+#include "includes.hpp"
 
 void fetchT1() {
   if (programState != HALTING) {
@@ -33,12 +31,17 @@ void execute() {
   Instruction* x2 = decode(instr_reg_X2);
   Instruction* x3 = decode(instr_reg_X3);
   Instruction* x4 = decode(instr_reg_X4);
-  cout << "0x" << std::hex << std::setfill('0') << std::setw(4)
-       << prog_cnt.value() << ' ';
-  cout << std::setfill(' ') << std::setw(10) << x1->getMnemonic();
-  cout << std::setfill(' ') << std::setw(10) << x2->getMnemonic();
-  cout << std::setfill(' ') << std::setw(10) << x3->getMnemonic();
-  cout << std::setfill(' ') << std::setw(10) << x4->getMnemonic();
+  cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
+       << std::setw(4) << prog_cnt.value() << " | ";
+  cout << std::left << std::setfill(' ') << std::setw(10) << x1->getMnemonic();
+  cout << " | ";
+  cout << std::left << std::setfill(' ') << std::setw(10) << x2->getMnemonic();
+  cout << " | ";
+  cout << std::left << std::setfill(' ') << std::setw(10) << x3->getMnemonic();
+  cout << " | ";
+  cout << std::left << std::setfill(' ') << std::setw(10) << x4->getMnemonic();
+  cout << " | ";
+  cout << belt.toString();
   cout << "\n";
   fetchT1();
   x1->X1T1();

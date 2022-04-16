@@ -12,9 +12,6 @@ SRCFILES = bin/shed.o bin/belt.o bin/execute.o bin/hardware.o bin/helpers.o bin/
 
 all: shed
 
-clean:
-	rm shed *.o
-
 .PHONY: all clean
 
 shed: $(SRCFILES)
@@ -23,4 +20,6 @@ shed: $(SRCFILES)
 bin/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+clean:
+	rm bin/*
 

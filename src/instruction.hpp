@@ -1,7 +1,7 @@
 #ifndef instruction_hpp
 #define instruction_hpp
 
-#include <string>
+#include "includes.hpp"
 
 class Instruction {
  public:

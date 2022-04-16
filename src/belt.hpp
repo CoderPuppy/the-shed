@@ -1,7 +1,7 @@
 #ifndef belt_hpp
 #define belt_hpp
 
-#include <vector>
+#include "includes.hpp"
 
 class BeltElement {
  public:
@@ -10,6 +10,7 @@ class BeltElement {
   Clearable* oflow;
   BeltElement(int number);
   void connectsTo(Flow& f);
+  string toString();
 };
 
 class Belt {
@@ -22,6 +23,7 @@ class Belt {
   void connectsTo(Flow& f);
   void addToBelt(OutFlow& dataFlow, OutFlow& carryFlow, OutFlow& overflowFlow);
   void addToBelt(OutFlow& dataFlow);
+  string toString();
 
  private:
   int offset;
