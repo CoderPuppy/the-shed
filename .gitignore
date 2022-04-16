@@ -3,4 +3,4 @@ __latexindent_temp.tex
 *.synctex.gz
 *.xdv
 .DS_Store
-bin/*
+src/bin/*
