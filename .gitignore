@@ -4,3 +4,4 @@ __latexindent_temp.tex
 *.xdv
 .DS_Store
 src/bin/*
+progs/*.obj
