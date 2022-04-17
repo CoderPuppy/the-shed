@@ -24,7 +24,7 @@ void BeltElement::connectsTo(Flow& f) {
 string BeltElement::toString() {
   std::ostringstream ss;
   ss << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
-     << std::setw(4) << data->value() << (carry->value() ? "C" : "")
+     << std::setw(4) << data->value() << " " << (carry->value() ? "C" : "")
      << (oflow->value() ? "O" : "");
   return ss.str();
 }
@@ -73,7 +73,7 @@ void Belt::addToBelt(OutFlow& dataFlow) {
 string Belt::toString() {
   std::ostringstream ss;
   for (int i = 0; i < numberOfElements; i++) {
-    ss << std::left << std::setfill(' ') << std::setw(8) << get(i)->toString()
+    ss << std::left << std::setfill(' ') << std::setw(9) << get(i)->toString()
        << " | ";
   }
   return ss.str();

@@ -5,10 +5,18 @@ def beltPosToBin(beltPos):
     return "{0:03b}".format(int(beltPos))
 
 def immToBin(imm):
-    return "{0:08b}".format(int(imm))
+    if(imm.startswith("0x")):
+        imm = imm.replace("0x", "", 1)
+        return "{0:08b}".format(int(imm, 16))
+    elif(imm.startswith("0b")):
+        imm = imm.replace("0b", "", 1)
+        return "{0:08b}".format(int(imm, 2))
+    else:
+        return "{0:08b}".format(int(imm, 10))
+    
 
 def binaryToHex(bin):
-    return hex(int(bin, 2))
+    return hex(int(bin, 2)).replace("0x", "", 1)
 
 instrsFormat = {     # "00 000 000 0000 0000"
     "store"          : "00   B   B         I",

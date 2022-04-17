@@ -12,7 +12,7 @@ void setup(char *file) {
   cout << "X4                 | ";
   cout << "BELT       ";
   cout << "\n";
-  cout << std::string(180, '-');
+  cout << std::string(188, '-');
   cout << "\n";
 }
 
