@@ -12,6 +12,8 @@ SRCFILES = bin/shed.o bin/belt.o bin/execute.o bin/hardware.o bin/helpers.o bin/
 
 all: shed
 
+progs: ../progs/test.obj
+
 .PHONY: all clean
 
 shed: $(SRCFILES)
@@ -19,6 +21,9 @@ shed: $(SRCFILES)
 
 bin/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+../progs/%.obj: ../progs/%.S
+	python3 ../assembler.py $<
 
 clean:
 	rm bin/*
