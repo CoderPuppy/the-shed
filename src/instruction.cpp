@@ -131,6 +131,7 @@ class ALUC : public Instruction {
 
 class MULT : public Instruction {
  public:
+  // TODO
   void X1T1(){};
   void X1T2(){};
   void X2T1(){};
@@ -252,6 +253,7 @@ class ALUI : public SE_IMM {
 
 class MULTI : public SE_IMM {
  public:
+  // TODO
   void X1T2(){};
   void X2T1(){};
   void X2T2(){};
@@ -329,8 +331,10 @@ Instruction* field1_01_field4_ff_field3_7(long field1, long field2, long field3,
       return new NOP();
     case 0x2:
       // return
+      // TODO
     case 0x3:
       // get_pc
+      // TODO
     default:
       return new INVALID();
   }
@@ -351,11 +355,14 @@ Instruction* field1_01_field4_ff(long field1, long field2, long field3,
       // negate
       return new NEGATE(field2);
     case 0x2:
-    // longcall
+      // longcall
+      // TODO
     case 0x3:
-    // longjump
+      // longjump
+      // TODO
     case 0x4:
-    // get_carry
+      // get_carry
+      // TODO
     case 0x7:
       return field1_01_field4_ff_field3_7(field1, field2, field3, field4);
     default:
