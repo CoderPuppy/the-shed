@@ -6,13 +6,13 @@ void setup(char *file) {
   prog_cnt.latchFrom(instr_mem.READ());
   Clock::tick();
   cout << " ADDR  | ";
-  cout << "X1                 | ";
-  cout << "X2                 | ";
-  cout << "X3                 | ";
-  cout << "X4                 | ";
+  cout << "X1                  | ";
+  cout << "X2                  | ";
+  cout << "X3                  | ";
+  cout << "X4                  | ";
   cout << "BELT       ";
   cout << "\n";
-  cout << std::string(188, '-');
+  cout << std::string(192, '-');
   cout << "\n";
 }
 
@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
         cout << "\nSHED halted due to unknown reason\n";
         break;
     }
+    data_mem.dump(0, 20);
   }
 
   catch (ArchLibError &err) {

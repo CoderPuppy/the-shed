@@ -14,6 +14,7 @@ class Instruction {
   virtual void X4T1() = 0;
   virtual void X4T2() = 0;
   virtual std::string getMnemonic() = 0;
+  virtual int getLatency() = 0;
 };
 
 Instruction* decode(StorageObject& IR);

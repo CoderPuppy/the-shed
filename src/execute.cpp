@@ -5,13 +5,14 @@ void fetchT1() {
     prog_cnt_X1.latchFrom(prog_cnt_bus.OUT());
     instr_mem.MAR().latchFrom(prog_cnt_bus.OUT());
     prog_cnt_bus.IN().pullFrom(prog_cnt);
+    prog_cnt.incr();
   }
 }
 void fetchT2() {
   if (programState != HALTING) {
     instr_mem.read();
     instr_reg_X1.latchFrom(instr_mem.READ());
-    prog_cnt.incr();
+
   } else {
     const_bus.IN().pullFrom(nop_instr);
     instr_reg_X1.latchFrom(const_bus.OUT());
@@ -36,13 +37,17 @@ void execute() {
   Instruction* x4 = decode(instr_reg_X4);
   cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
        << std::setw(4) << prog_cnt.value() << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x1->getMnemonic();
+  cout << (x1->getLatency() == 1 ? "*" : " ") << std::left << std::setfill(' ')
+       << std::setw(18) << x1->getMnemonic();
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x2->getMnemonic();
+  cout << (x2->getLatency() == 2 ? "*" : " ") << std::left << std::setfill(' ')
+       << std::setw(18) << x2->getMnemonic();
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x3->getMnemonic();
+  cout << (x3->getLatency() == 3 ? "*" : " ") << std::left << std::setfill(' ')
+       << std::setw(18) << x3->getMnemonic();
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x4->getMnemonic();
+  cout << (x4->getLatency() == 4 ? "*" : " ") << std::left << std::setfill(' ')
+       << std::setw(18) << x4->getMnemonic();
   cout << " | ";
   cout << belt.toString();
   cout << "\n";

@@ -4,6 +4,11 @@ import sys
 def beltPosToBin(beltPos):
     return "{0:03b}".format(int(beltPos))
 
+def twos_comp(val, bits):
+    if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
+        val = val - (1 << bits)        # compute negative value
+    return val                         # return positive value as is
+
 def immToBin(imm):
     if(imm.startswith("0x")):
         imm = imm.replace("0x", "", 1)
@@ -11,6 +16,11 @@ def immToBin(imm):
     elif(imm.startswith("0b")):
         imm = imm.replace("0b", "", 1)
         return "{0:08b}".format(int(imm, 2))
+    elif(imm.startswith("-")):
+        # imm = imm.replace("-", "", 1)
+        val = int(imm,10)
+        s = bin(val + (1<<8)).replace("0b", "", 1)
+        return "{0}".format(s)
     else:
         return "{0:08b}".format(int(imm, 10))
     
