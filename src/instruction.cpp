@@ -480,7 +480,7 @@ Instruction* field1_11(long field1, long field2, long field3, long field4) {
     case 0x1:
       // branch_neg
       return new BRANCH("BNEG", field2, field4, [](BeltElement* be) -> bool {
-        return ((*be->data)(1u << (BITS - 1)) == 1);
+        return ((*be->data)(BITS - 1) == 1);
       });
     case 0x2:
       // branch_oflow
