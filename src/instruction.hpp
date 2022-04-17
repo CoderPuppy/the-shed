@@ -13,9 +13,9 @@ class Instruction {
   virtual void X3T2() = 0;
   virtual void X4T1() = 0;
   virtual void X4T2() = 0;
-  virtual std::string getMnemonic() = 0;
+  virtual std::string getMnemonic(StorageObject& IR) = 0;
 };
 
-Instruction* decode(StorageObject& IR);
+Instruction& decode(StorageObject& IR);
 
 #endif

@@ -60,8 +60,13 @@ extern StorageObject max_value;
 extern Bus const_bus;
 extern StorageObject sign_ext_mask;
 
-enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE };
-extern STATE_ENUM programState;
+enum class State {
+  running,
+  halting,
+  halted,
+  invalid_opcode
+};
+extern State state;
 
 void connect(void);
 

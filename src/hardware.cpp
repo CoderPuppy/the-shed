@@ -48,7 +48,7 @@ StorageObject nop_instr("nop_instruction", BITS, 0b0100111111111111);
 StorageObject max_value("max_value", BITS, ~(~0u << BITS));
 StorageObject sign_ext_mask("sign_ext_mask", BITS, 1u << IMM_BITS);
 
-STATE_ENUM programState = RUNNING;
+State state = State::running;
 
 void connect(void) {
   belt.connectsTo(data_reg_bus.IN());
