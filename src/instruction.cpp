@@ -103,6 +103,7 @@ class ALUC : public Instruction {
 
 class MULT : public Instruction {
  public:
+	// TODO
   void X1T1(){};
   void X1T2(){};
   void X2T1(){};
@@ -126,6 +127,7 @@ class MULT : public Instruction {
 };
 class STORE : public Instruction {
  public:
+	// TODO
   void X1T1(){};
   void X1T2(){};
   void X2T1(){};
@@ -190,6 +192,7 @@ class ALUI : public SE_IMM {
 
 class MULTI : public SE_IMM {
  public:
+	// TODO
   void X1T2(){};
   void X2T1(){};
   void X2T2(){};
@@ -226,8 +229,10 @@ Instruction* field1_01_field4_ff_field3_7(long field1, long field2, long field3,
       return new NOP();
     case 0x2:
       // return
+			// TODO
     case 0x3:
       // get_pc
+			// TODO
     default:
       return new INVALID();
   }
@@ -242,15 +247,20 @@ Instruction* field1_01_field4_ff(long field1, long field2, long field3,
 
   switch (field3) {
     case 0x0:
-    // invert
+			// invert
+			// TODO
     case 0x1:
-    // negate
+			// negate
+			// TODO
     case 0x2:
-    // longcall
+			// longcall
+			// TODO
     case 0x3:
-    // longjump
+			// longjump
+			// TODO
     case 0x4:
-    // get_carry
+			// get_carry
+			// TODO
     case 0x7:
       return field1_01_field4_ff_field3_7(field1, field2, field3, field4);
     default:
@@ -346,6 +356,7 @@ Instruction* decode(StorageObject& IR) {
       return field1_10(field1, field2, field3, field4);
     case 0b11:
       // look at field 3 + field 2
+			// TODO
       return new INVALID();  // TODO: decode
   }
 }
