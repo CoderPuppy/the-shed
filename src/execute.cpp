@@ -36,7 +36,7 @@ void execute() {
   Instruction* x3 = decode(instr_reg_X3);
   Instruction* x4 = decode(instr_reg_X4);
   cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
-       << std::setw(4) << prog_cnt.value() << " | ";
+       << std::setw(4) << prog_cnt_X1.value() << " | ";
   cout << (x1->getLatency() == 1 ? "*" : " ") << std::left << std::setfill(' ')
        << std::setw(18) << x1->getMnemonic();
   cout << " | ";
