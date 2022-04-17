@@ -38,13 +38,17 @@ void execute() {
 
   cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
        << std::setw(4) << prog_cnt.value() << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x1.getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(18)
+       << x1.getMnemonic(instr_reg_X1);
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x2.getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(18)
+       << x2.getMnemonic(instr_reg_X2);
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x3.getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(18)
+       << x3.getMnemonic(instr_reg_X3);
   cout << " | ";
-  cout << std::left << std::setfill(' ') << std::setw(18) << x4.getMnemonic();
+  cout << std::left << std::setfill(' ') << std::setw(18)
+       << x4.getMnemonic(instr_reg_X4);
   cout << " | ";
   cout << belt.toString();
   cout << "\n";

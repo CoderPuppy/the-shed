@@ -23,7 +23,7 @@ string BeltElement::toString() {
 Belt::Belt(int length)
   : length(length), offset(0)
   , belt((BeltElement*) calloc(length, sizeof(BeltElement))) {
-  for (int i = 0; i < length; i++) {
+  for(int i = 0; i < length; i++) {
     new (&belt[i]) BeltElement(i);
   }
 }

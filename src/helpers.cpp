@@ -1,7 +1,7 @@
 #include "includes.hpp"
 
 string opToString(BusALU::Operation op) {
-  switch (op) {
+  switch(op) {
     case BusALU::op_none:
       return "NONE";
     case BusALU::op_add:

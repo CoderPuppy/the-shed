@@ -119,33 +119,33 @@ BusALU mult_alu_5("MultALU5", BITS * 2);
 void mult_connect(void) {
   belt.connectsTo(mult_reg_bus.IN());
   belt.connectsTo(mult_reg_00_bus.IN());
-  for (int j = 0; j < BITS - 1; j++) belt.connectsTo(mult_alu_0[j]->OP1());
+  for(int j = 0; j < BITS - 1; j++) belt.connectsTo(mult_alu_0[j]->OP1());
   belt.connectsTo(mult_reg_4_bus.OUT());
   belt.connectsTo(mult_alu_5.OUT());
 
   imm_X1.connectsTo(mult_reg_00_bus.IN());
-  for (int i = 0; i < BITS - 1; i++) {
+  for(int i = 0; i < BITS - 1; i++) {
     imm_X1.connectsTo(mult_alu_0[i]->OP1());
     mult_reg_0[i + 1]->connectsTo(mult_alu_0[i]->OUT());
   }
 
-  for (int i = 0; i < BITS; i++) {
+  for(int i = 0; i < BITS; i++) {
     BusALU *alu = mult_alu_1[i / 2];
     mult_reg_0[i]->connectsTo(i % 2 == 0 ? alu->OP1() : alu->OP2());
   }
-  for (int i = 0; i < BITS / 2; i++) {
+  for(int i = 0; i < BITS / 2; i++) {
     mult_reg_1[i]->connectsTo(mult_alu_1[i]->OUT());
 
     BusALU *alu = mult_alu_2[i / 2];
     mult_reg_1[i]->connectsTo(i % 2 == 0 ? alu->OP1() : alu->OP2());
   }
-  for (int i = 0; i < BITS / 4; i++) {
+  for(int i = 0; i < BITS / 4; i++) {
     mult_reg_2[i]->connectsTo(mult_alu_2[i]->OUT());
 
     BusALU *alu = mult_alu_3[i / 2];
     mult_reg_2[i]->connectsTo(i % 2 == 0 ? alu->OP1() : alu->OP2());
   }
-  for (int i = 0; i < BITS / 8; i++) {
+  for(int i = 0; i < BITS / 8; i++) {
     mult_reg_3[i]->connectsTo(mult_alu_3[i]->OUT());
     mult_reg_3[i]->connectsTo(i % 2 == 0 ? mult_alu_4.OP1() : mult_alu_4.OP2());
   }

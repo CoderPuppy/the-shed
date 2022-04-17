@@ -5,14 +5,14 @@
 
 class Instruction {
  public:
-  virtual void X1T1() = 0;
-  virtual void X1T2() = 0;
-  virtual void X2T1() = 0;
-  virtual void X2T2() = 0;
-  virtual void X3T1() = 0;
-  virtual void X3T2() = 0;
-  virtual void X4T1() = 0;
-  virtual void X4T2() = 0;
+  virtual void X1T1() {}
+  virtual void X1T2() {}
+  virtual void X2T1() {}
+  virtual void X2T2() {}
+  virtual void X3T1() {}
+  virtual void X3T2() {}
+  virtual void X4T1() {}
+  virtual void X4T2() {}
   virtual std::string getMnemonic(StorageObject& IR) = 0;
 };
 

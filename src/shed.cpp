@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
 
   // make sure we've been given an object file name
 
-  if (argc != 2) {
+  if(argc != 2) {
     cerr << "Usage:  " << argv[0] << " object-file-name\n\n";
-    exit(1);
+    return 1;
   }
 
   cout << hex;  // change base for future printing
@@ -34,22 +34,23 @@ int main(int argc, char *argv[]) {
     connect();
     setup(argv[1]);
     executeLoop();
-    switch (programState) {
-      case HALTED:
+    switch(state) {
+      case State::halted:
         cout << "\nSHED halted due to HALT instruction\n";
+        break;
+      case State::invalid_opcode:
+        cout << "\nSHED halted due to an invalid opcode\n";
         break;
       default:
         cout << "\nSHED halted due to unknown reason\n";
         break;
     }
-  }
-
-  catch (ArchLibError &err) {
+  } catch(ArchLibError &err) {
     cout << endl
          << "Simulation aborted - ArchLib runtime error" << endl
          << "Cause:  " << err.what() << endl;
-    return (1);
+    return 1;
   }
 
-  return (0);
+  return 0;
 }
