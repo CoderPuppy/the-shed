@@ -6,13 +6,13 @@ void setup(char *file) {
   prog_cnt.latchFrom(instr_mem.READ());
   Clock::tick();
   cout << " ADDR  | ";
-  cout << "X1              | ";
-  cout << "X2              | ";
-  cout << "X3              | ";
-  cout << "X4              | ";
+  cout << "X1                 | ";
+  cout << "X2                 | ";
+  cout << "X3                 | ";
+  cout << "X4                 | ";
   cout << "BELT       ";
   cout << "\n";
-  cout << std::string(170, '-');
+  cout << std::string(180, '-');
   cout << "\n";
 }
 
@@ -34,8 +34,14 @@ int main(int argc, char *argv[]) {
     connect();
     setup(argv[1]);
     executeLoop();
-    // run_simulation(argv[1]);
-
+    switch (programState) {
+      case HALTED:
+        cout << "\nSHED halted due to HALT instruction\n";
+        break;
+      default:
+        cout << "\nSHED halted due to unknown reason\n";
+        break;
+    }
   }
 
   catch (ArchLibError &err) {
