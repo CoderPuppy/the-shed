@@ -43,6 +43,9 @@ int main(int argc, char *argv[]) {
       case HALTED:
         cout << "\nSHED halted due to HALT instruction\n";
         break;
+      case INVALID_OPCODE:
+        cout << "\nSHED halted due to an invalid opcode\n";
+        break;
       default:
         cout << "\nSHED halted due to unknown reason\n";
         break;
