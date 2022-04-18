@@ -1,3 +1,8 @@
+// trace.hpp
+// Author: Drew Young (ajy2158@rit.edu)
+//
+// Functions to output a trace
+
 #ifndef trace_hpp
 #define trace_hpp
 

@@ -1,3 +1,9 @@
+// trace.cpp
+// Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
+//
+// Functions to output a trace
+
 #include "includes.hpp"
 
 void trace_header() {

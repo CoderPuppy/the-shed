@@ -1,5 +1,6 @@
 // execute.cpp
 // Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
 //
 // Instruction fetch and main execute loop
 
@@ -17,11 +18,11 @@ void fetchT2() {
   if (programState != HALTING) {
     instr_mem.read();
     instr_reg_X1.latchFrom(instr_mem.READ());
-
   } else {
     const_bus.IN().pullFrom(const_nop);
     instr_reg_X1.latchFrom(const_bus.OUT());
   }
+
   instr_reg_X1_bus.IN().pullFrom(instr_reg_X1);
   instr_reg_X2.latchFrom(instr_reg_X1_bus.OUT());
 

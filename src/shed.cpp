@@ -1,5 +1,6 @@
 // shed.cpp
 // Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
 //
 // Simulator entry point
 
