@@ -41,10 +41,3 @@ string opToString(BusALU::Operation op) {
       return "UNKNOWN";
   }
 }
-
-string toHexString(int fill, long value) {
-  std::ostringstream ss;
-  ss << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
-     << std::setw(fill) << value;
-  return ss.str();
-}
