@@ -31,10 +31,10 @@ void fetchT2() {
 }
 
 void execute() {
-  Instruction* x1 = decode(instr_reg_X1);
-  Instruction* x2 = decode(instr_reg_X2);
-  Instruction* x3 = decode(instr_reg_X3);
-  Instruction* x4 = decode(instr_reg_X4);
+  unique_ptr<Instruction> x1 = decode(instr_reg_X1);
+  unique_ptr<Instruction> x2 = decode(instr_reg_X2);
+  unique_ptr<Instruction> x3 = decode(instr_reg_X3);
+  unique_ptr<Instruction> x4 = decode(instr_reg_X4);
   cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
        << std::setw(4) << prog_cnt_X1.value() << " | ";
   cout << (x1->getLatency() == 1 ? "*" : " ") << std::left << std::setfill(' ')
@@ -63,11 +63,6 @@ void execute() {
   x3->X3T2();
   x4->X4T2();
   Clock::tick();
-
-  delete x1;
-  delete x2;
-  delete x3;
-  delete x4;
 }
 
 void executeLoop() {

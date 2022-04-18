@@ -17,6 +17,6 @@ class Instruction {
   virtual int getLatency() = 0;
 };
 
-Instruction* decode(StorageObject& IR);
+unique_ptr<Instruction> decode(StorageObject& IR);
 
 #endif
