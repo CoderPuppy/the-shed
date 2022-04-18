@@ -4,10 +4,11 @@ CXXFLAGS = -g -I$(ARCHLIB) -std=c++17
 LDFLAGS = $(ARCHLIB)/*.o
 
 SRCFILES = shed belt execute hardware helpers instruction multiplier
+PROGFILES = test test_mul test_store
 
 all: shed
 
-progs: progs/test.obj
+progs: $(addprefix progs/, $(addsuffix .obj, $(PROGFILES)))
 
 .PHONY: all progs clean
 
