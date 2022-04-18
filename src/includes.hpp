@@ -1,3 +1,9 @@
+// includes.hpp
+// Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
+//
+// All the includes for the entire project.
+
 #ifndef includes_hpp
 #define includes_hpp
 

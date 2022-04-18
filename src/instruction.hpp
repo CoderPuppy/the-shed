@@ -1,3 +1,9 @@
+// instruction.hpp
+// Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
+//
+// Interface for instruction decode and execution
+
 #ifndef instruction_hpp
 #define instruction_hpp
 

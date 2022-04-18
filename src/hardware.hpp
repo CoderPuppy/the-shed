@@ -1,10 +1,11 @@
-// hardware.h
+// hardware.hpp
 // Author: Drew Young (ajy2158@rit.edu)
+// Author: Max Kipust (mak4819@rit.edu)
 //
 // Hardware definition
 
-#ifndef HARDWARE_HPP
-#define HARDWARE_HPP
+#ifndef hardware_hpp
+#define hardware_hpp
 
 #include "includes.hpp"
 

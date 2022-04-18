@@ -1,3 +1,8 @@
+// execute.cpp
+// Author: Max Kipust (mak4819@rit.edu)
+//
+// Instruction fetch and main execute loop
+
 #include "includes.hpp"
 
 void fetchT1() {

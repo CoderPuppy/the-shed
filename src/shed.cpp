@@ -1,3 +1,8 @@
+// shed.cpp
+// Author: Max Kipust (mak4819@rit.edu)
+//
+// Simulator entry point
+
 #include "includes.hpp"
 
 void setup(char *file) {

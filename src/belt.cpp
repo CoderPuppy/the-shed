@@ -1,3 +1,9 @@
+// belt.cpp
+// Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
+//
+// Belt implementation
+
 #include "includes.hpp"
 
 BeltElement::BeltElement(int index)

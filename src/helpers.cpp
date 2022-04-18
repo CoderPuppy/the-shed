@@ -1,3 +1,8 @@
+// helpers.cpp
+// Author: Max Kipust (mak4819@rit.edu)
+//
+// Various helpers
+
 #include "includes.hpp"
 
 string opToString(BusALU::Operation op) {

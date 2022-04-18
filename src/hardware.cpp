@@ -1,3 +1,9 @@
+// hardware.cpp
+// Author: Drew Young (ajy2158@rit.edu)
+// Author: Max Kipust (mak4819@rit.edu)
+//
+// Hardware definition
+
 #include "includes.hpp"
 
 // Belt

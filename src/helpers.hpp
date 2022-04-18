@@ -1,3 +1,8 @@
+// helpers.hpp
+// Author: Max Kipust (mak4819@rit.edu)
+//
+// Various helpers
+
 #ifndef helpers_hpp
 #define helpers_hpp
 

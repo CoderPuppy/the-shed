@@ -1,3 +1,9 @@
+// multiplier.hpp
+// Author: Drew Young (ajy2158@rit.edu)
+//
+// Implementation of a multiplier. 16-bit times 16-bit to 32-bit output on two
+// 16-bit registers. Uses 32 ALUs and 32 registers (excluding constants).
+
 #include "includes.hpp"
 
 StorageObject mult_reg("Mult", BITS);
