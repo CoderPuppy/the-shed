@@ -36,39 +36,21 @@ class HALT : public Instruction {
 
 class NOP : public Instruction {
  public:
-  void X1T1(){};
-  void X1T2(){};
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
   void print(ostream& s) { s << "NOP"; }
   int getLatency() { return 5; }
 };
 
 class ALU : public Instruction {
  public:
-  void X1T1(){};
   void X1T2() {
     alu1.OP1().pullFrom(belt.get(b1).data);
     alu1.OP2().pullFrom(belt.get(b2).data);
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
   void print(ostream& s) { s << opToString(op) << " B" << b1 << " B" << b2; }
-  ALU(int belt1, int belt2, BusALU::Operation operation) {
-    b1 = belt1;
-    b2 = belt2;
-    op = operation;
-  }
+  ALU(int b1, int b2, BusALU::Operation op)
+    : b1(b1), b2(b2), op(op) {}
   int getLatency() { return 1; }
 
  private:
@@ -79,21 +61,14 @@ class ALU : public Instruction {
 
 class NEGATE : public Instruction {
  public:
-  void X1T1(){};
   void X1T2() {
     alu1.OP1().pullFrom(const_zero);
     alu1.OP2().pullFrom(belt.get(b1).data);
     alu1.perform(BusALU::op_sub);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
   void print(ostream& s) { s << "NEG B" << b1; }
-  NEGATE(int belt1) { b1 = belt1; }
+  NEGATE(int b1) : b1(b1) {}
   int getLatency() { return 1; }
 
  private:
@@ -102,25 +77,15 @@ class NEGATE : public Instruction {
 
 class ALUC : public Instruction {
  public:
-  void X1T1(){};
   void X1T2() {
     alu1.OP1().pullFrom(belt.get(b1).data);
     alu1.OP2().pullFrom(belt.get(b2).carry);
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
   void print(ostream& s) { s << opToString(op) << "C B" << b1 << " B" << b2; }
-  ALUC(int belt1, int belt2, BusALU::Operation operation) {
-    b1 = belt1;
-    b2 = belt2;
-    op = operation;
-  }
+  ALUC(int b1, int b2, BusALU::Operation op)
+    : b1(b1), b2(b2), op(op) {}
   int getLatency() { return 1; }
 
  private:
@@ -138,12 +103,8 @@ class MULT : public Instruction {
   void X3T1() { mult_tick3(); }
   void X3T2() { mult_tick4(); }
   void X4T1() { mult_tick5(); }
-  void X4T2() { }
   void print(ostream& s) { s << "MUL B" << b1 << " B" << b2; }
-  MULT(int belt1, int belt2) {
-    b1 = belt1;
-    b2 = belt2;
-  }
+  MULT(int b1, int b2) : b1(b1), b2(b2) {}
   int getLatency() { return 4; }
 
  private:
@@ -188,21 +149,14 @@ class STORE : public SE_IMM {
     data_mem.WRITE().pullFrom(data_reg);
     data_mem.write();
   };
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
-  STORE(int belt1, int belt2, long immedate) {
-    b1 = belt1;
-    b2 = belt2;
-    imm = immedate;
-  }
   void print(ostream& s) {
     s << "ST ";
     s << "B" << b1 << " ";
     s << "B" << b2 << " ";
     s << setw(4) << (data_t)(se_imm_t)imm;
   }
+  STORE(int b1, int b2, long imm)
+    : b1(b1), b2(b2), imm(imm) {}
   int getLatency() { return 2; }
 
  private:
@@ -219,27 +173,18 @@ class ALUI : public SE_IMM {
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
   void print(ostream& s) {
     s << opToString(op) << "I ";
     s << "B" << b1 << " ";
-    s << setw(4) << (data_t)(se_imm_t)immediate;
+    s << setw(4) << (data_t)(se_imm_t)imm;
   }
-  ALUI(int belt1, long imm, BusALU::Operation operation) {
-    b1 = belt1;
-    op = operation;
-    immediate = imm;
-  }
+  ALUI(int b1, long imm, BusALU::Operation op)
+    : b1(b1), imm(imm), op(op) {}
   int getLatency() { return 1; }
 
  private:
   int b1;
-  long immediate;
+  long imm;
   BusALU::Operation op;
 };
 
@@ -252,21 +197,17 @@ class MULTI : public SE_IMM {
   void X3T1() { mult_tick3(); }
   void X3T2() { mult_tick4(); }
   void X4T1() { mult_tick5(); }
-  void X4T2(){};
   void print(ostream& s) {
     s << "MULI ";
     s << "B" << b1 << " ";
-    s << setw(4) << (data_t)(se_imm_t)immediate;
+    s << setw(4) << (data_t)(se_imm_t)imm;
   }
-  MULTI(int belt1, long imm) {
-    b1 = belt1;
-    immediate = imm;
-  }
+  MULTI(int b1, long imm) : b1(b1), imm(imm) {}
   int getLatency() { return 4; }
 
  private:
   int b1;
-  long immediate;
+  long imm;
 };
 
 class BRANCH : public SE_IMM {
@@ -279,32 +220,22 @@ class BRANCH : public SE_IMM {
       alu1.perform(BusALU::op_add);
       prog_cnt.latchFrom(alu1.OUT());
     }
-  };
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
+  }
   void print(ostream& s) {
-    s << mnem;
+    s << mnemonic;
     s << " B" << b1 << " ";
-    s << setw(4) << (data_t)(se_imm_t)immediate;
+    s << setw(4) << (data_t)(se_imm_t)imm;
   }
-  BRANCH(string mnemonic, int belt1, long imm,
-         std::function<bool(BeltElement&)> condition) {
-    mnem = mnemonic;
-    b1 = belt1;
-    immediate = imm;
-    cond = condition;
-  }
+  BRANCH(string mnemonic, int b1, long imm,
+         function<bool(BeltElement&)> cond)
+    : mnemonic(mnemonic), b1(b1), imm(imm), cond(cond) {}
   int getLatency() { return 1; }
 
  private:
-  string mnem;
+  string mnemonic;
   int b1;
-  long immediate;
-  std::function<bool(BeltElement&)> cond;
+  long imm;
+  function<bool(BeltElement&)> cond;
 };
 
 unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1, long field2,
