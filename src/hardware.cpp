@@ -51,6 +51,8 @@ StorageObject negate_mask("negate_mask", BITS, 1u << (BITS - 1));
 STATE_ENUM programState = RUNNING;
 
 void connect(void) {
+  mult_connect();
+
   belt.connectsTo(data_reg_bus.IN());
   belt.connectsTo(alu1.OP1());
   belt.connectsTo(alu1.OP2());

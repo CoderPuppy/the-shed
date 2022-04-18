@@ -27,5 +27,6 @@
 #include "hardware.hpp"
 #include "helpers.hpp"
 #include "instruction.hpp"
+#include "multiplier.hpp"
 
 #endif

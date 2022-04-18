@@ -131,17 +131,16 @@ class ALUC : public Instruction {
 
 class MULT : public Instruction {
  public:
-  // TODO
-  void X1T1(){};
-  void X1T2(){};
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
-  void X4T2(){};
+  void X1T1() { mult_setup(belt.get(b1).data); }
+  void X1T2() { mult_tick0(belt.get(b2).data); }
+  void X2T1() { mult_tick1(); }
+  void X2T2() { mult_tick2(); }
+  void X3T1() { mult_tick3(); }
+  void X3T2() { mult_tick4(); }
+  void X4T1() { mult_tick5(); }
+  void X4T2() { }
   string getMnemonic() {
-    return "MULT (NOT IMPLEMENTED) B" + std::to_string(b1) + " B" +
+    return "MUL B" + std::to_string(b1) + " B" +
            std::to_string(b2);
   }
   MULT(int belt1, int belt2) {
@@ -253,20 +252,19 @@ class ALUI : public SE_IMM {
 
 class MULTI : public SE_IMM {
  public:
-  // TODO
-  void X1T2(){};
-  void X2T1(){};
-  void X2T2(){};
-  void X3T1(){};
-  void X3T2(){};
-  void X4T1(){};
+  void X1T1() { SE_IMM::X1T1(); mult_setup(belt.get(b1).data); }
+  void X1T2() { mult_tick0(imm_X1); }
+  void X2T1() { mult_tick1(); }
+  void X2T2() { mult_tick2(); }
+  void X3T1() { mult_tick3(); }
+  void X3T2() { mult_tick4(); }
+  void X4T1() { mult_tick5(); }
   void X4T2(){};
   string getMnemonic() {
     std::ostringstream ss;
-    ss << "MULT"
-       << " (NOT IMPLEMNTED) I ";
+    ss << "MULI ";
     ss << "B" << std::to_string(b1) << " ";
-    ss << "I" << toHexString(4, immediate);
+    ss << toHexString(4, immediate);
     return ss.str();
   }
   MULTI(int belt1, long imm) {
