@@ -41,22 +41,7 @@ void execute() {
   unique_ptr<Instruction> x3 = decode(instr_reg_X3);
   unique_ptr<Instruction> x4 = decode(instr_reg_X4);
 
-  cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
-       << std::setw(4) << prog_cnt_X1.value() << " | ";
-  cout << (x1->getLatency() == 1 ? "*" : " ") << std::left << std::setfill(' ')
-       << std::setw(18) << x1->getMnemonic();
-  cout << " | ";
-  cout << (x2->getLatency() == 2 ? "*" : " ") << std::left << std::setfill(' ')
-       << std::setw(18) << x2->getMnemonic();
-  cout << " | ";
-  cout << (x3->getLatency() == 3 ? "*" : " ") << std::left << std::setfill(' ')
-       << std::setw(18) << x3->getMnemonic();
-  cout << " | ";
-  cout << (x4->getLatency() == 4 ? "*" : " ") << std::left << std::setfill(' ')
-       << std::setw(18) << x4->getMnemonic();
-  cout << " | ";
-  cout << belt.toString();
-  cout << endl;
+  trace_cycle(*x1, *x2, *x3, *x4);
 
   fetchT1();
   x4->X4T1();

@@ -10,15 +10,7 @@ void setup(char *file) {
 
   prog_cnt.latchFrom(instr_mem.READ());
   Clock::tick();
-  cout << " ADDR  | ";
-  cout << "X1                  | ";
-  cout << "X2                  | ";
-  cout << "X3                  | ";
-  cout << "X4                  | ";
-  cout << "BELT       ";
-  cout << endl;
-  cout << std::string(192, '-');
-  cout << endl;
+  trace_header();
 }
 
 int main(int argc, char *argv[]) {

@@ -18,12 +18,10 @@ void BeltElement::connectsTo(Flow& f) {
   oflow.connectsTo(f);
 }
 
-string BeltElement::toString() {
-  std::ostringstream ss;
-  ss << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
-     << std::setw(4) << data.value() << " " << (carry.value() ? "C" : "")
-     << (oflow.value() ? "O" : "");
-  return ss.str();
+void BeltElement::print(ostream& s) {
+  s << setw(4) << data.value() << " ";
+  s << (carry.value() ? "C" : " ");
+  s << (oflow.value() ? "O" : " ");
 }
 
 Belt::Belt(int length)
@@ -72,13 +70,11 @@ void Belt::push(OutFlow& data) {
   belt[pending_offset].oflow.clear();
 }
 
-string Belt::toString() {
-  std::ostringstream ss;
+void Belt::print(ostream& s) {
   for (int i = 0; i < length; i++) {
-    ss << std::left << std::setfill(' ') << std::setw(9) << get(i).toString()
-       << " | ";
+    if (i > 0) s << " | ";
+    get(i).print(s);
   }
-  return ss.str();
 }
 
 void Belt::tick() {

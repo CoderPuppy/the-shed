@@ -16,7 +16,7 @@ class INVALID : public Instruction {
   void X3T2() { programState = INVALID_OPCODE; };
   void X4T1() { programState = INVALID_OPCODE; };
   void X4T2() { programState = INVALID_OPCODE; };
-  string getMnemonic() { return "INVALID"; }
+  void print(ostream& s) { s << "INVALID"; }
   int getLatency() { return 5; }
 };
 
@@ -30,7 +30,7 @@ class HALT : public Instruction {
   void X3T2() { programState = HALTING; };
   void X4T1() { programState = HALTED; };
   void X4T2() { programState = HALTED; };
-  string getMnemonic() { return "HALT"; }
+  void print(ostream& s) { s << "HALT"; }
   int getLatency() { return 4; }
 };
 
@@ -44,7 +44,7 @@ class NOP : public Instruction {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() { return "NOP"; }
+  void print(ostream& s) { s << "NOP"; }
   int getLatency() { return 5; }
 };
 
@@ -63,10 +63,7 @@ class ALU : public Instruction {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() {
-    return opToString(op) + " B" + std::to_string(b1) + " B" +
-           std::to_string(b2);
-  }
+  void print(ostream& s) { s << opToString(op) << " B" << b1 << " B" << b2; }
   ALU(int belt1, int belt2, BusALU::Operation operation) {
     b1 = belt1;
     b2 = belt2;
@@ -95,7 +92,7 @@ class NEGATE : public Instruction {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() { return "NEG B" + std::to_string(b1); }
+  void print(ostream& s) { s << "NEG B" << b1; }
   NEGATE(int belt1) { b1 = belt1; }
   int getLatency() { return 1; }
 
@@ -118,10 +115,7 @@ class ALUC : public Instruction {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() {
-    return opToString(op) + "C B" + std::to_string(b1) + " B" +
-           std::to_string(b2);
-  }
+  void print(ostream& s) { s << opToString(op) << "C B" << b1 << " B" << b2; }
   ALUC(int belt1, int belt2, BusALU::Operation operation) {
     b1 = belt1;
     b2 = belt2;
@@ -145,10 +139,7 @@ class MULT : public Instruction {
   void X3T2() { mult_tick4(); }
   void X4T1() { mult_tick5(); }
   void X4T2() { }
-  string getMnemonic() {
-    return "MUL B" + std::to_string(b1) + " B" +
-           std::to_string(b2);
-  }
+  void print(ostream& s) { s << "MUL B" << b1 << " B" << b2; }
   MULT(int belt1, int belt2) {
     b1 = belt1;
     b2 = belt2;
@@ -206,13 +197,11 @@ class STORE : public SE_IMM {
     b2 = belt2;
     imm = immedate;
   }
-  string getMnemonic() {
-    std::ostringstream ss;
-    ss << "ST ";
-    ss << "B" << std::to_string(b1) << " "
-       << "B" << std::to_string(b2) << " ";
-    ss << toHexString(4, imm);
-    return ss.str();
+  void print(ostream& s) {
+    s << "ST ";
+    s << "B" << b1 << " ";
+    s << "B" << b2 << " ";
+    s << setw(4) << (data_t)(se_imm_t)imm;
   }
   int getLatency() { return 2; }
 
@@ -236,12 +225,10 @@ class ALUI : public SE_IMM {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() {
-    std::ostringstream ss;
-    ss << opToString(op) << "I ";
-    ss << "B" << std::to_string(b1) << " ";
-    ss << toHexString(4, immediate);
-    return ss.str();
+  void print(ostream& s) {
+    s << opToString(op) << "I ";
+    s << "B" << b1 << " ";
+    s << setw(4) << (data_t)(se_imm_t)immediate;
   }
   ALUI(int belt1, long imm, BusALU::Operation operation) {
     b1 = belt1;
@@ -266,12 +253,10 @@ class MULTI : public SE_IMM {
   void X3T2() { mult_tick4(); }
   void X4T1() { mult_tick5(); }
   void X4T2(){};
-  string getMnemonic() {
-    std::ostringstream ss;
-    ss << "MULI ";
-    ss << "B" << std::to_string(b1) << " ";
-    ss << toHexString(4, immediate);
-    return ss.str();
+  void print(ostream& s) {
+    s << "MULI ";
+    s << "B" << b1 << " ";
+    s << setw(4) << (data_t)(se_imm_t)immediate;
   }
   MULTI(int belt1, long imm) {
     b1 = belt1;
@@ -301,12 +286,10 @@ class BRANCH : public SE_IMM {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() {
-    std::ostringstream ss;
-    ss << mnem;
-    ss << " B" << std::to_string(b1);
-    ss << " I" << toHexString(4, immediate);
-    return ss.str();
+  void print(ostream& s) {
+    s << mnem;
+    s << " B" << b1 << " ";
+    s << setw(4) << (data_t)(se_imm_t)immediate;
   }
   BRANCH(string mnemonic, int belt1, long imm,
          std::function<bool(BeltElement&)> condition) {

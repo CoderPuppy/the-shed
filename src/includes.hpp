@@ -33,5 +33,6 @@
 #include "helpers.hpp"
 #include "instruction.hpp"
 #include "multiplier.hpp"
+#include "trace.hpp"
 
 #endif

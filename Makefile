@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -g -I$(ARCHLIB) -std=c++17
 LDFLAGS = $(ARCHLIB)/*.o
 
-SRCFILES = shed belt execute hardware helpers instruction multiplier
+SRCFILES = shed belt execute hardware helpers instruction multiplier trace
 PROGFILES = test test_mul test_store
 
 all: shed
