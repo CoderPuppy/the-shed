@@ -55,7 +55,7 @@ void execute() {
        << std::setw(18) << x4->getMnemonic();
   cout << " | ";
   cout << belt.toString();
-  cout << "\n";
+  cout << endl;
   fetchT1();
   x1->X1T1();
   x2->X2T1();

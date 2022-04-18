@@ -16,9 +16,9 @@ void setup(char *file) {
   cout << "X3                  | ";
   cout << "X4                  | ";
   cout << "BELT       ";
-  cout << "\n";
+  cout << endl;
   cout << std::string(192, '-');
-  cout << "\n";
+  cout << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   // make sure we've been given an object file name
 
   if (argc != 2) {
-    cerr << "Usage:  " << argv[0] << " object-file-name\n\n";
+    cerr << "Usage:  " << argv[0] << " object-file-name" << endl << endl;
     exit(1);
   }
 
@@ -41,13 +41,13 @@ int main(int argc, char *argv[]) {
     executeLoop();
     switch (programState) {
       case HALTED:
-        cout << "\nSHED halted due to HALT instruction\n";
+        cout << endl << "SHED halted due to HALT instruction" << endl;
         break;
       case INVALID_OPCODE:
-        cout << "\nSHED halted due to an invalid opcode\n";
+        cout << endl << "SHED halted due to an invalid opcode" << endl;
         break;
       default:
-        cout << "\nSHED halted due to unknown reason\n";
+        cout << endl << "SHED halted due to unknown reason" << endl;
         break;
     }
     data_mem.dump(0, 20);
