@@ -6,30 +6,41 @@
 
 #include "includes.hpp"
 
+void signExtImm() {
+  sign_ext.OP1().pullFrom(instr_reg_X1);
+  sign_ext.OP2().pullFrom(const_sign_ext_mask);
+  imm_X1.latchFrom(sign_ext.OUT());
+  sign_ext.perform(BusALU::op_extendSign);
+}
+void zeroExtImm() {
+  zero_ext.IN().pullFrom(instr_reg_X1);
+  imm_X1.latchFrom(zero_ext.OUT());
+}
+
 class INVALID : public Instruction {
  public:
-  void X1T1() { programState = INVALID_OPCODE; };
-  void X1T2() { programState = INVALID_OPCODE; };
-  void X2T1() { programState = INVALID_OPCODE; };
-  void X2T2() { programState = INVALID_OPCODE; };
-  void X3T1() { programState = INVALID_OPCODE; };
-  void X3T2() { programState = INVALID_OPCODE; };
-  void X4T1() { programState = INVALID_OPCODE; };
-  void X4T2() { programState = INVALID_OPCODE; };
+  void X1T1() { programState = INVALID_OPCODE; }
+  void X1T2() { programState = INVALID_OPCODE; }
+  void X2T1() { programState = INVALID_OPCODE; }
+  void X2T2() { programState = INVALID_OPCODE; }
+  void X3T1() { programState = INVALID_OPCODE; }
+  void X3T2() { programState = INVALID_OPCODE; }
+  void X4T1() { programState = INVALID_OPCODE; }
+  void X4T2() { programState = INVALID_OPCODE; }
   void print(ostream& s) { s << "INVALID"; }
   int getLatency() { return 5; }
 };
 
 class HALT : public Instruction {
  public:
-  void X1T1() { programState = HALTING; };
-  void X1T2() { programState = HALTING; };
-  void X2T1() { programState = HALTING; };
-  void X2T2() { programState = HALTING; };
-  void X3T1() { programState = HALTING; };
-  void X3T2() { programState = HALTING; };
-  void X4T1() { programState = HALTED; };
-  void X4T2() { programState = HALTED; };
+  void X1T1() { programState = HALTING; }
+  void X1T2() { programState = HALTING; }
+  void X2T1() { programState = HALTING; }
+  void X2T2() { programState = HALTING; }
+  void X3T1() { programState = HALTING; }
+  void X3T2() { programState = HALTING; }
+  void X4T1() { programState = HALTED; }
+  void X4T2() { programState = HALTED; }
   void print(ostream& s) { s << "HALT"; }
   int getLatency() { return 4; }
 };
@@ -47,7 +58,7 @@ class ALU : public Instruction {
     alu1.OP2().pullFrom(belt.get(b2).data);
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
-  };
+  }
   void print(ostream& s) { s << opToString(op) << " B" << b1 << " B" << b2; }
   ALU(int b1, int b2, BusALU::Operation op)
     : b1(b1), b2(b2), op(op) {}
@@ -66,7 +77,7 @@ class NEGATE : public Instruction {
     alu1.OP2().pullFrom(belt.get(b1).data);
     alu1.perform(BusALU::op_sub);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
-  };
+  }
   void print(ostream& s) { s << "NEG B" << b1; }
   NEGATE(int b1) : b1(b1) {}
   int getLatency() { return 1; }
@@ -82,7 +93,7 @@ class ALUC : public Instruction {
     alu1.OP2().pullFrom(belt.get(b2).carry);
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
-  };
+  }
   void print(ostream& s) { s << opToString(op) << "C B" << b1 << " B" << b2; }
   ALUC(int b1, int b2, BusALU::Operation op)
     : b1(b1), b2(b2), op(op) {}
@@ -112,26 +123,11 @@ class MULT : public Instruction {
   int b2;
 };
 
-class SE_IMM : public Instruction {
+class STORE : public Instruction {
  public:
   void X1T1() {
-    sign_ext.OP1().pullFrom(instr_reg_X1);
-    sign_ext.OP2().pullFrom(const_sign_ext_mask);
-    imm_X1.latchFrom(sign_ext.OUT());
-    sign_ext.perform(BusALU::op_extendSign);
+    signExtImm();
   }
-};
-
-class ZE_IMM : public Instruction {
- public:
-  void X1T1() {
-    zero_ext.IN().pullFrom(instr_reg_X1);
-    imm_X1.latchFrom(zero_ext.OUT());
-  }
-};
-
-class STORE : public SE_IMM {
- public:
   void X1T2() {
     alu1.IN1().pullFrom(belt.get(b1).data);
     alu1.IN2().pullFrom(imm_X1);
@@ -140,15 +136,15 @@ class STORE : public SE_IMM {
 
     data_reg_bus.IN().pullFrom(belt.get(b2).data);
     data_reg.latchFrom(data_reg_bus.OUT());
-  };
+  }
   void X2T1() {
     addr_reg_bus.IN().pullFrom(addr_reg);
     data_mem.MAR().latchFrom(addr_reg_bus.OUT());
-  };
+  }
   void X2T2() {
     data_mem.WRITE().pullFrom(data_reg);
     data_mem.write();
-  };
+  }
   void print(ostream& s) {
     s << "ST ";
     s << "B" << b1 << " ";
@@ -165,32 +161,39 @@ class STORE : public SE_IMM {
   long imm;
 };
 
-class ALUI : public SE_IMM {
+class ALUI : public Instruction {
  public:
+  void X1T1() {
+    if(sign_ext)
+      signExtImm();
+    else
+      zeroExtImm();
+  }
   void X1T2() {
     alu1.OP1().pullFrom(belt.get(b1).data);
     alu1.OP2().pullFrom(imm_X1);
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
-  };
+  }
   void print(ostream& s) {
     s << opToString(op) << "I ";
     s << "B" << b1 << " ";
     s << setw(4) << (data_t)(se_imm_t)imm;
   }
-  ALUI(int b1, long imm, BusALU::Operation op)
-    : b1(b1), imm(imm), op(op) {}
+  ALUI(int b1, long imm, BusALU::Operation op, bool sign_ext)
+    : b1(b1), imm(imm), op(op), sign_ext(sign_ext) {}
   int getLatency() { return 1; }
 
  private:
   int b1;
   long imm;
   BusALU::Operation op;
+  bool sign_ext;
 };
 
-class MULTI : public SE_IMM {
+class MULTI : public Instruction {
  public:
-  void X1T1() { SE_IMM::X1T1(); mult_setup(belt.get(b1).data); }
+  void X1T1() { signExtImm(); mult_setup(belt.get(b1).data); }
   void X1T2() { mult_tick0(imm_X1); }
   void X2T1() { mult_tick1(); }
   void X2T2() { mult_tick2(); }
@@ -210,8 +213,11 @@ class MULTI : public SE_IMM {
   long imm;
 };
 
-class BRANCH : public SE_IMM {
+class BRANCH : public Instruction {
  public:
+  void X1T1() {
+    signExtImm();
+  }
   void X1T2() {
     BeltElement& b = belt.get(b1);
     if (cond(b)) {
@@ -288,28 +294,31 @@ unique_ptr<Instruction> field1_10(long field1, long field2, long field3,
   switch (field3) {
     case 0x0:
       // addi
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_add));
+      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_add, true));
     case 0x1:
       // mlui
       return unique_ptr<MULTI>(new MULTI(field2, field4));
     case 0x2:
       // andi
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_and));
+      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_and, true));
     case 0x3:
       // ori
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_or));
+      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_or, false));
     case 0x4:
       // xori
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_xor));
+      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_xor, false));
     case 0x5:
       // slli
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_lshift));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_lshift, false));
     case 0x6:
       // srli
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_rshift));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_rshift, false));
     case 0x7:
       // srai
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_rashift));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_rashift, false));
     default:
       return unique_ptr<INVALID>(new INVALID());
   }
