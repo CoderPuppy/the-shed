@@ -84,9 +84,9 @@ class NEGATE : public Instruction {
  public:
   void X1T1(){};
   void X1T2() {
-    alu1.OP1().pullFrom(belt.get(b1).data);
-    alu1.OP2().pullFrom(negate_mask);
-    alu1.perform(BusALU::op_xor);
+    alu1.OP1().pullFrom(const_zero);
+    alu1.OP2().pullFrom(belt.get(b1).data);
+    alu1.perform(BusALU::op_sub);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
   void X2T1(){};
@@ -164,7 +164,7 @@ class SE_IMM : public Instruction {
  public:
   void X1T1() {
     sign_ext.OP1().pullFrom(instr_reg_X1);
-    sign_ext.OP2().pullFrom(sign_ext_mask);
+    sign_ext.OP2().pullFrom(const_sign_ext_mask);
     imm_X1.latchFrom(sign_ext.OUT());
     sign_ext.perform(BusALU::op_extendSign);
   }

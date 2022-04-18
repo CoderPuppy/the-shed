@@ -19,7 +19,7 @@ void fetchT2() {
     instr_reg_X1.latchFrom(instr_mem.READ());
 
   } else {
-    const_bus.IN().pullFrom(nop_instr);
+    const_bus.IN().pullFrom(const_nop);
     instr_reg_X1.latchFrom(const_bus.OUT());
   }
   instr_reg_X1_bus.IN().pullFrom(instr_reg_X1);
