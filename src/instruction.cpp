@@ -46,10 +46,10 @@ class ALU : public Instruction {
  public:
   void X1T1(){};
   void X1T2() {
-    alu1.OP1().pullFrom(*(belt.get(b1)->data));
-    alu1.OP2().pullFrom(*(belt.get(b2)->data));
+    alu1.OP1().pullFrom(belt.get(b1).data);
+    alu1.OP2().pullFrom(belt.get(b2).data);
     alu1.perform(op);
-    belt.addToBelt(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
+    belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
   void X2T1(){};
   void X2T2(){};
@@ -78,10 +78,10 @@ class NEGATE : public Instruction {
  public:
   void X1T1(){};
   void X1T2() {
-    alu1.OP1().pullFrom(*(belt.get(b1)->data));
+    alu1.OP1().pullFrom(belt.get(b1).data);
     alu1.OP2().pullFrom(negate_mask);
     alu1.perform(BusALU::op_xor);
-    belt.addToBelt(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
+    belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
   void X2T1(){};
   void X2T2(){};
@@ -101,10 +101,10 @@ class ALUC : public Instruction {
  public:
   void X1T1(){};
   void X1T2() {
-    alu1.OP1().pullFrom(*(belt.get(b1)->data));
-    alu1.OP2().pullFrom(*(belt.get(b2)->carry));
+    alu1.OP1().pullFrom(belt.get(b1).data);
+    alu1.OP2().pullFrom(belt.get(b2).carry);
     alu1.perform(op);
-    belt.addToBelt(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
+    belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
   void X2T1(){};
   void X2T2(){};
@@ -176,12 +176,12 @@ class ZE_IMM : public Instruction {
 class STORE : public SE_IMM {
  public:
   void X1T2() {
-    alu1.IN1().pullFrom(*(belt.get(b1)->data));
+    alu1.IN1().pullFrom(belt.get(b1).data);
     alu1.IN2().pullFrom(imm_X1);
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
 
-    data_reg_bus.IN().pullFrom(*(belt.get(b2)->data));
+    data_reg_bus.IN().pullFrom(belt.get(b2).data);
     data_reg.latchFrom(data_reg_bus.OUT());
   };
   void X2T1() {
@@ -220,10 +220,10 @@ class STORE : public SE_IMM {
 class ALUI : public SE_IMM {
  public:
   void X1T2() {
-    alu1.OP1().pullFrom(*(belt.get(b1)->data));
+    alu1.OP1().pullFrom(belt.get(b1).data);
     alu1.OP2().pullFrom(imm_X1);
     alu1.perform(op);
-    belt.addToBelt(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
+    belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   };
   void X2T1(){};
   void X2T2(){};
@@ -283,7 +283,7 @@ class MULTI : public SE_IMM {
 class BRANCH : public SE_IMM {
  public:
   void X1T2() {
-    BeltElement* b = belt.get(b1);
+    BeltElement& b = belt.get(b1);
     if (cond(b)) {
       alu1.OP1().pullFrom(prog_cnt_X1);
       alu1.OP2().pullFrom(imm_X1);
@@ -305,7 +305,7 @@ class BRANCH : public SE_IMM {
     return ss.str();
   }
   BRANCH(string mnemonic, int belt1, long imm,
-         std::function<bool(BeltElement*)> condition) {
+         std::function<bool(BeltElement&)> condition) {
     mnem = mnemonic;
     b1 = belt1;
     immediate = imm;
@@ -317,7 +317,7 @@ class BRANCH : public SE_IMM {
   string mnem;
   int b1;
   long immediate;
-  std::function<bool(BeltElement*)> cond;
+  std::function<bool(BeltElement&)> cond;
 };
 
 Instruction* field1_01_field4_ff_field3_7(long field1, long field2, long field3,
@@ -458,7 +458,7 @@ Instruction* field1_11_field3_111(long field1, long field2, long field3,
     case 0x3:
       // jump
       return new BRANCH("JMP", 0, field4,
-                        [](BeltElement* be) -> bool { return true; });
+                        [](BeltElement& be) -> bool { return true; });
     case 0x4:
       // read_stack
       return new INVALID();
@@ -474,23 +474,23 @@ Instruction* field1_11(long field1, long field2, long field3, long field4) {
   switch (field3) {
     case 0x0:
       // branch_zero
-      return new BRANCH("BZ", field2, field4, [](BeltElement* be) -> bool {
-        return (be->data->value() == 0);
+      return new BRANCH("BZ", field2, field4, [](BeltElement& be) -> bool {
+        return (be.data.value() == 0);
       });
     case 0x1:
       // branch_neg
-      return new BRANCH("BNEG", field2, field4, [](BeltElement* be) -> bool {
-        return ((*be->data)(BITS - 1) == 1);
+      return new BRANCH("BNEG", field2, field4, [](BeltElement& be) -> bool {
+        return be.data(BITS - 1);
       });
     case 0x2:
       // branch_oflow
-      return new BRANCH("BO", field2, field4, [](BeltElement* be) -> bool {
-        return (be->oflow->value() == 1);
+      return new BRANCH("BO", field2, field4, [](BeltElement& be) -> bool {
+        return be.oflow();
       });
     case 0x3:
       // branch_carry
-      return new BRANCH("BC", field2, field4, [](BeltElement* be) -> bool {
-        return (be->carry->value() == 1);
+      return new BRANCH("BC", field2, field4, [](BeltElement& be) -> bool {
+        return be.carry();
       });
     case 0x4:
       // write_stack
