@@ -19,7 +19,7 @@ Bus ret_addr_bus("RA Bus", BITS);
 Counter frame_ptr("FP", BITS);
 StorageObject ret_frame_ptr("RFP", BITS);
 Bus ret_frame_ptr_bus("RFP Bus", BITS);
-Counter stack_ptr("SP", BITS);
+Counter stack_ptr("SP", BITS, 1);
 StorageObject cmp("Cmp", BITS);
 
 // Memories
@@ -46,7 +46,9 @@ Bus addr_reg_bus("Addr Bus", BITS);
 
 // ALUs
 BusALU alu1("ALU1", BITS);
+StorageObject alu1_flag("ALU1 carry", 1);
 BusALU alu2("ALU2", BITS);
+StorageObject alu2_flag("ALU2 carry", 1);
 BusALU sign_ext("sign_ext", BITS);
 Bus zero_ext("zero_ext", IMM_BITS);
 
@@ -79,7 +81,7 @@ void connect(void) {
   ret_addr.connectsTo(stack_mem.WRITE());
 
   frame_ptr.connectsTo(alu1.OP1());
-  frame_ptr.connectsTo(alu1.OUT());
+  frame_ptr.connectsTo(alu2.OUT());
   frame_ptr.connectsTo(ret_frame_ptr_bus.OUT());
 
   ret_frame_ptr.connectsTo(ret_frame_ptr_bus.IN());
@@ -134,9 +136,15 @@ void connect(void) {
   addr_reg.connectsTo(addr_reg_bus.IN());
   addr_reg.connectsTo(alu2.OP2());
 
+  alu1_flag.connectsTo(alu1.CARRY());
+  alu1_flag.connectsTo(alu1.OFLOW());
+  alu2_flag.connectsTo(alu2.CARRY());
+  alu2_flag.connectsTo(alu2.OFLOW());
+
   const_nop.connectsTo(const_bus.IN());
   const_sign_ext_mask.connectsTo(sign_ext.OP2());
   const_0.connectsTo(alu1.OP1());
   const_1.connectsTo(alu1.OP2());
+  const_1.connectsTo(alu2.OP2());
   const_2.connectsTo(alu1.OP2());
 }

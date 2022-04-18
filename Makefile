@@ -4,7 +4,7 @@ CXXFLAGS = -g -I$(ARCHLIB) -std=c++17
 LDFLAGS = $(ARCHLIB)/*.o
 
 SRCFILES = shed belt execute hardware helpers instruction multiplier trace
-PROGFILES = test test_mul test_store
+PROGFILES = test test_mul test_store test_callret1
 
 all: shed
 

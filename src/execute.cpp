@@ -11,9 +11,8 @@ STATE_ENUM programState = RUNNING;
 
 void fetchT1() {
   if (programState != HALTING) {
-    prog_cnt_X1.latchFrom(prog_cnt_bus.OUT());
-    instr_mem.MAR().latchFrom(prog_cnt_bus.OUT());
     prog_cnt_bus.IN().pullFrom(prog_cnt);
+    instr_mem.MAR().latchFrom(prog_cnt_bus.OUT());
     if (!branched) {
       prog_cnt.incr();
     }
@@ -23,6 +22,9 @@ void fetchT2() {
   if (programState != HALTING) {
     instr_mem.read();
     instr_reg_X1.latchFrom(instr_mem.READ());
+
+    prog_cnt_bus.IN().pullFrom(prog_cnt);
+    prog_cnt_X1.latchFrom(prog_cnt_bus.OUT());
   } else {
     const_bus.IN().pullFrom(const_nop);
     instr_reg_X1.latchFrom(const_bus.OUT());
@@ -64,6 +66,11 @@ void execute() {
   x1->X1T2();
   fetchT2();
   Clock::tick();
+
+  x4->X4C();
+  x3->X3C();
+  x2->X2C();
+  x1->X1C();
 
   belt.tick();
 }

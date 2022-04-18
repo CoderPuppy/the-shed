@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
         break;
     }
     data_mem.dump(0, 20);
+    stack_mem.dump(0, 20);
   }
 
   catch (ArchLibError &err) {

@@ -258,8 +258,10 @@ class RET1 : public Instruction {
     alu1.OP2().pullFrom(const_1);
     alu1.perform(BusALU::op_sub);
     addr_reg.latchFrom(alu1.OUT());
-
-    if (frame_ptr.value() == 0) {
+    alu1_flag.latchFrom(alu1.CARRY());
+  }
+  void X1C() {
+    if (!alu1_flag()) {
       cout << "IT WRAPPED" << endl;
       // TODO: handle properly
     }
@@ -286,8 +288,10 @@ class RET2 : public Instruction {
     alu1.OP2().pullFrom(const_2);
     alu1.perform(BusALU::op_sub);
     addr_reg.latchFrom(alu1.OUT());
-
-    if (frame_ptr.value() == 1) {
+    alu1_flag.latchFrom(alu1.CARRY());
+  }
+  void X1T2() {
+    if (!alu1_flag() == 1) {
       cout << "IT WRAPPED" << endl;
       // TODO: handle properly
     }
@@ -303,6 +307,80 @@ class RET2 : public Instruction {
     ret_frame_ptr.latchFrom(stack_mem.READ());
   }
   void print(ostream& s) { s << "RET2"; }
+  int getLatency() { return 2; }
+};
+
+class CALL1 : public Instruction {
+ public:
+  void X1T1() {
+    branched = true;
+
+    signExtImm();
+  }
+  void X1T2() {
+    alu1.OP1().pullFrom(prog_cnt_X1);
+    alu1.OP2().pullFrom(imm_X1);
+    alu1.perform(BusALU::op_add);
+    prog_cnt.latchFrom(alu1.OUT());
+  }
+  void X2T1() {
+    alu2.OP1().pullFrom(stack_ptr);
+    alu2.OP2().pullFrom(const_1);
+    alu2.perform(BusALU::op_add);
+    stack_mem.MAR().latchFrom(alu2.OUT());
+    frame_ptr.latchFrom(alu2.OUT());
+    stack_ptr.latchFrom(alu2.OUT());
+    alu2_flag.latchFrom(alu2.CARRY());
+  }
+  void X2T2() {
+    if (alu2_flag()) {
+      cout << "IT WRAPPED" << endl;
+      // TODO: handle properly
+    }
+
+    stack_mem.WRITE().pullFrom(ret_addr);
+    stack_mem.write();
+  }
+  void print(ostream& s) { s << "CALL1"; }
+  int getLatency() { return 2; }
+};
+
+class CALL2 : public Instruction {
+ public:
+  void X1T1() {
+    alu1.OP1().pullFrom(frame_ptr);
+    alu1.perform(BusALU::op_rop1);
+    addr_reg.latchFrom(alu1.OUT());
+  }
+  void X1T2() {
+    alu1.OP1().pullFrom(prog_cnt_X1);
+    alu1.OP2().pullFrom(const_1);
+    alu1.perform(BusALU::op_add);
+    ret_addr.latchFrom(alu1.OUT());
+    alu1_flag.latchFrom(alu1.CARRY());
+  }
+  void X1C() {
+    if (alu1_flag()) {
+      cout << "PC overflow" << endl;
+      // TODO: handle properly
+    }
+  }
+  void X2T1() {
+    alu2.OP1().pullFrom(stack_ptr);
+    alu2.perform(BusALU::op_rop1);
+    stack_mem.MAR().latchFrom(alu2.OUT());
+
+    stack_ptr.incr();
+  }
+  void X2T2() {
+    stack_mem.WRITE().pullFrom(ret_frame_ptr);
+    stack_mem.write();
+
+    alu2.OP2().pullFrom(addr_reg);
+    alu2.perform(BusALU::op_rop2);
+    ret_frame_ptr.latchFrom(alu2.OUT());
+  }
+  void print(ostream& s) { s << "CALL2"; }
   int getLatency() { return 2; }
 };
 
@@ -326,7 +404,7 @@ unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1, long field2,
       return unique_ptr<RET2>(new RET2());
     case 0x5:
       // call2
-      // TODO
+      return unique_ptr<CALL2>(new CALL2());
     default:
       return unique_ptr<INVALID>(new INVALID());
   }
@@ -442,8 +520,8 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
       // TODO: upper
       return unique_ptr<INVALID>(new INVALID());
     case 0x2:
-      // TODO: call
-      return unique_ptr<INVALID>(new INVALID());
+      // call1
+      return unique_ptr<CALL1>(new CALL1());
     case 0x3:
       // jmp
       return unique_ptr<BRANCH>(new BRANCH("JMP", 0, field4,
