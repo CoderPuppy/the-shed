@@ -7,8 +7,7 @@
 #ifndef includes_hpp
 #define includes_hpp
 
-#include <bits/stdc++.h>
-
+#include <functional>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>

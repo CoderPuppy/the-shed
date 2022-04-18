@@ -1,6 +1,6 @@
 ARCHLIB = ../archlib
 CXX = g++
-CXXFLAGS = -g -I$(ARCHLIB)
+CXXFLAGS = -g -I$(ARCHLIB) -std=c++17
 LDFLAGS = $(ARCHLIB)/*.o
 
 SRCFILES = shed belt execute hardware helpers instruction multiplier
