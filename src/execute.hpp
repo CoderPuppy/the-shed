@@ -8,6 +8,11 @@
 
 #include "includes.hpp"
 
+extern bool branched;
+
+enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE };
+extern STATE_ENUM programState;
+
 void executeLoop();
 
 #endif

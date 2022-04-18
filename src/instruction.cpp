@@ -73,7 +73,7 @@ class ALU : public Instruction {
 class NEGATE : public Instruction {
  public:
   void X1T2() {
-    alu1.OP1().pullFrom(const_zero);
+    alu1.OP1().pullFrom(const_0);
     alu1.OP2().pullFrom(belt.get(b1).data);
     alu1.perform(BusALU::op_sub);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
@@ -217,10 +217,11 @@ class BRANCH : public Instruction {
  public:
   void X1T1() {
     signExtImm();
+    if (cond(belt.get(b1)))
+      branched = true;
   }
   void X1T2() {
-    BeltElement& b = belt.get(b1);
-    if (cond(b)) {
+    if (cond(belt.get(b1))) {
       alu1.OP1().pullFrom(prog_cnt_X1);
       alu1.OP2().pullFrom(imm_X1);
       alu1.perform(BusALU::op_add);
@@ -244,6 +245,67 @@ class BRANCH : public Instruction {
   function<bool(BeltElement&)> cond;
 };
 
+class RET1 : public Instruction {
+ public:
+  void X1T1() {
+    branched = true;
+
+    ret_addr_bus.IN().pullFrom(ret_addr);
+    prog_cnt.latchFrom(ret_addr_bus.OUT());
+  }
+  void X1T2() {
+    alu1.OP1().pullFrom(frame_ptr);
+    alu1.OP2().pullFrom(const_1);
+    alu1.perform(BusALU::op_sub);
+    addr_reg.latchFrom(alu1.OUT());
+
+    if (frame_ptr.value() == 0) {
+      cout << "IT WRAPPED" << endl;
+      // TODO: handle properly
+    }
+  }
+  void X2T1() {
+    addr_reg_bus.IN().pullFrom(addr_reg);
+    stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
+  }
+  void X2T2() {
+    stack_mem.read();
+    ret_addr.latchFrom(stack_mem.READ());
+  }
+  void print(ostream& s) { s << "RET1"; }
+  int getLatency() { return 2; }
+};
+
+class RET2 : public Instruction {
+ public:
+  void X1T1() {
+    ret_frame_ptr_bus.IN().pullFrom(ret_frame_ptr);
+    frame_ptr.latchFrom(ret_frame_ptr_bus.OUT());
+
+    alu1.OP1().pullFrom(frame_ptr);
+    alu1.OP2().pullFrom(const_2);
+    alu1.perform(BusALU::op_sub);
+    addr_reg.latchFrom(alu1.OUT());
+
+    if (frame_ptr.value() == 1) {
+      cout << "IT WRAPPED" << endl;
+      // TODO: handle properly
+    }
+  }
+  void X2T1() {
+    alu2.OP2().pullFrom(addr_reg);
+    alu2.perform(BusALU::op_rop2);
+    stack_mem.MAR().latchFrom(alu2.OUT());
+    stack_ptr.latchFrom(alu2.OUT());
+  }
+  void X2T2() {
+    stack_mem.read();
+    ret_frame_ptr.latchFrom(stack_mem.READ());
+  }
+  void print(ostream& s) { s << "RET2"; }
+  int getLatency() { return 2; }
+};
+
 unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1, long field2,
                                                      long field3, long field4) {
   switch (field2) {
@@ -254,10 +316,16 @@ unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1, long field2,
       // nop
       return unique_ptr<NOP>(new NOP());
     case 0x2:
-      // ret
+      // pc
       // TODO
     case 0x3:
-      // pc
+      // ret1
+      return unique_ptr<RET1>(new RET1());
+    case 0x4:
+      // ret2
+      return unique_ptr<RET2>(new RET2());
+    case 0x5:
+      // call2
       // TODO
     default:
       return unique_ptr<INVALID>(new INVALID());

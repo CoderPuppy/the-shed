@@ -54,9 +54,9 @@ Bus zero_ext("zero_ext", IMM_BITS);
 Bus const_bus("Const Bus", BITS);
 StorageObject const_nop("nop_instruction", BITS, nop_instr);
 StorageObject const_sign_ext_mask("sign_ext_mask", BITS, 1u << (IMM_BITS - 1));
-StorageObject const_zero("zero", BITS, 0);
-
-STATE_ENUM programState = RUNNING;
+StorageObject const_0("0", BITS, 0);
+StorageObject const_1("1", BITS, 1);
+StorageObject const_2("2", BITS, 2);
 
 void connect(void) {
   mult_connect();
@@ -135,6 +135,8 @@ void connect(void) {
   addr_reg.connectsTo(alu2.OP2());
 
   const_nop.connectsTo(const_bus.IN());
-  const_zero.connectsTo(alu1.OP1());
   const_sign_ext_mask.connectsTo(sign_ext.OP2());
+  const_0.connectsTo(alu1.OP1());
+  const_1.connectsTo(alu1.OP2());
+  const_2.connectsTo(alu1.OP2());
 }

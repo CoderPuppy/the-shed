@@ -8,14 +8,18 @@
 
 void trace_header() {
   cout << hex << uppercase << setfill('0');
-  cout << " ADDR | ";
+  cout << "  PC  | ";
   cout << "X1                | ";
   cout << "X2                | ";
   cout << "X3                | ";
   cout << "X4                | ";
-  cout << "BELT       ";
+  cout << "BELT" << string(73, ' ') << " | ";
+  cout << " RA  | ";
+  cout << " FP  | ";
+  cout << "RFP  | ";
+  cout << " SP  | ";
   cout << endl;
-  cout << string(167, '-') << endl;
+  cout << string(195, '-') << endl;
 }
 
 void trace_cycle(Instruction& x1, Instruction& x2, Instruction& x3,
@@ -58,6 +62,22 @@ void trace_cycle(Instruction& x1, Instruction& x2, Instruction& x3,
   cout << " | ";
 
   belt.print(cout);
+
+  cout << " | ";
+
+  cout << setw(4) << ret_addr.value();
+
+  cout << " | ";
+
+  cout << setw(4) << frame_ptr.value();
+
+  cout << " | ";
+
+  cout << setw(4) << ret_frame_ptr.value();
+
+  cout << " | ";
+
+  cout << setw(4) << stack_ptr.value();
 
   cout << " |" << endl;
 }

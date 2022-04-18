@@ -6,12 +6,17 @@
 
 #include "includes.hpp"
 
+bool branched(false);
+STATE_ENUM programState = RUNNING;
+
 void fetchT1() {
   if (programState != HALTING) {
     prog_cnt_X1.latchFrom(prog_cnt_bus.OUT());
     instr_mem.MAR().latchFrom(prog_cnt_bus.OUT());
     prog_cnt_bus.IN().pullFrom(prog_cnt);
-    prog_cnt.incr();
+    if (!branched) {
+      prog_cnt.incr();
+    }
   }
 }
 void fetchT2() {
@@ -44,18 +49,20 @@ void execute() {
 
   trace_cycle(*x1, *x2, *x3, *x4);
 
-  fetchT1();
+  branched = false;
+
   x4->X4T1();
   x3->X3T1();
   x2->X2T1();
   x1->X1T1();
+  fetchT1();
   Clock::tick();
 
-  fetchT2();
   x4->X4T2();
   x3->X3T2();
   x2->X2T2();
   x1->X1T2();
+  fetchT2();
   Clock::tick();
 
   belt.tick();
