@@ -40,6 +40,7 @@ void execute() {
   unique_ptr<Instruction> x2 = decode(instr_reg_X2);
   unique_ptr<Instruction> x3 = decode(instr_reg_X3);
   unique_ptr<Instruction> x4 = decode(instr_reg_X4);
+
   cout << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
        << std::setw(4) << prog_cnt_X1.value() << " | ";
   cout << (x1->getLatency() == 1 ? "*" : " ") << std::left << std::setfill(' ')
@@ -56,18 +57,22 @@ void execute() {
   cout << " | ";
   cout << belt.toString();
   cout << endl;
+
   fetchT1();
-  x1->X1T1();
-  x2->X2T1();
-  x3->X3T1();
   x4->X4T1();
+  x3->X3T1();
+  x2->X2T1();
+  x1->X1T1();
   Clock::tick();
+
   fetchT2();
-  x1->X1T2();
-  x2->X2T2();
-  x3->X3T2();
   x4->X4T2();
+  x3->X3T2();
+  x2->X2T2();
+  x1->X1T2();
   Clock::tick();
+
+  belt.tick();
 }
 
 void executeLoop() {

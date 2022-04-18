@@ -27,7 +27,7 @@ string BeltElement::toString() {
 }
 
 Belt::Belt(int length)
-  : length(length), offset(0)
+  : length(length), offset(0), pending_offset(0)
   , belt((BeltElement*) ::operator new(length * sizeof(BeltElement)))
 {
   for (int i = 0; i < length; i++) {
@@ -36,17 +36,20 @@ Belt::Belt(int length)
 }
 
 void Belt::shift(int amount) {
-  offset -= amount;
-  offset %= length;
-  if (offset < 0) offset += length;
+  pending_offset -= amount;
+  pending_offset %= length;
+  pending_offset += length;
+  pending_offset %= length;
 }
 
 void Belt::shift() { shift(1); }
 
 BeltElement& Belt::get(int index) {
-  int i = (index + offset) % length;
-  if (i < 0) i += length;
-  return belt[i];
+  index += offset;
+  index %= length;
+  index += length;
+  index %= length;
+  return belt[index];
 }
 
 void Belt::connectsTo(Flow& flow) {
@@ -57,16 +60,16 @@ void Belt::connectsTo(Flow& flow) {
 
 void Belt::push(OutFlow& data, OutFlow& carry, OutFlow& oflow) {
   shift();
-  get(0).data.latchFrom(data);
-  get(0).carry.latchFrom(carry);
-  get(0).oflow.latchFrom(oflow);
+  belt[pending_offset].data.latchFrom(data);
+  belt[pending_offset].carry.latchFrom(carry);
+  belt[pending_offset].oflow.latchFrom(oflow);
 }
 
 void Belt::push(OutFlow& data) {
   shift();
-  get(0).data.latchFrom(data);
-  get(0).carry.clear();
-  get(0).oflow.clear();
+  belt[pending_offset].data.latchFrom(data);
+  belt[pending_offset].carry.clear();
+  belt[pending_offset].oflow.clear();
 }
 
 string Belt::toString() {
@@ -76,4 +79,8 @@ string Belt::toString() {
        << " | ";
   }
   return ss.str();
+}
+
+void Belt::tick() {
+  offset = pending_offset;
 }

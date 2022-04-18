@@ -30,9 +30,10 @@ class Belt {
   void push(OutFlow& data, OutFlow& carry, OutFlow& oflow);
   void push(OutFlow& data);
   string toString();
+  void tick();
 
  private:
-  int offset;
+  int offset, pending_offset;
   BeltElement *belt;
 };
 
