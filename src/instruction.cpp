@@ -95,7 +95,7 @@ class NEGATE : public Instruction {
   void X3T2(){};
   void X4T1(){};
   void X4T2(){};
-  string getMnemonic() { return "NEGATE B" + std::to_string(b1); }
+  string getMnemonic() { return "NEG B" + std::to_string(b1); }
   NEGATE(int belt1) { b1 = belt1; }
   int getLatency() { return 1; }
 
@@ -208,7 +208,7 @@ class STORE : public SE_IMM {
   }
   string getMnemonic() {
     std::ostringstream ss;
-    ss << "STORE ";
+    ss << "ST ";
     ss << "B" << std::to_string(b1) << " "
        << "B" << std::to_string(b2) << " ";
     ss << toHexString(4, imm);
@@ -334,10 +334,10 @@ unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1, long field2,
       // nop
       return unique_ptr<NOP>(new NOP());
     case 0x2:
-      // return
+      // ret
       // TODO
     case 0x3:
-      // get_pc
+      // pc
       // TODO
     default:
       return unique_ptr<INVALID>(new INVALID());
@@ -348,19 +348,19 @@ unique_ptr<Instruction> field1_01_field4_ff(long field1, long field2,
                                             long field3, long field4) {
   switch (field3) {
     case 0x0:
-      // invert
+      // inv
       return unique_ptr<ALU>(new ALU(field2, field2, BusALU::op_not));
     case 0x1:
-      // negate
+      // neg
       return unique_ptr<NEGATE>(new NEGATE(field2));
     case 0x2:
-      // longcall
+      // lcall
       // TODO
     case 0x3:
-      // longjump
+      // ljmp
       // TODO
     case 0x4:
-      // get_carry
+      // carry
       // TODO
     case 0x7:
       return field1_01_field4_ff_field3_7(field1, field2, field3, field4);
@@ -388,13 +388,13 @@ unique_ptr<Instruction> field1_10(long field1, long field2, long field3,
       // xori
       return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_xor));
     case 0x5:
-      // lshifti
+      // slli
       return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_lshift));
     case 0x6:
-      // rshifti
+      // srli
       return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_rshift));
     case 0x7:
-      // arshifi
+      // srai
       return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_rashift));
     default:
       return unique_ptr<INVALID>(new INVALID());
@@ -420,13 +420,13 @@ unique_ptr<Instruction> field1_01(long field1, long field2, long field3,
       // xor
       return unique_ptr<ALU>(new ALU(field2, field3, BusALU::op_xor));
     case 0x05:
-      // lshift
+      // sll
       return unique_ptr<ALU>(new ALU(field2, field3, BusALU::op_lshift));
     case 0x06:
-      // rshift
+      // srl
       return unique_ptr<ALU>(new ALU(field2, field3, BusALU::op_rshift));
     case 0x07:
-      // arshift
+      // sra
       return unique_ptr<ALU>(new ALU(field2, field3, BusALU::op_rashift));
     case 0x08:
       // addc
@@ -445,7 +445,7 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
                                              long field3, long field4) {
   switch (field2) {
     case 0x0:
-      // TODO: constant
+      // TODO: const
       return unique_ptr<INVALID>(new INVALID());
     case 0x1:
       // TODO: upper
@@ -454,14 +454,14 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
       // TODO: call
       return unique_ptr<INVALID>(new INVALID());
     case 0x3:
-      // jump
+      // jmp
       return unique_ptr<BRANCH>(new BRANCH("JMP", 0, field4,
             [](BeltElement& be) -> bool { return true; }));
     case 0x4:
-      // TODO: read_stack
+      // TODO: lds
       return unique_ptr<INVALID>(new INVALID());
     case 0x5:
-      // TODO: alloca
+      // TODO: alloc
       return unique_ptr<INVALID>(new INVALID());
     default:
       return unique_ptr<INVALID>(new INVALID());
@@ -472,34 +472,34 @@ unique_ptr<Instruction> field1_11(long field1, long field2, long field3,
                                   long field4) {
   switch (field3) {
     case 0x0:
-      // branch_zero
-      return unique_ptr<BRANCH>(new BRANCH("BZ", field2, field4,
+      // bzero
+      return unique_ptr<BRANCH>(new BRANCH("BZERO", field2, field4,
         [](BeltElement& be) -> bool {
           return (be.data.value() == 0);
         }));
     case 0x1:
-      // branch_neg
+      // bneg
       return unique_ptr<BRANCH>(new BRANCH("BNEG", field2, field4,
         [](BeltElement& be) -> bool {
           return be.data(BITS - 1);
         }));
     case 0x2:
-      // branch_oflow
-      return unique_ptr<BRANCH>(new BRANCH("BO", field2, field4,
+      // boflo
+      return unique_ptr<BRANCH>(new BRANCH("BOFLO", field2, field4,
         [](BeltElement& be) -> bool {
           return be.oflow();
         }));
     case 0x3:
-      // branch_carry
-      return unique_ptr<BRANCH>(new BRANCH("BC", field2, field4,
+      // bcar
+      return unique_ptr<BRANCH>(new BRANCH("BCAR", field2, field4,
         [](BeltElement& be) -> bool {
           return be.carry();
         }));
     case 0x4:
-      // TODO: write_stack
+      // TODO: sts
       return unique_ptr<INVALID>(new INVALID());
     case 0x5:
-      // TODO: load
+      // TODO: ld
       return unique_ptr<INVALID>(new INVALID());
     case 0x7:
       return field1_11_field3_111(field1, field2, field3, field4);

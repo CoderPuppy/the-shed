@@ -1,6 +1,6 @@
 addi 0 1
-branch_zero 0 3
-lshifti 0 1
-jump -3
+bzero 0 3
+slli 0 1
+jmp -3
 nop
 halt
