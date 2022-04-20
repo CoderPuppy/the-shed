@@ -144,10 +144,9 @@ class MULT : public Instruction {
   void X3T1() { mult_tick3(); }
   void X3T2() { mult_tick4(); }
   void X4T1() { mult_tick5(); }
-  void X4T2() { }
+  void X4T2() {}
   string getMnemonic() {
-    return "MUL B" + std::to_string(b1) + " B" +
-           std::to_string(b2);
+    return "MUL B" + std::to_string(b1) + " B" + std::to_string(b2);
   }
   MULT(int belt1, int belt2) {
     b1 = belt1;
@@ -258,7 +257,10 @@ class ALUI : public SE_IMM {
 
 class MULTI : public SE_IMM {
  public:
-  void X1T1() { SE_IMM::X1T1(); mult_setup(belt.get(b1).data); }
+  void X1T1() {
+    SE_IMM::X1T1();
+    mult_setup(belt.get(b1).data);
+  }
   void X1T2() { mult_tick0(imm_X1); }
   void X2T1() { mult_tick1(); }
   void X2T2() { mult_tick2(); }
@@ -315,7 +317,7 @@ class BRANCH : public SE_IMM {
     immediate = imm;
     cond = condition;
   }
-  int getLatency() { return 1; }
+  int getLatency() { return 2; }
 
  private:
   string mnem;
@@ -455,8 +457,8 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
       return unique_ptr<INVALID>(new INVALID());
     case 0x3:
       // jump
-      return unique_ptr<BRANCH>(new BRANCH("JMP", 0, field4,
-            [](BeltElement& be) -> bool { return true; }));
+      return unique_ptr<BRANCH>(new BRANCH(
+          "JMP", 0, field4, [](BeltElement& be) -> bool { return true; }));
     case 0x4:
       // TODO: read_stack
       return unique_ptr<INVALID>(new INVALID());
@@ -473,28 +475,24 @@ unique_ptr<Instruction> field1_11(long field1, long field2, long field3,
   switch (field3) {
     case 0x0:
       // branch_zero
-      return unique_ptr<BRANCH>(new BRANCH("BZ", field2, field4,
-        [](BeltElement& be) -> bool {
-          return (be.data.value() == 0);
-        }));
+      return unique_ptr<BRANCH>(new BRANCH(
+          "BZ", field2, field4,
+          [](BeltElement& be) -> bool { return (be.data.value() == 0); }));
     case 0x1:
       // branch_neg
-      return unique_ptr<BRANCH>(new BRANCH("BNEG", field2, field4,
-        [](BeltElement& be) -> bool {
-          return be.data(BITS - 1);
-        }));
+      return unique_ptr<BRANCH>(new BRANCH(
+          "BNEG", field2, field4,
+          [](BeltElement& be) -> bool { return be.data(BITS - 1); }));
     case 0x2:
       // branch_oflow
-      return unique_ptr<BRANCH>(new BRANCH("BO", field2, field4,
-        [](BeltElement& be) -> bool {
-          return be.oflow();
-        }));
+      return unique_ptr<BRANCH>(
+          new BRANCH("BO", field2, field4,
+                     [](BeltElement& be) -> bool { return be.oflow(); }));
     case 0x3:
       // branch_carry
-      return unique_ptr<BRANCH>(new BRANCH("BC", field2, field4,
-        [](BeltElement& be) -> bool {
-          return be.carry();
-        }));
+      return unique_ptr<BRANCH>(
+          new BRANCH("BC", field2, field4,
+                     [](BeltElement& be) -> bool { return be.carry(); }));
     case 0x4:
       // TODO: write_stack
       return unique_ptr<INVALID>(new INVALID());

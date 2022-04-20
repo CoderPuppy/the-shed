@@ -5,3 +5,5 @@ __latexindent_temp.tex
 .DS_Store
 src/bin/*
 progs/*.obj
+build/*
+shead

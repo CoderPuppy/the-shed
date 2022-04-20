@@ -99,8 +99,9 @@ def assembleFile(inputFileName):
     memPos = 0
 
     for line in inF:
-        outF.write(formatOutput(memPos, assembleInstruction(line)))
-        memPos += 1
+        if line.replace(" ", "") != "":
+            outF.write(formatOutput(memPos, assembleInstruction(line)))
+            memPos += 1
     outF.write("00")
     inF.close()
     outF.close()
