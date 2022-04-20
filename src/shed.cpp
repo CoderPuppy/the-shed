@@ -1,5 +1,6 @@
 // shed.cpp
 // Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
 //
 // Simulator entry point
 
@@ -10,15 +11,7 @@ void setup(char *file) {
 
   prog_cnt.latchFrom(instr_mem.READ());
   Clock::tick();
-  cout << " ADDR  | ";
-  cout << "X1                  | ";
-  cout << "X2                  | ";
-  cout << "X3                  | ";
-  cout << "X4                  | ";
-  cout << "BELT       ";
-  cout << endl;
-  cout << std::string(192, '-');
-  cout << endl;
+  trace_header();
 }
 
 int main(int argc, char *argv[]) {
@@ -51,6 +44,7 @@ int main(int argc, char *argv[]) {
         break;
     }
     data_mem.dump(0, 20);
+    stack_mem.dump(0, 20);
   }
 
   catch (ArchLibError &err) {

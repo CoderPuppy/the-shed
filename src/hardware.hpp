@@ -11,6 +11,9 @@
 
 static const unsigned int IMM_BITS(8);
 static const unsigned int BITS(16);
+typedef uint16_t data_t;
+typedef uint8_t ze_imm_t;
+typedef int8_t se_imm_t;
 
 // Belt
 static const unsigned int BELT_SIZE(8);
@@ -50,20 +53,20 @@ extern StorageObject addr_reg;
 extern Bus addr_reg_bus;
 
 // ALUs
-extern BusALU sign_ext;
 extern BusALU alu1;
+extern StorageObject alu1_flag;
 extern BusALU alu2;
+extern StorageObject alu2_flag;
+extern BusALU sign_ext;
 extern Bus zero_ext;
 
 // consts
-extern StorageObject nop_instr;
-// extern StorageObject max_value;
 extern Bus const_bus;
-extern StorageObject sign_ext_mask;
-extern StorageObject negate_mask;
-
-enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE };
-extern STATE_ENUM programState;
+extern StorageObject const_nop;
+extern StorageObject const_sign_ext_mask;
+extern StorageObject const_0;
+extern StorageObject const_1;
+extern StorageObject const_2;
 
 void connect(void);
 

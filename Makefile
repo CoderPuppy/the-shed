@@ -1,13 +1,14 @@
 ARCHLIB = ../archlib
 CXX = g++
-CXXFLAGS = -g -I$(ARCHLIB)
-LDFLAGS = $(ARCHLIB)/*.o
+CXXFLAGS = -g -I$(ARCHLIB)/include/arch2-5a
+LDFLAGS = $(ARCHLIB)/src/*.o
 
-SRCFILES = shed belt execute hardware helpers instruction multiplier
+SRCFILES = shed belt execute hardware helpers instruction multiplier trace
+PROGFILES = test test_mul test_store test_callret1
 
 all: shed
 
-progs: progs/test.obj
+progs: $(addprefix progs/, $(addsuffix .obj, $(PROGFILES)))
 
 .PHONY: all progs clean
 

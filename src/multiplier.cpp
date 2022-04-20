@@ -18,14 +18,14 @@ class MultStage {
   MultStage(int index)
     : index(index), size(BITS/(1 << index))
     , alus(make_array<BusALU>(BITS/(1 << index), [index](auto i, auto alu) {
-      std::ostringstream ss;
-      ss << "MultALU" << std::hex << index << i;
+      ostringstream ss;
+      ss << "MultALU" << hex << index << i;
       new (alu) BusALU(ss.str().c_str(), BITS * 2);
     }))
     , regs(make_array<StorageObject>(BITS/(1 << index),
       [index](auto i, auto reg) {
-        std::ostringstream ss;
-        ss << "MultReg" << std::hex << index << i;
+        ostringstream ss;
+        ss << "MultReg" << hex << index << i;
         new (reg) StorageObject(ss.str().c_str(), BITS * 2, i);
       }
     ))
@@ -34,8 +34,8 @@ class MultStage {
 
 MultStage mult0(0);
 auto mult0_consts = make_array<StorageObject>(BITS, [](auto i, auto const_) {
-  std::ostringstream ss;
-  ss << "MultConst0" << std::hex << i;
+  ostringstream ss;
+  ss << "MultConst0" << hex << i;
   new (const_) StorageObject(ss.str().c_str(), BITS * 2, i);
 });
 MultStage mult1(1);

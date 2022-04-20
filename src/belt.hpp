@@ -16,7 +16,7 @@ class BeltElement {
   Clearable oflow;
   BeltElement(int index);
   void connectsTo(Flow& f);
-  string toString();
+  void print(ostream& s);
 };
 
 class Belt {
@@ -29,10 +29,11 @@ class Belt {
   void connectsTo(Flow& f);
   void push(OutFlow& data, OutFlow& carry, OutFlow& oflow);
   void push(OutFlow& data);
-  string toString();
+  void print(ostream& s);
+  void tick();
 
  private:
-  int offset;
+  int offset, pending_offset;
   BeltElement *belt;
 };
 

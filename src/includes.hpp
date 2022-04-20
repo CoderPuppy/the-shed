@@ -7,8 +7,7 @@
 #ifndef includes_hpp
 #define includes_hpp
 
-#include <bits/stdc++.h>
-
+#include <functional>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -34,5 +33,6 @@
 #include "helpers.hpp"
 #include "instruction.hpp"
 #include "multiplier.hpp"
+#include "trace.hpp"
 
 #endif

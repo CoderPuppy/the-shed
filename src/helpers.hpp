@@ -1,5 +1,6 @@
 // helpers.hpp
 // Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
 //
 // Various helpers
 
@@ -9,7 +10,6 @@
 #include "includes.hpp"
 
 string opToString(BusALU::Operation op);
-string toHexString(int fill, long value);
 
 template<typename T>
 T *make_array(size_t n, function<void(size_t, T*)> init) {

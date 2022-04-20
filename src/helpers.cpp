@@ -24,11 +24,11 @@ string opToString(BusALU::Operation op) {
     case BusALU::op_extendSign:
       return "ESIGN";
     case BusALU::op_lshift:
-      return "LSHIFT";
+      return "SLL";
     case BusALU::op_rshift:
-      return "RSHIFT";
+      return "SRL";
     case BusALU::op_rashift:
-      return "RASHIFT";
+      return "SRA";
     case BusALU::op_rop1:
       return "OP1";
     case BusALU::op_rop2:
@@ -40,11 +40,4 @@ string opToString(BusALU::Operation op) {
     default:
       return "UNKNOWN";
   }
-}
-
-string toHexString(int fill, long value) {
-  std::ostringstream ss;
-  ss << "0x" << std::right << std::hex << std::uppercase << std::setfill('0')
-     << std::setw(fill) << value;
-  return ss.str();
 }
