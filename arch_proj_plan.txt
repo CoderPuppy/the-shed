@@ -1,0 +1,17 @@
+DONE:
+Hardware: Drew
+Multiplication: Drew
+Plumbing: Max
+Instructions so far: Max
+(Invalid, halt, nop, alu, negate, aluc, store, alumi, branch)
+
+TODO:
+Finish up instructions: Drew + Max
+(Return, get_pc, longcall, longjump, get_carry, constant, upper, call, read_stack, alloca, write_stack, load)
+Halt states: Drew + Max
+Testing:
+
+PLAN:
+Get all instructions finished by April 25
+Halt state completed by: April 27
+Testing completed by: April 30
