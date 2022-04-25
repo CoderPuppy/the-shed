@@ -1,8 +1,8 @@
 // multiplier.hpp
 // Author: Drew Young (ajy2158@rit.edu)
 //
-// Implementation of a multiplier. 16-bit times 16-bit to 32-bit output on two
-// 16-bit registers.
+// Implementation of a multiplier. 16-bit times 16-bit to 32-bit output on
+// two 16-bit registers.
 
 #ifndef multiplier_hpp
 #define multiplier_hpp

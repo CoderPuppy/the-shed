@@ -59,7 +59,9 @@ class ALU : public Instruction {
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   }
-  void print(ostream& s) { s << opToString(op) << " B" << b1 << " B" << b2; }
+  void print(ostream& s) {
+    s << opToString(op) << " B" << b1 << " B" << b2;
+  }
   ALU(int b1, int b2, BusALU::Operation op) : b1(b1), b2(b2), op(op) {}
   int getLatency() { return 1; }
 
@@ -93,7 +95,9 @@ class ALUC : public Instruction {
     alu1.perform(op);
     belt.push(alu1.OUT(), alu1.CARRY(), alu1.OFLOW());
   }
-  void print(ostream& s) { s << opToString(op) << "C B" << b1 << " B" << b2; }
+  void print(ostream& s) {
+    s << opToString(op) << "C B" << b1 << " B" << b2;
+  }
   ALUC(int b1, int b2, BusALU::Operation op) : b1(b1), b2(b2), op(op) {}
   int getLatency() { return 1; }
 
@@ -298,7 +302,8 @@ class BRANCH : public Instruction {
     s << " B" << b1 << " ";
     s << setw(4) << (data_t)(se_imm_t)imm;
   }
-  BRANCH(string mnemonic, int b1, long imm, function<bool(BeltElement&)> cond)
+  BRANCH(string mnemonic, int b1, long imm,
+         function<bool(BeltElement&)> cond)
       : mnemonic(mnemonic), b1(b1), imm(imm), cond(cond) {}
   int getLatency() { return 1; }
 
@@ -448,8 +453,10 @@ class CALL2 : public Instruction {
   int getLatency() { return 2; }
 };
 
-unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1, long field2,
-                                                     long field3, long field4) {
+unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1,
+                                                     long field2,
+                                                     long field3,
+                                                     long field4) {
   switch (field2) {
     case 0x0:
       // halt
@@ -504,19 +511,23 @@ unique_ptr<Instruction> field1_10(long field1, long field2, long field3,
   switch (field3) {
     case 0x0:
       // addi
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_add, true));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_add, true));
     case 0x1:
       // mlui
       return unique_ptr<MULTI>(new MULTI(field2, field4));
     case 0x2:
       // andi
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_and, true));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_and, true));
     case 0x3:
       // ori
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_or, false));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_or, false));
     case 0x4:
       // xori
-      return unique_ptr<ALUI>(new ALUI(field2, field4, BusALU::op_xor, false));
+      return unique_ptr<ALUI>(
+          new ALUI(field2, field4, BusALU::op_xor, false));
     case 0x5:
       // slli
       return unique_ptr<ALUI>(

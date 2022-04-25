@@ -34,7 +34,7 @@ class Belt {
 
  private:
   int offset, pending_offset;
-  BeltElement *belt;
+  BeltElement* belt;
 };
 
 #endif

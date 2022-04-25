@@ -55,7 +55,8 @@ Bus zero_ext("zero_ext", IMM_BITS);
 // consts
 Bus const_bus("Const Bus", BITS);
 StorageObject const_nop("nop_instruction", BITS, nop_instr);
-StorageObject const_sign_ext_mask("sign_ext_mask", BITS, 1u << (IMM_BITS - 1));
+StorageObject const_sign_ext_mask("sign_ext_mask", BITS,
+                                  1u << (IMM_BITS - 1));
 StorageObject const_0("0", BITS, 0);
 StorageObject const_1("1", BITS, 1);
 StorageObject const_2("2", BITS, 2);

@@ -1,8 +1,9 @@
 // multiplier.hpp
 // Author: Drew Young (ajy2158@rit.edu)
 //
-// Implementation of a multiplier. 16-bit times 16-bit to 32-bit output on two
-// 16-bit registers. Uses 32 ALUs and 32 registers (excluding constants).
+// Implementation of a multiplier. 16-bit times 16-bit to 32-bit output on
+// two 16-bit registers. Uses 32 ALUs and 32 registers (excluding
+// constants).
 
 #include "includes.hpp"
 
@@ -12,32 +13,34 @@ Bus mult_reg_bus("Mult bus", BITS);
 class MultStage {
  public:
   int index, size;
-  BusALU *alus;
-  StorageObject *regs;
+  BusALU* alus;
+  StorageObject* regs;
 
   MultStage(int index)
-    : index(index), size(BITS/(1 << index))
-    , alus(make_array<BusALU>(BITS/(1 << index), [index](auto i, auto alu) {
-      ostringstream ss;
-      ss << "MultALU" << hex << index << i;
-      new (alu) BusALU(ss.str().c_str(), BITS * 2);
-    }))
-    , regs(make_array<StorageObject>(BITS/(1 << index),
-      [index](auto i, auto reg) {
-        ostringstream ss;
-        ss << "MultReg" << hex << index << i;
-        new (reg) StorageObject(ss.str().c_str(), BITS * 2, i);
-      }
-    ))
-  {}
+      : index(index),
+        size(BITS / (1 << index)),
+        alus(make_array<BusALU>(BITS / (1 << index),
+                                [index](auto i, auto alu) {
+                                  ostringstream ss;
+                                  ss << "MultALU" << hex << index << i;
+                                  new (alu)
+                                      BusALU(ss.str().c_str(), BITS * 2);
+                                })),
+        regs(make_array<StorageObject>(
+            BITS / (1 << index), [index](auto i, auto reg) {
+              ostringstream ss;
+              ss << "MultReg" << hex << index << i;
+              new (reg) StorageObject(ss.str().c_str(), BITS * 2, i);
+            })) {}
 };
 
 MultStage mult0(0);
-auto mult0_consts = make_array<StorageObject>(BITS, [](auto i, auto const_) {
-  ostringstream ss;
-  ss << "MultConst0" << hex << i;
-  new (const_) StorageObject(ss.str().c_str(), BITS * 2, i);
-});
+auto mult0_consts =
+    make_array<StorageObject>(BITS, [](auto i, auto const_) {
+      ostringstream ss;
+      ss << "MultConst0" << hex << i;
+      new (const_) StorageObject(ss.str().c_str(), BITS * 2, i);
+    });
 MultStage mult1(1);
 MultStage mult2(2);
 MultStage mult3(3);
@@ -60,22 +63,22 @@ void mult_connect() {
     mult0.regs[i].connectsTo(mult0.alus[i].OUT());
   }
   for (int i = 0; i < mult1.size; i++) {
-    mult0.regs[i * 2    ].connectsTo(mult1.alus[i].OP1());
+    mult0.regs[i * 2].connectsTo(mult1.alus[i].OP1());
     mult0.regs[i * 2 + 1].connectsTo(mult1.alus[i].OP2());
     mult1.regs[i].connectsTo(mult1.alus[i].OUT());
   }
   for (int i = 0; i < mult2.size; i++) {
-    mult1.regs[i * 2    ].connectsTo(mult2.alus[i].OP1());
+    mult1.regs[i * 2].connectsTo(mult2.alus[i].OP1());
     mult1.regs[i * 2 + 1].connectsTo(mult2.alus[i].OP2());
     mult2.regs[i].connectsTo(mult2.alus[i].OUT());
   }
   for (int i = 0; i < mult3.size; i++) {
-    mult2.regs[i * 2    ].connectsTo(mult3.alus[i].OP1());
+    mult2.regs[i * 2].connectsTo(mult3.alus[i].OP1());
     mult2.regs[i * 2 + 1].connectsTo(mult3.alus[i].OP2());
     mult3.regs[i].connectsTo(mult3.alus[i].OUT());
   }
   for (int i = 0; i < mult4.size; i++) {
-    mult3.regs[i * 2    ].connectsTo(mult4.alus[i].OP1());
+    mult3.regs[i * 2].connectsTo(mult4.alus[i].OP1());
     mult3.regs[i * 2 + 1].connectsTo(mult4.alus[i].OP2());
     mult4.regs[i].connectsTo(mult4.alus[i].OUT());
   }

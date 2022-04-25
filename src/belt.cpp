@@ -7,10 +7,9 @@
 #include "includes.hpp"
 
 BeltElement::BeltElement(int index)
-  : data(("BELT_" + std::to_string(index)).c_str(), BITS)
-  , carry(("BELT_CARRY_" + std::to_string(index)).c_str(), 1)
-  , oflow(("BELT_OFLOW_" + std::to_string(index)).c_str(), 1)
-{}
+    : data(("BELT_" + std::to_string(index)).c_str(), BITS),
+      carry(("BELT_CARRY_" + std::to_string(index)).c_str(), 1),
+      oflow(("BELT_OFLOW_" + std::to_string(index)).c_str(), 1) {}
 
 void BeltElement::connectsTo(Flow& f) {
   data.connectsTo(f);
@@ -25,9 +24,10 @@ void BeltElement::print(ostream& s) {
 }
 
 Belt::Belt(int length)
-  : length(length), offset(0), pending_offset(0)
-  , belt((BeltElement*) ::operator new(length * sizeof(BeltElement)))
-{
+    : length(length),
+      offset(0),
+      pending_offset(0),
+      belt((BeltElement*)::operator new(length * sizeof(BeltElement))) {
   for (int i = 0; i < length; i++) {
     new (&belt[i]) BeltElement(i);
   }
@@ -77,6 +77,4 @@ void Belt::print(ostream& s) {
   }
 }
 
-void Belt::tick() {
-  offset = pending_offset;
-}
+void Belt::tick() { offset = pending_offset; }
