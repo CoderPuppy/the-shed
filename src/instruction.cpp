@@ -578,10 +578,10 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
                                              long field3, long field4) {
   switch (field2) {
     case 0x0:
-      // TODO: const
+      // const
       return unique_ptr<CONST>(new CONST(field4));
     case 0x1:
-      // TODO: upper
+      // upper
       return unique_ptr<UPPER>(new UPPER(field4));
     case 0x2:
       // call1
@@ -628,7 +628,7 @@ unique_ptr<Instruction> field1_11(long field1, long field2, long field3,
       // TODO: sts
       return unique_ptr<INVALID>(new INVALID());
     case 0x5:
-      // TODO: ld
+      // ld
       return unique_ptr<LOAD>(new LOAD(field2, field4));
     case 0x7:
       return field1_11_field3_111(field1, field2, field3, field4);
