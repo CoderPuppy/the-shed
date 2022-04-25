@@ -67,6 +67,7 @@ extern StorageObject const_sign_ext_mask;
 extern StorageObject const_0;
 extern StorageObject const_1;
 extern StorageObject const_2;
+extern StorageObject const_8;
 
 void connect(void);
 

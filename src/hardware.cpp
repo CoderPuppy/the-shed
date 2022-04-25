@@ -59,6 +59,7 @@ StorageObject const_sign_ext_mask("sign_ext_mask", BITS, 1u << (IMM_BITS - 1));
 StorageObject const_0("0", BITS, 0);
 StorageObject const_1("1", BITS, 1);
 StorageObject const_2("2", BITS, 2);
+StorageObject const_8("8", BITS, 8);
 
 void connect(void) {
   mult_connect();
@@ -69,6 +70,8 @@ void connect(void) {
   belt.connectsTo(alu1.OUT());
   belt.connectsTo(alu1.CARRY());
   belt.connectsTo(alu1.OFLOW());
+  belt.connectsTo(data_mem.READ());
+  belt.connectsTo(imm_X1_bus.OUT());
 
   prog_cnt.connectsTo(prog_cnt_bus.IN());
   prog_cnt.connectsTo(ret_addr_bus.OUT());
@@ -147,4 +150,5 @@ void connect(void) {
   const_1.connectsTo(alu1.OP2());
   const_1.connectsTo(alu2.OP2());
   const_2.connectsTo(alu1.OP2());
+  const_8.connectsTo(alu1.OP2());
 }

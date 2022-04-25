@@ -156,6 +156,36 @@ class STORE : public Instruction {
   long imm;
 };
 
+class LOAD : public Instruction {
+ public:
+  void X1T1() { signExtImm(); }
+  void X1T2() {
+    alu1.IN1().pullFrom(belt.get(b1).data);
+    alu1.IN2().pullFrom(imm_X1);
+    alu1.perform(BusALU::op_add);
+    addr_reg.latchFrom(alu1.OUT());
+  }
+  void X2T1() {
+    addr_reg_bus.IN().pullFrom(addr_reg);
+    data_mem.MAR().latchFrom(addr_reg_bus.OUT());
+  }
+  void X2T2() {
+    belt.push(data_mem.READ());
+    data_mem.read();
+  }
+  void print(ostream& s) {
+    s << "LD ";
+    s << "B" << b1 << " ";
+    s << setw(4) << (data_t)(se_imm_t)imm;
+  }
+  LOAD(int b1, long imm) : b1(b1), imm(imm) {}
+  int getLatency() { return 2; }
+
+ private:
+  int b1;
+  long imm;
+};
+
 class ALUI : public Instruction {
  public:
   void X1T1() {
@@ -184,6 +214,44 @@ class ALUI : public Instruction {
   long imm;
   BusALU::Operation op;
   bool sign_ext;
+};
+
+class CONST : public Instruction {
+ public:
+  void X1T1() { signExtImm(); }
+  void X1T2() {
+    imm_X1_bus.IN().pullFrom(imm_X1);
+    belt.push(imm_X1_bus.OUT());
+  }
+  void print(ostream& s) {
+    s << "CONST ";
+    s << setw(4) << (data_t)(se_imm_t)imm;
+  }
+  CONST(long imm) : imm(imm) {}
+  int getLatency() { return 1; }
+
+ private:
+  long imm;
+};
+
+class UPPER : public Instruction {
+ public:
+  void X1T1() { zeroExtImm(); }
+  void X1T2() {
+    alu1.IN1().pullFrom(imm_X1);
+    alu1.IN2().pullFrom(const_8);
+    belt.push(alu1.OUT());
+    alu1.perform(BusALU::op_lshift);
+  }
+  void print(ostream& s) {
+    s << "UPPER ";
+    s << setw(4) << (data_t)(se_imm_t)imm;
+  }
+  UPPER(long imm) : imm(imm) {}
+  int getLatency() { return 1; }
+
+ private:
+  long imm;
 };
 
 class MULTI : public Instruction {
@@ -511,10 +579,10 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
   switch (field2) {
     case 0x0:
       // TODO: const
-      return unique_ptr<INVALID>(new INVALID());
+      return unique_ptr<CONST>(new CONST(field4));
     case 0x1:
       // TODO: upper
-      return unique_ptr<INVALID>(new INVALID());
+      return unique_ptr<UPPER>(new UPPER(field4));
     case 0x2:
       // call1
       return unique_ptr<CALL1>(new CALL1());
@@ -561,7 +629,7 @@ unique_ptr<Instruction> field1_11(long field1, long field2, long field3,
       return unique_ptr<INVALID>(new INVALID());
     case 0x5:
       // TODO: ld
-      return unique_ptr<INVALID>(new INVALID());
+      return unique_ptr<LOAD>(new LOAD(field2, field4));
     case 0x7:
       return field1_11_field3_111(field1, field2, field3, field4);
     default:
