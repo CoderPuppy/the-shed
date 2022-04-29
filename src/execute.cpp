@@ -80,6 +80,7 @@ void executeLoop() {
   Clock::tick();
   fetchT2();
   Clock::tick();
+
   while (programState == RUNNING || programState == HALTING) {
     execute();
   }

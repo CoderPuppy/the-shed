@@ -29,7 +29,7 @@ void trace_cycle(Instruction& x1, Instruction& x2, Instruction& x3,
 
   cout << " ";
 
-  cout << setw(4) << prog_cnt_X1.value();
+  cout << setw(4) << prog_cnt.value();
 
   cout << " | ";
 

@@ -256,14 +256,10 @@ class LOAD_STACK : public Instruction {
     alu1.IN2().pullFrom(imm_X1);
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
-
-    cout << frame_ptr.value() << endl;
   }
   void X2T1() {
     addr_reg_bus.IN().pullFrom(addr_reg);
     stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
-
-    cout << stack_ptr.value() << endl;
 
     alu2.OP1().pullFrom(stack_ptr);
     alu2.OP2().pullFrom(addr_reg);
@@ -351,8 +347,9 @@ class CONST : public Instruction {
  public:
   void X1T1() { signExtImm(); }
   void X1T2() {
-    imm_X1_bus.IN().pullFrom(imm_X1);
-    belt.push(imm_X1_bus.OUT());
+    alu1.OP2().pullFrom(imm_X1);
+    alu1.perform(BusALU::op_rop2);
+    belt.push(alu1.OUT());
   }
   void print(ostream& s) {
     s << "CONST ";
@@ -564,12 +561,10 @@ class LCALL : public Instruction {
  public:
   void X1T1() {
     branched = true;
-    belt_imm_bus.IN().pullFrom(belt.get(b1).data);
-    imm_X1.latchFrom(belt_imm_bus.OUT());
   }
   void X1T2() {
-    alu1.OP2().pullFrom(imm_X1);
-    alu1.perform(BusALU::op_rop2);
+    alu1.OP1().pullFrom(belt.get(b1).data);
+    alu1.perform(BusALU::op_rop1);
     prog_cnt.latchFrom(alu1.OUT());
   }
   void X2T1() {
@@ -578,7 +573,6 @@ class LCALL : public Instruction {
     alu2.perform(BusALU::op_add);
     stack_mem.MAR().latchFrom(alu2.OUT());
     frame_ptr.latchFrom(alu2.OUT());
-    stack_ptr.latchFrom(alu2.OUT());
     alu2_flag.latchFrom(alu2.CARRY());
   }
   void X2T2() {
@@ -589,6 +583,8 @@ class LCALL : public Instruction {
 
     stack_mem.WRITE().pullFrom(ret_addr);
     stack_mem.write();
+
+    frame_ptr.incr();
   }
 
   LCALL(int b1) : b1(b1) {}
