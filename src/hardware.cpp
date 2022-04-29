@@ -19,7 +19,7 @@ Bus ret_addr_bus("RA Bus", BITS);
 Counter frame_ptr("FP", BITS);
 StorageObject ret_frame_ptr("RFP", BITS);
 Bus ret_frame_ptr_bus("RFP Bus", BITS);
-Counter stack_ptr("SP", BITS, 1);
+Counter stack_ptr("SP", BITS);
 StorageObject cmp("Cmp", BITS);
 
 // Memories
@@ -72,6 +72,7 @@ void connect(void) {
   belt.connectsTo(alu1.CARRY());
   belt.connectsTo(alu1.OFLOW());
   belt.connectsTo(data_mem.READ());
+  belt.connectsTo(stack_mem.READ());
   belt.connectsTo(imm_X1_bus.OUT());
 
   prog_cnt.connectsTo(prog_cnt_bus.IN());
