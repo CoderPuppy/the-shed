@@ -560,6 +560,48 @@ class CALL1 : public Instruction {
   int imm;
 };
 
+class LCALL : public Instruction {
+ public:
+  void X1T1() {
+    branched = true;
+    belt_imm_bus.IN().pullFrom(belt.get(b1).data);
+    imm_X1.latchFrom(belt_imm_bus.OUT());
+  }
+  void X1T2() {
+    alu1.OP2().pullFrom(imm_X1);
+    alu1.perform(BusALU::op_rop2);
+    prog_cnt.latchFrom(alu1.OUT());
+  }
+  void X2T1() {
+    alu2.OP1().pullFrom(stack_ptr);
+    alu2.OP2().pullFrom(const_1);
+    alu2.perform(BusALU::op_add);
+    stack_mem.MAR().latchFrom(alu2.OUT());
+    frame_ptr.latchFrom(alu2.OUT());
+    stack_ptr.latchFrom(alu2.OUT());
+    alu2_flag.latchFrom(alu2.CARRY());
+  }
+  void X2T2() {
+    if (alu2_flag()) {
+      cout << "IT WRAPPED" << endl;
+      // TODO: handle properly
+    }
+
+    stack_mem.WRITE().pullFrom(ret_addr);
+    stack_mem.write();
+  }
+
+  LCALL(int b1) : b1(b1) {}
+  void print(ostream& s) {
+    s << "LCALL";
+    s << " B" << b1 << " ";
+  }
+  int getLatency() { return 2; }
+
+ private:
+  int b1;
+};
+
 class CALL2 : public Instruction {
  public:
   void X1T1() {
@@ -597,6 +639,25 @@ class CALL2 : public Instruction {
   }
   void print(ostream& s) { s << "CALL2"; }
   int getLatency() { return 2; }
+};
+
+class LJUMP : public Instruction {
+ public:
+  void X1T1() {}
+  void X1T2() {
+    alu1.IN1().pullFrom(belt.get(b1).data);
+    prog_cnt.latchFrom(alu1.OUT());
+    alu1.perform(BusALU::op_rop1);
+  }
+  void print(ostream& s) {
+    s << "LJUMP";
+    s << " B" << b1 << " ";
+  }
+  LJUMP(int b1) : b1(b1) {}
+  int getLatency() { return 1; }
+
+ private:
+  int b1;
 };
 
 unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1,
@@ -638,10 +699,10 @@ unique_ptr<Instruction> field1_01_field4_ff(long field1, long field2,
       return unique_ptr<NEGATE>(new NEGATE(field2));
     case 0x2:
       // lcall
-      // TODO
+      return unique_ptr<LCALL>(new LCALL(field2));
     case 0x3:
       // ljmp
-      // TODO
+      return unique_ptr<LJUMP>(new LJUMP(field2));
     case 0x4:
       // carry
       return unique_ptr<CARRY>(new CARRY(field2));

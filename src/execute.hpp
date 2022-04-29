@@ -10,7 +10,7 @@
 
 extern bool branched;
 
-enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE };
+enum STATE_ENUM { RUNNING, HALTING, HALTED, INVALID_OPCODE, ERROR };
 extern STATE_ENUM programState;
 
 void executeLoop();

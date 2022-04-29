@@ -1,15 +1,24 @@
+const 8
 alloc 1
-const 5
-upper 5
-or 0 1
 sts 0 0
-call1 5
+lcall1 0
 call2
-halt
-halt
-halt
-halt
 lds 0
+addi 0 1
 halt
-halt
-halt
+alloc 3
+const 0x10
+sts 0 1
+const 0x20
+sts 0 2
+const 0
+const 0
+const 0
+const 0
+const 0
+const 0
+const 0
+const 0
+lds 2
+ret1
+ret2
