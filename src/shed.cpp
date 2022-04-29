@@ -43,7 +43,9 @@ int main(int argc, char *argv[]) {
         cout << endl << "SHED halted due to unknown reason" << endl;
         break;
     }
+    cout << "DATA MEM\n";
     data_mem.dump(0, 20);
+    cout << "STACK MEM\n";
     stack_mem.dump(0, 20);
   }
 

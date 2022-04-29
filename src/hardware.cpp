@@ -21,6 +21,7 @@ StorageObject ret_frame_ptr("RFP", BITS);
 Bus ret_frame_ptr_bus("RFP Bus", BITS);
 Counter stack_ptr("SP", BITS, 1);
 StorageObject cmp("Cmp", BITS);
+Bus belt_imm_bus("Belt Imm Bus", BITS);
 
 // Memories
 Memory instr_mem("IMem", BITS, BITS);
@@ -73,8 +74,14 @@ void connect(void) {
   belt.connectsTo(alu1.OFLOW());
   belt.connectsTo(data_mem.READ());
   belt.connectsTo(imm_X1_bus.OUT());
+  belt.connectsTo(belt_imm_bus.IN());
+  belt.connectsTo(belt_imm_bus.OUT());
+  belt.connectsTo(prog_cnt_bus.OUT());
+  belt.connectsTo(prog_cnt_bus.IN());
+  belt.connectsTo(stack_mem.READ());
 
   prog_cnt.connectsTo(prog_cnt_bus.IN());
+  prog_cnt.connectsTo(prog_cnt_bus.OUT());
   prog_cnt.connectsTo(ret_addr_bus.OUT());
   prog_cnt.connectsTo(alu1.OUT());
   prog_cnt.connectsTo(instr_mem.READ());
@@ -86,6 +93,7 @@ void connect(void) {
 
   frame_ptr.connectsTo(alu1.OP1());
   frame_ptr.connectsTo(alu2.OUT());
+  frame_ptr.connectsTo(alu2.OP2());
   frame_ptr.connectsTo(ret_frame_ptr_bus.OUT());
 
   ret_frame_ptr.connectsTo(ret_frame_ptr_bus.IN());
@@ -125,6 +133,8 @@ void connect(void) {
   imm_X1.connectsTo(imm_X1_bus.IN());
   imm_X1.connectsTo(alu1.OP1());
   imm_X1.connectsTo(alu1.OP2());
+  imm_X1.connectsTo(belt_imm_bus.IN());
+  imm_X1.connectsTo(belt_imm_bus.OUT());
 
   imm_X2.connectsTo(imm_X1_bus.OUT());
   imm_X2.connectsTo(alu2.OP2());

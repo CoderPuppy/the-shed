@@ -29,6 +29,7 @@ extern StorageObject ret_frame_ptr;
 extern Bus ret_frame_ptr_bus;
 extern Counter stack_ptr;
 extern StorageObject cmp;
+extern Bus belt_imm_bus;
 
 // Memories
 extern Memory instr_mem;

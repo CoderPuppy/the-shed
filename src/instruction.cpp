@@ -414,6 +414,48 @@ class CALL1 : public Instruction {
   int getLatency() { return 2; }
 };
 
+class LCALL : public Instruction {
+ public:
+  void X1T1() {
+    branched = true;
+    belt_imm_bus.IN().pullFrom(belt.get(b1).data);
+    imm_X1.latchFrom(belt_imm_bus.OUT());
+  }
+  void X1T2() {
+    alu1.OP2().pullFrom(imm_X1);
+    alu1.perform(BusALU::op_rop2);
+    prog_cnt.latchFrom(alu1.OUT());
+  }
+  void X2T1() {
+    alu2.OP1().pullFrom(stack_ptr);
+    alu2.OP2().pullFrom(const_1);
+    alu2.perform(BusALU::op_add);
+    stack_mem.MAR().latchFrom(alu2.OUT());
+    frame_ptr.latchFrom(alu2.OUT());
+    stack_ptr.latchFrom(alu2.OUT());
+    alu2_flag.latchFrom(alu2.CARRY());
+  }
+  void X2T2() {
+    if (alu2_flag()) {
+      cout << "IT WRAPPED" << endl;
+      // TODO: handle properly
+    }
+
+    stack_mem.WRITE().pullFrom(ret_addr);
+    stack_mem.write();
+  }
+
+  LCALL(int b1) : b1(b1) {}
+  void print(ostream& s) {
+    s << "LCALL";
+    s << " B" << b1 << " ";
+  }
+  int getLatency() { return 2; }
+
+ private:
+  int b1;
+};
+
 class CALL2 : public Instruction {
  public:
   void X1T1() {
@@ -453,6 +495,167 @@ class CALL2 : public Instruction {
   int getLatency() { return 2; }
 };
 
+class PC : public Instruction {
+ public:
+  void X1T1() { belt.push(prog_cnt_bus.OUT()); }
+  void X1T2() {}
+  void X2T1() {}
+  void X2T2() {}
+  void print(ostream& s) { s << "PC"; }
+  int getLatency() { return 1; }
+};
+
+class CARRY : public Instruction {
+ public:
+  void X1T1() {
+    imm_X1_bus.IN().pullFrom(belt.get(b1).carry);
+    imm_X1.latchFrom(imm_X1_bus.OUT());
+  }
+  void X1T2() {
+    imm_X1_bus.IN().pullFrom(imm_X1);
+    belt.push(imm_X1_bus.OUT());
+  }
+  void X2T1() {}
+  void X2T2() {}
+  CARRY(int b1) : b1(b1) {}
+  void print(ostream& s) {
+    s << "CARRY";
+    s << " B" << b1 << " ";
+  }
+  int getLatency() { return 1; }
+
+ private:
+  int b1;
+};
+
+class LJUMP : public Instruction {
+ public:
+  void X1T1() {}
+  void X1T2() {
+    alu1.IN1().pullFrom(belt.get(b1).data);
+    prog_cnt.latchFrom(alu1.OUT());
+    alu1.perform(BusALU::op_rop1);
+  }
+  void print(ostream& s) {
+    s << "LJUMP";
+    s << " B" << b1 << " ";
+  }
+  LJUMP(int b1) : b1(b1) {}
+  int getLatency() { return 1; }
+
+ private:
+  int b1;
+};
+
+class LDS : public Instruction {
+ public:
+  void X1T1() { zeroExtImm(); }
+  void X1T2() {
+    alu1.IN2().pullFrom(imm_X1);
+    alu1.IN1().pullFrom(frame_ptr);
+    addr_reg.latchFrom(alu1.OUT());
+    alu1.perform(BusALU::op_add);
+  }
+  void X2T1() {
+    stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
+    addr_reg_bus.IN().pullFrom(addr_reg);
+  }
+  void X2T2() {
+    belt.push(stack_mem.READ());
+    stack_mem.read();
+    alu2.IN1().pullFrom(stack_ptr);
+    alu2.IN2().pullFrom(imm_X2);
+    alu2.perform(BusALU::op_sub);
+    cmp.latchFrom(alu2.OUT());
+  }
+  void X2C() {
+    if (cmp.value() < 0) {
+      // todo fix
+      cout << "CMP < 0\n";
+      programState = ERROR;
+    }
+  }
+  void print(ostream& s) {
+    s << "LDS";
+    s << setw(4) << (data_t)(se_imm_t)imm;
+  }
+
+  LDS(long imm) : imm(imm) {}
+  int getLatency() { return 2; }
+
+ private:
+  long imm;
+};
+
+class STS : public Instruction {
+ public:
+  void X1T1() { zeroExtImm(); }
+  void X1T2() {
+    alu1.IN2().pullFrom(imm_X1);
+    alu1.IN1().pullFrom(frame_ptr);
+    addr_reg.latchFrom(alu1.OUT());
+    alu1.perform(BusALU::op_add);
+
+    data_reg_bus.IN().pullFrom(belt.get(b1).data);
+    data_reg.latchFrom(data_reg_bus.OUT());
+  }
+  void X2T1() {
+    stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
+    addr_reg_bus.IN().pullFrom(addr_reg);
+  }
+  void X2T2() {
+    stack_mem.WRITE().pullFrom(data_reg);
+    stack_mem.write();
+
+    alu2.IN1().pullFrom(stack_ptr);
+    alu2.IN2().pullFrom(imm_X2);
+    alu2.perform(BusALU::op_sub);
+    cmp.latchFrom(alu2.OUT());
+  }
+  void X2C() {
+    if (cmp.value() < 0) {
+      // todo fix
+      cout << "CMP < 0\n";
+      programState = ERROR;
+    }
+  }
+  void print(ostream& s) {
+    s << "STS";
+    s << " B" << b1 << " ";
+    s << setw(4) << (data_t)(se_imm_t)imm;
+  }
+
+  STS(int b1, long imm) : b1(b1), imm(imm) {}
+  int getLatency() { return 2; }
+
+ private:
+  int b1;
+  long imm;
+};
+
+class ALLOCA : public Instruction {
+ public:
+  void X1T1() { zeroExtImm(); }
+  void X1T2() {}
+  void X2T1() {
+    alu2.IN1().pullFrom(stack_ptr);
+    alu2.IN2().pullFrom(imm_X2);
+    stack_ptr.latchFrom(alu2.OUT());
+    alu2.perform(BusALU::op_add);
+  }
+  void X2T2() {}
+  void print(ostream& s) {
+    s << "ALLOCA";
+    s << setw(4) << (data_t)(se_imm_t)imm;
+  }
+
+  ALLOCA(long imm) : imm(imm) {}
+  int getLatency() { return 1; }
+
+ private:
+  long imm;
+};
+
 unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1,
                                                      long field2,
                                                      long field3,
@@ -466,7 +669,7 @@ unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1,
       return unique_ptr<NOP>(new NOP());
     case 0x2:
       // pc
-      // TODO
+      return unique_ptr<PC>(new PC());
     case 0x3:
       // ret1
       return unique_ptr<RET1>(new RET1());
@@ -492,13 +695,13 @@ unique_ptr<Instruction> field1_01_field4_ff(long field1, long field2,
       return unique_ptr<NEGATE>(new NEGATE(field2));
     case 0x2:
       // lcall
-      // TODO
+      return unique_ptr<LCALL>(new LCALL(field2));
     case 0x3:
       // ljmp
-      // TODO
+      return unique_ptr<LJUMP>(new LJUMP(field2));
     case 0x4:
       // carry
-      // TODO
+      return unique_ptr<CARRY>(new CARRY(field2));
     case 0x7:
       return field1_01_field4_ff_field3_7(field1, field2, field3, field4);
     default:
@@ -603,10 +806,10 @@ unique_ptr<Instruction> field1_11_field3_111(long field1, long field2,
           "JMP", 0, field4, [](BeltElement& be) -> bool { return true; }));
     case 0x4:
       // TODO: lds
-      return unique_ptr<INVALID>(new INVALID());
+      return unique_ptr<LDS>(new LDS(field4));
     case 0x5:
       // TODO: alloc
-      return unique_ptr<INVALID>(new INVALID());
+      return unique_ptr<ALLOCA>(new ALLOCA(field4));
     default:
       return unique_ptr<INVALID>(new INVALID());
   }
@@ -636,8 +839,8 @@ unique_ptr<Instruction> field1_11(long field1, long field2, long field3,
           new BRANCH("BCAR", field2, field4,
                      [](BeltElement& be) -> bool { return be.carry(); }));
     case 0x4:
-      // TODO: sts
-      return unique_ptr<INVALID>(new INVALID());
+      // sts
+      return unique_ptr<STS>(new STS(field2, field4));
     case 0x5:
       // ld
       return unique_ptr<LOAD>(new LOAD(field2, field4));
