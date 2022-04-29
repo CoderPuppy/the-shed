@@ -1,9 +1,10 @@
-const 8
+const 9
 alloc 1
 sts 0 0
 lcall1 0
 call2
 lds 0
+nop
 addi 0 1
 halt
 alloc 3
