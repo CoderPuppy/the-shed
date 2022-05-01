@@ -6,8 +6,11 @@
 
 #include "includes.hpp"
 
-void setup(char *file) {
+void setup(char *file, char *data_file) {
   instr_mem.load(file);
+  if (data_file != NULL) {
+    data_mem.load(data_file);
+  }
 
   prog_cnt.latchFrom(instr_mem.READ());
   Clock::tick();
@@ -20,9 +23,10 @@ int main(int argc, char *argv[]) {
   // CPUObject::debug |= CPUObject::trace | CPUObject::memload;
 
   // make sure we've been given an object file name
-
-  if (argc != 2) {
-    cerr << "Usage:  " << argv[0] << " object-file-name" << endl << endl;
+  if (argc < 2 && argc > 3) {
+    cerr << "Usage:  " << argv[0]
+         << " program-object-file-name [heap-object-file-name]" << endl
+         << endl;
     exit(1);
   }
 
@@ -30,7 +34,11 @@ int main(int argc, char *argv[]) {
 
   try {
     connect();
-    setup(argv[1]);
+    if (argc == 2) {
+      setup(argv[1], NULL);
+    } else {
+      setup(argv[1], argv[2]);
+    }
     executeLoop();
     switch (programState) {
       case RUNNING:

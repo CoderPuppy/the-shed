@@ -1,6 +1,6 @@
 const 0
 const 17
-sdump 1 0
+ddump 1 0
 const 9
 alloc 1
 sdump 2 1
