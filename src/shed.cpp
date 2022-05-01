@@ -33,20 +33,38 @@ int main(int argc, char *argv[]) {
     setup(argv[1]);
     executeLoop();
     switch (programState) {
+      case RUNNING:
+        cout << endl
+             << "SHED halted due to unknown error (RUNNING)" << endl;
+        break;
+      case HALTING:
+        cout << endl
+             << "SHED halted due to unknown error (HALTING)" << endl;
+        break;
       case HALTED:
         cout << endl << "SHED halted due to HALT instruction" << endl;
         break;
       case INVALID_OPCODE:
         cout << endl << "SHED halted due to an invalid opcode" << endl;
         break;
+      case STACK_OVERFLOW:
+        cout << endl << "SHED halted due to a stack overflow" << endl;
+        break;
+      case INSTR_OVERFLOW:
+        cout << endl
+             << "SHED halted due to an instruction overflow " << endl;
+        break;
+      case HEAP_OVERFLOW:
+        cout << endl << "SHED halted due to a heap overflow" << endl;
+        break;
+      case BAD_STACK_BOUNDS:
+        cout << endl
+             << "SHED halted due to an invalid stack access" << endl;
+        break;
       default:
         cout << endl << "SHED halted due to unknown reason" << endl;
         break;
     }
-    cout << "DATA MEM\n";
-    data_mem.dump(0, 20);
-    cout << "STACK MEM\n";
-    stack_mem.dump(0, 20);
   }
 
   catch (ArchLibError &err) {

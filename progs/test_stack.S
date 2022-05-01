@@ -1,8 +1,16 @@
+const 0
+const 17
+sdump 1 0
 const 9
 alloc 1
+sdump 2 1
 sts 0 0
+sdump 2 1
 lcall1 0
 call2
+const 0
+const 10
+sdump 1 0
 lds 0
 nop
 addi 0 1

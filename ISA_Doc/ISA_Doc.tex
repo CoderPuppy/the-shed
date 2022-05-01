@@ -166,9 +166,11 @@
 			\(\textrm{Belt} \gets B_1 + \operatorname{carry}\left(B_2\right)\) \\
 		\texttt{01} & belt pos & belt pos & \texttt{0000 1001} & \texttt{sub}     & Subtract               & 1 &
 			\(\textrm{Belt} \gets B_1 - B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 1010} & \texttt{subc}    & Subtract carry         & 1 &
-			\(\textrm{Belt} \gets \overline{B_1} + \operatorname{carry}\left(B_2\right)\) \\
-		\texttt{01} & & & \texttt{0000 1011} & INVALID & & \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1010} & \texttt{ddump}   & Dump Data Memory       & 1 &
+			 \\
+		\texttt{01} & belt pos & belt pos & \texttt{0000 1011} & \texttt{sdump}   & Dump Stack Memory       & 1 &
+			 \\
+		\texttt{01} & & & \texttt{0000 1100} & INVALID & & \\
 								& & & \(\vdots\)         &         & & \\
 		\texttt{01} & & & \texttt{1111 1110} & INVALID & & \\
 		\texttt{01} & belt pos & \texttt{000} & \texttt{1111 1111} & \texttt{invert}     & Bitwise inversion              & 1   &

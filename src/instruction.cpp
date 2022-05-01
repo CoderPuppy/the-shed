@@ -146,6 +146,7 @@ class STORE : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(belt.get(b1).data);
     alu1.IN2().pullFrom(imm_X1);
+    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
 
@@ -153,6 +154,9 @@ class STORE : public Instruction {
     data_reg.latchFrom(data_reg_bus.OUT());
   }
   void X2T1() {
+    if (alu1_flag()) {
+      programState = HEAP_OVERFLOW;
+    }
     addr_reg_bus.IN().pullFrom(addr_reg);
     data_mem.MAR().latchFrom(addr_reg_bus.OUT());
   }
@@ -181,10 +185,14 @@ class LOAD : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(belt.get(b1).data);
     alu1.IN2().pullFrom(imm_X1);
+    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
   }
   void X2T1() {
+    if (alu1_flag()) {
+      programState = HEAP_OVERFLOW;
+    }
     addr_reg_bus.IN().pullFrom(addr_reg);
     data_mem.MAR().latchFrom(addr_reg_bus.OUT());
   }
@@ -211,6 +219,7 @@ class STORE_STACK : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(frame_ptr);
     alu1.IN2().pullFrom(imm_X1);
+    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
 
@@ -218,6 +227,9 @@ class STORE_STACK : public Instruction {
     data_reg.latchFrom(data_reg_bus.OUT());
   }
   void X2T1() {
+    if (alu1_flag()) {
+      programState = STACK_OVERFLOW;
+    }
     addr_reg_bus.IN().pullFrom(addr_reg);
     stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
 
@@ -231,6 +243,7 @@ class STORE_STACK : public Instruction {
     stack_mem.write();
 
     if (cmp() || !cmp.value()) {
+      programState = BAD_STACK_BOUNDS;
       // TODO: handle properly
       cout << "bounds check failed" << endl;
     }
@@ -254,10 +267,14 @@ class LOAD_STACK : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(frame_ptr);
     alu1.IN2().pullFrom(imm_X1);
+    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
   }
   void X2T1() {
+    if (alu1_flag()) {
+      programState = STACK_OVERFLOW;
+    }
     addr_reg_bus.IN().pullFrom(addr_reg);
     stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
 
@@ -271,6 +288,7 @@ class LOAD_STACK : public Instruction {
     belt.push(stack_mem.READ());
 
     if (cmp() || !cmp.value()) {
+      programState = BAD_STACK_BOUNDS;
       // TODO: handle properly
       cout << "bounds check failed" << endl;
     }
@@ -298,6 +316,7 @@ class ALLOC : public Instruction {
   }
   void X2T2() {
     if (alu2_flag()) {
+      programState = STACK_OVERFLOW;
       // TODO: handle properly
       cout << "out of stack" << endl;
     }
@@ -428,8 +447,14 @@ class BRANCH : public Instruction {
     if (cond(belt.get(b1))) {
       alu1.OP1().pullFrom(prog_cnt_X1);
       alu1.OP2().pullFrom(imm_X1);
+      alu1_flag.latchFrom(alu1.CARRY());
       alu1.perform(BusALU::op_add);
       prog_cnt.latchFrom(alu1.OUT());
+    }
+  }
+  void X2T1() {
+    if (alu1_flag()) {
+      programState = INSTR_OVERFLOW;
     }
   }
   void print(ostream& s) {
@@ -466,6 +491,7 @@ class RET1 : public Instruction {
   }
   void X1C() {
     if (!alu1_flag()) {
+      programState = STACK_OVERFLOW;
       cout << "IT WRAPPED" << endl;
       // TODO: handle properly
     }
@@ -496,6 +522,7 @@ class RET2 : public Instruction {
   }
   void X1T2() {
     if (!alu1_flag() == 1) {
+      programState = STACK_OVERFLOW;
       cout << "IT WRAPPED" << endl;
       // TODO: handle properly
     }
@@ -537,6 +564,7 @@ class CALL1 : public Instruction {
   }
   void X2T2() {
     if (alu2_flag()) {
+      programState = STACK_OVERFLOW;
       cout << "IT WRAPPED" << endl;
       // TODO: handle properly
     }
@@ -559,9 +587,7 @@ class CALL1 : public Instruction {
 
 class LCALL : public Instruction {
  public:
-  void X1T1() {
-    branched = true;
-  }
+  void X1T1() { branched = true; }
   void X1T2() {
     alu1.OP1().pullFrom(belt.get(b1).data);
     alu1.perform(BusALU::op_rop1);
@@ -577,6 +603,7 @@ class LCALL : public Instruction {
   }
   void X2T2() {
     if (alu2_flag()) {
+      programState = STACK_OVERFLOW;
       cout << "IT WRAPPED" << endl;
       // TODO: handle properly
     }
@@ -614,6 +641,7 @@ class CALL2 : public Instruction {
   }
   void X1C() {
     if (alu1_flag()) {
+      programState = STACK_OVERFLOW;
       cout << "PC overflow" << endl;
       // TODO: handle properly
     }
@@ -654,6 +682,27 @@ class LJUMP : public Instruction {
 
  private:
   int b1;
+};
+
+class DUMP : public Instruction {
+ public:
+  void X1T1() {
+    cout << mem->name() << endl;
+    mem->dump(belt.get(b1).data.value(), belt.get(b2).data.value());
+  }
+  void X1T2() {}
+  void print(ostream& s) {
+    s << "DUMP";
+    s << " B" << b1 << " ";
+    s << " B" << b2 << " ";
+  }
+  DUMP(int b1, int b2, Memory* mem) : b1(b1), b2(b2), mem(mem) {}
+  int getLatency() { return 1; }
+
+ private:
+  int b1;
+  int b2;
+  Memory* mem;
 };
 
 unique_ptr<Instruction> field1_01_field4_ff_field3_7(long field1,
@@ -781,6 +830,12 @@ unique_ptr<Instruction> field1_01(long field1, long field2, long field3,
     case 0x09:
       // sub
       return unique_ptr<ALU>(new ALU(field2, field3, BusALU::op_sub));
+    case 0x0A:
+      // DDUMP
+      return unique_ptr<DUMP>(new DUMP(field2, field3, &data_mem));
+    case 0x0B:
+      // SDUMP
+      return unique_ptr<DUMP>(new DUMP(field2, field3, &stack_mem));
     case 0xFF:
       return field1_01_field4_ff(field1, field2, field3, field4);
     default:
