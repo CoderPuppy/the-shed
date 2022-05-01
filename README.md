@@ -6,11 +6,21 @@
  - #### E: Eternal
  - #### D: Development
 
------
+---
 
 The Shed is a pipelined belt based machine written using the Arch Package.
-Each instruction has a static latency, which is the number of cycles between when the instruction is issued and when the result becomes visible to the program. This is easy for a compiler to schedule around, but for a human it is easy to introduce bugs.
+Each instruction has a static latency, which is the number of cycles
+between when the instruction is issued and when the result becomes visible
+to the program. This is easy for a compiler to schedule around, but for a 
+human programmer it can introduce bugs.
 
+
+To Run:
+
+> ./shed program-obj-file-name [data-obj-file-name]
+
+
+---
 ### Files
 - belt.cpp : Logic for managing the belt
 - belt.hpp : Header for belt.cpp
