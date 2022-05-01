@@ -1,4 +1,7 @@
-upper 0x10
-st 0 0 3
-ld 0 3
+const 1
+const 1
+mul 1 1
+nop
+nop
+nop
 halt

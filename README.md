@@ -39,3 +39,13 @@ To Run:
 - trace.cpp : implementation to print out tracing
 - trace.hpp : header for trace.cpp
 - assembler.py : a very bad assembler
+
+## Test Objects
+ - test.{S,obj} : misc scratch test 
+ - test_store.{S,obj} : tests heap store and load
+ - test_stack.{S,obj} : tests the stack and call and return
+ - test_mul.{S,obj} : test multiply
+ - test_lcall.{S,obj} : very basic long call and return test
+ - test_callret1.{S,obj} : very basic call/return test
+ - nop_halt.{S,obj} : a very basic program that doesn't do anything
+ - factorial.{S,obj} : factorial program, the first instruction is what its taking the factorial of

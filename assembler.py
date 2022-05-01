@@ -1,3 +1,4 @@
+import re
 import sys
 
 
@@ -75,9 +76,14 @@ instrsFormat = {     # "00 000 000 0000 0000"
     "alloc"  : "11 101 111         I"
 }
 
+def cleanInstruction(instruction):
+    instruction = instruction.replace("\n", "")
+    instruction = re.sub(r"//.*", "", instruction)
+    return instruction
 
 def assembleInstruction(instruction):
-    parts = instruction.replace("\n", "").split(" ")
+    
+    parts = cleanInstruction(instruction).split(" ")
     format = instrsFormat[parts[0]].replace(" ", "")
     argsIndex = 1
     if(format.count("B") > 0):
