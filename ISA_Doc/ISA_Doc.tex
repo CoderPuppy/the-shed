@@ -118,8 +118,8 @@
 
 	\end{description}
 
-	Which address mode is used is intrinsic to each opcode, for example \texttt{store} always uses the data address mode.
-	There are some instructions which are the same except for the address mode (\texttt{write\_stack} is \texttt{store} with the stack address mode), but we don't have room for the address mode selection to be a separate field.
+	Which address mode is used is intrinsic to each opcode, for example \texttt{st} always uses the data address mode.
+	There are some instructions which are the same except for the address mode (\texttt{write\_stack} is \texttt{st} with the stack address mode), but we don't have room for the address mode selection to be a separate field.
 
 \section{Scheduling}
 	Each of our instructions are statically scheduled.
@@ -140,7 +140,7 @@
 		\multicolumn{1}{c}{Latency} &
 		\multicolumn{1}{c}{RTL} \\
 		\midrule
-		\texttt{00} & belt pos & belt pos & immediate & \texttt{store} & Store to data address mode & N/A &
+		\texttt{00} & belt pos & belt pos & immediate & \texttt{st} & Store to data address mode & N/A &
 			\(\textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right] \gets B_2\) \\
 
 		\texttt{01} & belt pos & belt pos & \texttt{0000 0000} & \texttt{add}     & Add                    & 1 &
@@ -156,11 +156,11 @@
 			\(\textrm{Belt} \gets B_1 \mathop{|} B_2\) \\
 		\texttt{01} & belt pos & belt pos & \texttt{0000 0100} & \texttt{xor}     & Bitwise exclusive or   & 1 &
 			\(\textrm{Belt} \gets B_1 \oplus B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0101} & \texttt{lshift}  & Left shift             & 1 &
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0101} & \texttt{sll}  & Left shift             & 1 &
 			\(\textrm{Belt} \gets B_1 << B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0110} & \texttt{rshift}  & Logical right shift    & 1 &
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0110} & \texttt{srl}  & Logical right shift    & 1 &
 			\(\textrm{Belt} \gets B_1 >> B_2\) \\
-		\texttt{01} & belt pos & belt pos & \texttt{0000 0111} & \texttt{arshift} & Arithmetic right shift & 1 &
+		\texttt{01} & belt pos & belt pos & \texttt{0000 0111} & \texttt{sra} & Arithmetic right shift & 1 &
 			\(\textrm{Belt} \gets B_1 >>_a B_2\) \\
 		\texttt{01} & belt pos & belt pos & \texttt{0000 1000} & \texttt{addc}    & Add carry              & 1 &
 			\(\textrm{Belt} \gets B_1 + \operatorname{carry}\left(B_2\right)\) \\
@@ -173,32 +173,32 @@
 		\texttt{01} & & & \texttt{0000 1100} & INVALID & & \\
 								& & & \(\vdots\)         &         & & \\
 		\texttt{01} & & & \texttt{1111 1110} & INVALID & & \\
-		\texttt{01} & belt pos & \texttt{000} & \texttt{1111 1111} & \texttt{invert}     & Bitwise inversion              & 1   &
+		\texttt{01} & belt pos & \texttt{000} & \texttt{1111 1111} & \texttt{inv}     & Bitwise inversion              & 1   &
 			\(\textrm{Belt} \gets \overline{B_1}\) \\
-		\texttt{01} & belt pos & \texttt{001} & \texttt{1111 1111} & \texttt{negate}     & Numeric negation               & 1   &
+		\texttt{01} & belt pos & \texttt{001} & \texttt{1111 1111} & \texttt{neg}     & Numeric negation               & 1   &
 			\(\textrm{Belt} \gets -B_1\) \\
-		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{longcall}   & Call to long code address mode & 2 &
+		\texttt{01} & belt pos & \texttt{010} & \texttt{1111 1111} & \texttt{lcall}   & Call to long code address mode & 2 &
 			\(\begin{array}{l}
 				\textrm{Mem}\left[\textrm{SP}\right] \gets \textrm{FP}, \\
 				\textrm{Mem}\left[\textrm{SP} + 1\right] \gets \textrm{PC} + 1, \\
 				\textrm{PC} \gets B_1, \\
 				\textrm{FP} \gets \textrm{SP} + 2 \\
 			\end{array}\) \\
-		\texttt{01} & belt pos & \texttt{011} & \texttt{1111 1111} & \texttt{longjump}   & Jump to long code address mode & N/A &
+		\texttt{01} & belt pos & \texttt{011} & \texttt{1111 1111} & \texttt{ljump}   & Jump to long code address mode & N/A &
 			\(\textrm{PC} \gets B_1\) \\
-		\texttt{01} & belt pos & \texttt{100} & \texttt{1111 1111} & \texttt{get\_carry} & Retrieve carry metadata        & 1   &
+		\texttt{01} & belt pos & \texttt{100} & \texttt{1111 1111} & \texttt{carry} & Retrieve carry metadata        & 1   &
 			\(\textrm{Belt} \gets \operatorname{carry}\left(B_1\right)\) \\
 		\texttt{01} & & \texttt{101} & \texttt{1111 1111} & INVALID & \\
 		\texttt{01} & & \texttt{110} & \texttt{1111 1111} & INVALID & \\
 		\texttt{01} & \texttt{000} & \texttt{111} & \texttt{1111 1111} & \texttt{halt}    & Halt the computer       & N/A & HALT \\
 		\texttt{01} & \texttt{001} & \texttt{111} & \texttt{1111 1111} & \texttt{nop}     & No operation            & N/A & \\
-		\texttt{01} & \texttt{010} & \texttt{111} & \texttt{1111 1111} & \texttt{return}  & Return from function    & 2 &
+		\texttt{01} & \texttt{010} & \texttt{111} & \texttt{1111 1111} & \texttt{ret}  & Return from function    & 2 &
 			\(\begin{array}{l}
 				\textrm{PC} \gets \textrm{Mem}\left[\textrm{FP} - 1\right], \\
 				\textrm{FP} \gets \textrm{Mem}\left[\textrm{FP} - 2\right], \\
 				\textrm{SP} \gets \textrm{FP} - 2 \\
 			\end{array}\) \\
-		\texttt{01} & \texttt{011} & \texttt{111} & \texttt{1111 1111} & \texttt{get\_pc} & Retrieve the current PC & 1   &
+		\texttt{01} & \texttt{011} & \texttt{111} & \texttt{1111 1111} & \texttt{pc} & Retrieve the current PC & 1   &
 			\(\textrm{Belt} \gets \textrm{PC}\) \\
 		\texttt{01} & \texttt{100} & \texttt{111} & \texttt{1111 1111} & INVALID & \\
 		            & \(\vdots\)   &              &                    &         & \\
@@ -217,36 +217,36 @@
 			\(\textrm{Belt} \gets B_1 \mathop{|} \textrm{Imm}\) \\
 		\texttt{10} & belt pos & \texttt{100} & immediate & \texttt{xori}     & Bitwise exclusive or with immediate   & 1 &
 			\(\textrm{Belt} \gets B_1 \oplus \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{101} & immediate & \texttt{lshifti}  & Left shift with immediate             & 1 &
+		\texttt{10} & belt pos & \texttt{101} & immediate & \texttt{slli}  & Left shift with immediate             & 1 &
 			\(\textrm{Belt} \gets B_1 << \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{110} & immediate & \texttt{rshifti}  & Logical right shift with immediate    & 1 &
+		\texttt{10} & belt pos & \texttt{110} & immediate & \texttt{srli}  & Logical right shift with immediate    & 1 &
 			\(\textrm{Belt} \gets B_1 >> \textrm{Imm}\) \\
-		\texttt{10} & belt pos & \texttt{111} & immediate & \texttt{arshifti} & Arithmetic right shift with immediate & 1 &
+		\texttt{10} & belt pos & \texttt{111} & immediate & \texttt{srai} & Arithmetic right shift with immediate & 1 &
 			\(\textrm{Belt} \gets B_1 >>_a \textrm{Imm}\) \\
 
-		\texttt{11} & belt pos & \texttt{000} & immediate & \texttt{branch\_zero}  & Branch if zero to code address mode & N/A &
+		\texttt{11} & belt pos & \texttt{000} & immediate & \texttt{bzero}  & Branch if zero to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{If } B_1 = 0 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{001} & immediate & \texttt{branch\_neg}   & Branch if negative to code address mode & N/A &
+		\texttt{11} & belt pos & \texttt{001} & immediate & \texttt{bneg}   & Branch if negative to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{If } B_1\left[15\right] = 1 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{010} & immediate & \texttt{branch\_oflow} & Branch on overflow to code address mode & N/A &
+		\texttt{11} & belt pos & \texttt{010} & immediate & \texttt{boflow} & Branch on overflow to code address mode & N/A &
 			\(\begin{array}{l}
 				\textrm{If } \operatorname{overflow}\left(B_1\right) = 1 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{011} & immediate & \texttt{branch\_carry} & Branch on carry to code address mode    & N/A &
+		\texttt{11} & belt pos & \texttt{011} & immediate & \texttt{bcarry} & Branch on carry to code address mode    & N/A &
 			\(\begin{array}{l}
 				\textrm{If } \operatorname{carry}\left(B_1\right) = 1 \textrm{,} \\
 				\textrm{then } \textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)
 			\end{array}\) \\
-		\texttt{11} & belt pos & \texttt{100} & immediate & \texttt{write\_stack}  & Write to stack position & N/A &
+		\texttt{11} & belt pos & \texttt{100} & immediate & \texttt{sts}  & Write to stack position & N/A &
 			\(\textrm{Mem}\left[\textrm{FP} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right] \gets B_1\) \\
-		\texttt{11} & belt pos & \texttt{101} & immediate & \texttt{load}          & Load from memory        & 1   &
+		\texttt{11} & belt pos & \texttt{101} & immediate & \texttt{ld}          & Load from memory        & 1   &
 			\(\textrm{Belt} \gets \textrm{Mem}\left[B_1 + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\right]\) \\
 		\texttt{11} & & \texttt{110} & & INVALID & \\
 		\texttt{11} & \texttt{000} & \texttt{111} & immediate & \texttt{constant}    & Load immediate            & 1   &
@@ -262,9 +262,9 @@
 			\end{array}\) \\
 		\texttt{11} & \texttt{011} & \texttt{111} & immediate & \texttt{jump}        & Jump to code address mode & 2 &
 			\(\textrm{PC} \gets \textrm{PC} + \operatorname{sign\_ext}\left(\textrm{Imm}\right)\) \\
-		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{read\_stack} & Read from stack position  & 1   &
+		\texttt{11} & \texttt{100} & \texttt{111} & immediate & \texttt{lds} & Read from stack position  & 1   &
 			\(\textrm{Belt} \gets \textrm{Mem}\left[\textrm{FP} + \textrm{Imm}\right]\) \\
-		\texttt{11} & \texttt{101} & \texttt{111} & immediate & \texttt{alloca}      & Allocate stack space      & N/A &
+		\texttt{11} & \texttt{101} & \texttt{111} & immediate & \texttt{alloc}      & Allocate stack space      & N/A &
 			\(\textrm{SP} \gets \textrm{SP} + \textrm{Imm}\) \\
 		\texttt{11} & \texttt{110} & \texttt{111} & & INVALID & \\
 		\texttt{11} & \texttt{111} & \texttt{111} & & INVALID & \\
@@ -293,7 +293,7 @@
 
 	\subsection*{Heap}
 
-		The heap will be directly accessed by \texttt{load} and \texttt{store}.
+		The heap will be directly accessed by \texttt{load} and \texttt{st}.
 		Any instruction that uses the data address mode will be able to access the heap section.
 
 \section{Program Visible Registers}
