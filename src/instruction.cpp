@@ -19,28 +19,28 @@ void zeroExtImm() {
 
 class INVALID : public Instruction {
  public:
-  void X1T1() { programState = INVALID_OPCODE; }
-  void X1T2() { programState = INVALID_OPCODE; }
-  void X2T1() { programState = INVALID_OPCODE; }
-  void X2T2() { programState = INVALID_OPCODE; }
-  void X3T1() { programState = INVALID_OPCODE; }
-  void X3T2() { programState = INVALID_OPCODE; }
-  void X4T1() { programState = INVALID_OPCODE; }
-  void X4T2() { programState = INVALID_OPCODE; }
+  void X1T1() { programState = State::invalid_opcode; }
+  void X1T2() { programState = State::invalid_opcode; }
+  void X2T1() { programState = State::invalid_opcode; }
+  void X2T2() { programState = State::invalid_opcode; }
+  void X3T1() { programState = State::invalid_opcode; }
+  void X3T2() { programState = State::invalid_opcode; }
+  void X4T1() { programState = State::invalid_opcode; }
+  void X4T2() { programState = State::invalid_opcode; }
   void print(ostream& s) { s << "INVALID"; }
   int getLatency() { return 5; }
 };
 
 class HALT : public Instruction {
  public:
-  void X1T1() { programState = HALTING; }
-  void X1T2() { programState = HALTING; }
-  void X2T1() { programState = HALTING; }
-  void X2T2() { programState = HALTING; }
-  void X3T1() { programState = HALTING; }
-  void X3T2() { programState = HALTING; }
-  void X4T1() { programState = HALTED; }
-  void X4T2() { programState = HALTED; }
+  void X1T1() { programState = State::halting; }
+  void X1T2() { programState = State::halting; }
+  void X2T1() { programState = State::halting; }
+  void X2T2() { programState = State::halting; }
+  void X3T1() { programState = State::halting; }
+  void X3T2() { programState = State::halting; }
+  void X4T1() { programState = State::halted; }
+  void X4T2() { programState = State::halted; }
   void print(ostream& s) { s << "HALT"; }
   int getLatency() { return 4; }
 };
@@ -154,8 +154,8 @@ class STORE : public Instruction {
     data_reg.latchFrom(data_reg_bus.OUT());
   }
   void X2T1() {
-    if (alu1_flag()) {
-      programState = HEAP_OVERFLOW;
+    if (alu1_flag() != imm_X2()) {
+      programState = State::heap_overflow;
     }
     addr_reg_bus.IN().pullFrom(addr_reg);
     data_mem.MAR().latchFrom(addr_reg_bus.OUT());
@@ -190,8 +190,8 @@ class LOAD : public Instruction {
     addr_reg.latchFrom(alu1.OUT());
   }
   void X2T1() {
-    if (alu1_flag()) {
-      programState = HEAP_OVERFLOW;
+    if (alu1_flag() != imm_X2()) {
+      programState = State::heap_overflow;
     }
     addr_reg_bus.IN().pullFrom(addr_reg);
     data_mem.MAR().latchFrom(addr_reg_bus.OUT());
@@ -228,7 +228,7 @@ class STORE_STACK : public Instruction {
   }
   void X2T1() {
     if (alu1_flag()) {
-      programState = STACK_OVERFLOW;
+      programState = State::invalid_stack_access;
     }
     addr_reg_bus.IN().pullFrom(addr_reg);
     stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
@@ -242,10 +242,9 @@ class STORE_STACK : public Instruction {
     stack_mem.WRITE().pullFrom(data_reg);
     stack_mem.write();
 
+    // Addr >= SP
     if (cmp() || !cmp.value()) {
-      programState = BAD_STACK_BOUNDS;
-      // TODO: handle properly
-      cout << "bounds check failed" << endl;
+      programState = State::invalid_stack_access;
     }
   }
   void print(ostream& s) {
@@ -273,7 +272,7 @@ class LOAD_STACK : public Instruction {
   }
   void X2T1() {
     if (alu1_flag()) {
-      programState = STACK_OVERFLOW;
+      programState = State::invalid_stack_access;
     }
     addr_reg_bus.IN().pullFrom(addr_reg);
     stack_mem.MAR().latchFrom(addr_reg_bus.OUT());
@@ -287,10 +286,9 @@ class LOAD_STACK : public Instruction {
     stack_mem.read();
     belt.push(stack_mem.READ());
 
+    // Addr >= SP
     if (cmp() || !cmp.value()) {
-      programState = BAD_STACK_BOUNDS;
-      // TODO: handle properly
-      cout << "bounds check failed" << endl;
+      programState = State::invalid_stack_access;
     }
   }
   void print(ostream& s) {
@@ -316,9 +314,7 @@ class ALLOC : public Instruction {
   }
   void X2T2() {
     if (alu2_flag()) {
-      programState = STACK_OVERFLOW;
-      // TODO: handle properly
-      cout << "out of stack" << endl;
+      programState = State::stack_overflow;
     }
   }
   void print(ostream& s) {
@@ -450,11 +446,13 @@ class BRANCH : public Instruction {
       alu1_flag.latchFrom(alu1.CARRY());
       alu1.perform(BusALU::op_add);
       prog_cnt.latchFrom(alu1.OUT());
+    } else {
+      alu1_flag.clear();
     }
   }
   void X2T1() {
     if (alu1_flag()) {
-      programState = INSTR_OVERFLOW;
+      programState = State::pc_overflow;
     }
   }
   void print(ostream& s) {
@@ -491,9 +489,7 @@ class RET1 : public Instruction {
   }
   void X1C() {
     if (!alu1_flag()) {
-      programState = STACK_OVERFLOW;
-      cout << "IT WRAPPED" << endl;
-      // TODO: handle properly
+      programState = State::stack_underflow;
     }
   }
   void X2T1() {
@@ -522,9 +518,7 @@ class RET2 : public Instruction {
   }
   void X1T2() {
     if (!alu1_flag() == 1) {
-      programState = STACK_OVERFLOW;
-      cout << "IT WRAPPED" << endl;
-      // TODO: handle properly
+      programState = State::stack_underflow;
     }
   }
   void X2T1() {
@@ -564,9 +558,7 @@ class CALL1 : public Instruction {
   }
   void X2T2() {
     if (alu2_flag()) {
-      programState = STACK_OVERFLOW;
-      cout << "IT WRAPPED" << endl;
-      // TODO: handle properly
+      programState = State::stack_overflow;
     }
 
     stack_mem.WRITE().pullFrom(ret_addr);
@@ -603,9 +595,7 @@ class LCALL : public Instruction {
   }
   void X2T2() {
     if (alu2_flag()) {
-      programState = STACK_OVERFLOW;
-      cout << "IT WRAPPED" << endl;
-      // TODO: handle properly
+      programState = State::stack_overflow;
     }
 
     stack_mem.WRITE().pullFrom(ret_addr);
@@ -641,9 +631,7 @@ class CALL2 : public Instruction {
   }
   void X1C() {
     if (alu1_flag()) {
-      programState = STACK_OVERFLOW;
-      cout << "PC overflow" << endl;
-      // TODO: handle properly
+      programState = State::pc_overflow;
     }
   }
   void X2T1() {

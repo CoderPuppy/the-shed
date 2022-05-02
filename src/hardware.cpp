@@ -46,9 +46,9 @@ Bus addr_reg_bus("Addr Bus", BITS);
 
 // ALUs
 BusALU alu1("ALU1", BITS);
-StorageObject alu1_flag("ALU1 carry", 1);
+Clearable alu1_flag("ALU1 carry", 1);
 BusALU alu2("ALU2", BITS);
-StorageObject alu2_flag("ALU2 carry", 1);
+Clearable alu2_flag("ALU2 carry", 1);
 BusALU sign_ext("sign_ext", BITS);
 Bus zero_ext("zero_ext", IMM_BITS);
 

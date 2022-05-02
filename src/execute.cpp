@@ -7,10 +7,10 @@
 #include "includes.hpp"
 
 bool branched(false);
-STATE_ENUM programState = RUNNING;
+State programState = State::running;
 
 void fetchT1() {
-  if (programState != HALTING) {
+  if (programState != State::halting) {
     prog_cnt_bus.IN().pullFrom(prog_cnt);
     instr_mem.MAR().latchFrom(prog_cnt_bus.OUT());
     if (!branched) {
@@ -19,7 +19,7 @@ void fetchT1() {
   }
 }
 void fetchT2() {
-  if (programState != HALTING) {
+  if (programState != State::halting) {
     instr_mem.read();
     instr_reg_X1.latchFrom(instr_mem.READ());
 
@@ -81,7 +81,7 @@ void executeLoop() {
   fetchT2();
   Clock::tick();
 
-  while (programState == RUNNING || programState == HALTING) {
+  while (programState == State::running || programState == State::halting) {
     execute();
   }
 }

@@ -41,33 +41,36 @@ int main(int argc, char *argv[]) {
     }
     executeLoop();
     switch (programState) {
-      case RUNNING:
+      case State::running:
         cout << endl
              << "SHED halted due to unknown error (RUNNING)" << endl;
         break;
-      case HALTING:
+      case State::halting:
         cout << endl
              << "SHED halted due to unknown error (HALTING)" << endl;
         break;
-      case HALTED:
+      case State::halted:
         cout << endl << "SHED halted due to HALT instruction" << endl;
         break;
-      case INVALID_OPCODE:
+      case State::invalid_opcode:
         cout << endl << "SHED halted due to an invalid opcode" << endl;
         break;
-      case STACK_OVERFLOW:
+      case State::stack_overflow:
         cout << endl << "SHED halted due to a stack overflow" << endl;
         break;
-      case INSTR_OVERFLOW:
-        cout << endl
-             << "SHED halted due to an instruction overflow " << endl;
+      case State::pc_overflow:
+        cout << endl << "SHED halted due to PC overflow" << endl;
         break;
-      case HEAP_OVERFLOW:
+      case State::heap_overflow:
         cout << endl << "SHED halted due to a heap overflow" << endl;
         break;
-      case BAD_STACK_BOUNDS:
+      case State::invalid_stack_access:
         cout << endl
              << "SHED halted due to an invalid stack access" << endl;
+        break;
+      case State::stack_underflow:
+        cout << endl
+             << "SHED halted due to a stack underflow" << endl;
         break;
       default:
         cout << endl << "SHED halted due to unknown reason" << endl;

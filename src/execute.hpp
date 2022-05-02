@@ -1,5 +1,6 @@
 // execute.hpp
 // Author: Max Kipust (mak4819@rit.edu)
+// Author: Drew Young (ajy2158@rit.edu)
 //
 // Execution interface
 
@@ -10,17 +11,18 @@
 
 extern bool branched;
 
-enum STATE_ENUM {
-  RUNNING,
-  HALTING,
-  HALTED,
-  INVALID_OPCODE,
-  STACK_OVERFLOW,
-  INSTR_OVERFLOW,
-  HEAP_OVERFLOW,
-  BAD_STACK_BOUNDS
+enum class State {
+  running,
+  halting,
+  halted,
+  invalid_opcode,
+  stack_overflow,
+  pc_overflow,
+  heap_overflow,
+  invalid_stack_access,
+  stack_underflow
 };
-extern STATE_ENUM programState;
+extern State programState;
 
 void executeLoop();
 

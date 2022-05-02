@@ -54,9 +54,9 @@ extern Bus addr_reg_bus;
 
 // ALUs
 extern BusALU alu1;
-extern StorageObject alu1_flag;
+extern Clearable alu1_flag;
 extern BusALU alu2;
-extern StorageObject alu2_flag;
+extern Clearable alu2_flag;
 extern BusALU sign_ext;
 extern Bus zero_ext;
 
