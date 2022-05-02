@@ -461,7 +461,7 @@ class BRANCH : public Instruction {
   BRANCH(string mnemonic, int b1, long imm,
          function<bool(BeltElement&)> cond)
       : mnemonic(mnemonic), b1(b1), imm(imm), cond(cond) {}
-  int getLatency() { return 1; }
+  int getLatency() { return 2; }
 
  private:
   string mnemonic;
@@ -684,7 +684,7 @@ class LJUMP : public Instruction {
     s << " B" << b1 << " ";
   }
   LJUMP(int b1) : b1(b1) {}
-  int getLatency() { return 1; }
+  int getLatency() { return 2; }
 
  private:
   int b1;
