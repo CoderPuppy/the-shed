@@ -19,6 +19,10 @@ void fetchT1() {
   }
 }
 void fetchT2() {
+  if (prog_cnt.overflow()) {
+    programState = State::pc_overflow;
+  }
+
   if (programState != State::halting) {
     instr_mem.read();
     instr_reg_X1.latchFrom(instr_mem.READ());
@@ -81,7 +85,8 @@ void executeLoop() {
   fetchT2();
   Clock::tick();
 
-  while (programState == State::running || programState == State::halting) {
+  while (programState == State::running ||
+         programState == State::halting) {
     execute();
   }
 }

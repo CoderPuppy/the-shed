@@ -9,8 +9,8 @@
 void signExtImm() {
   sign_ext.OP1().pullFrom(instr_reg_X1);
   sign_ext.OP2().pullFrom(const_sign_ext_mask);
-  imm_X1.latchFrom(sign_ext.OUT());
   sign_ext.perform(BusALU::op_extendSign);
+  imm_X1.latchFrom(sign_ext.OUT());
 }
 void zeroExtImm() {
   zero_ext.IN().pullFrom(instr_reg_X1);
@@ -146,9 +146,9 @@ class STORE : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(belt.get(b1).data);
     alu1.IN2().pullFrom(imm_X1);
-    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
+    alu1_flag.latchFrom(alu1.CARRY());
 
     data_reg_bus.IN().pullFrom(belt.get(b2).data);
     data_reg.latchFrom(data_reg_bus.OUT());
@@ -185,9 +185,9 @@ class LOAD : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(belt.get(b1).data);
     alu1.IN2().pullFrom(imm_X1);
-    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
+    alu1_flag.latchFrom(alu1.CARRY());
   }
   void X2T1() {
     if (alu1_flag() != imm_X2()) {
@@ -219,9 +219,9 @@ class STORE_STACK : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(frame_ptr);
     alu1.IN2().pullFrom(imm_X1);
-    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
+    alu1_flag.latchFrom(alu1.CARRY());
 
     data_reg_bus.IN().pullFrom(belt.get(b1).data);
     data_reg.latchFrom(data_reg_bus.OUT());
@@ -266,9 +266,9 @@ class LOAD_STACK : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(frame_ptr);
     alu1.IN2().pullFrom(imm_X1);
-    alu1_flag.latchFrom(alu1.CARRY());
     alu1.perform(BusALU::op_add);
     addr_reg.latchFrom(alu1.OUT());
+    alu1_flag.latchFrom(alu1.CARRY());
   }
   void X2T1() {
     if (alu1_flag()) {
@@ -383,8 +383,8 @@ class UPPER : public Instruction {
   void X1T2() {
     alu1.IN1().pullFrom(imm_X1);
     alu1.IN2().pullFrom(const_8);
-    belt.push(alu1.OUT());
     alu1.perform(BusALU::op_lshift);
+    belt.push(alu1.OUT());
   }
   void print(ostream& s) {
     s << "UPPER ";
@@ -443,15 +443,13 @@ class BRANCH : public Instruction {
     if (cond(belt.get(b1))) {
       alu1.OP1().pullFrom(prog_cnt_X1);
       alu1.OP2().pullFrom(imm_X1);
-      alu1_flag.latchFrom(alu1.CARRY());
       alu1.perform(BusALU::op_add);
       prog_cnt.latchFrom(alu1.OUT());
-    } else {
-      alu1_flag.clear();
+      alu1_flag.latchFrom(alu1.CARRY());
     }
   }
-  void X2T1() {
-    if (alu1_flag()) {
+  void X1C() {
+    if (cond(belt.get(b1)) && alu1_flag() != imm_X1()) {
       programState = State::pc_overflow;
     }
   }
@@ -517,7 +515,7 @@ class RET2 : public Instruction {
     alu1_flag.latchFrom(alu1.CARRY());
   }
   void X1T2() {
-    if (!alu1_flag() == 1) {
+    if (!alu1_flag()) {
       programState = State::stack_underflow;
     }
   }
@@ -547,6 +545,12 @@ class CALL1 : public Instruction {
     alu1.OP2().pullFrom(imm_X1);
     alu1.perform(BusALU::op_add);
     prog_cnt.latchFrom(alu1.OUT());
+    alu1_flag.latchFrom(alu1.CARRY());
+  }
+  void X1C() {
+    if (alu1_flag() != imm_X1()) {
+      programState = State::pc_overflow;
+    }
   }
   void X2T1() {
     alu2.OP1().pullFrom(stack_ptr);
@@ -565,6 +569,11 @@ class CALL1 : public Instruction {
     stack_mem.write();
 
     frame_ptr.incr();
+  }
+  void X2C() {
+    if (frame_ptr.overflow()) {
+      programState = State::stack_overflow;
+    }
   }
   void print(ostream& s) {
     s << "CALL1 ";
@@ -602,6 +611,11 @@ class LCALL : public Instruction {
     stack_mem.write();
 
     frame_ptr.incr();
+  }
+  void X2C() {
+    if (frame_ptr.overflow()) {
+      programState = State::stack_overflow;
+    }
   }
 
   LCALL(int b1) : b1(b1) {}
@@ -642,6 +656,10 @@ class CALL2 : public Instruction {
     stack_ptr.perform(Counter::incr2);
   }
   void X2T2() {
+    if (stack_ptr.overflow()) {
+      programState = State::stack_overflow;
+    }
+
     stack_mem.WRITE().pullFrom(ret_frame_ptr);
     stack_mem.write();
 
@@ -658,8 +676,8 @@ class LJUMP : public Instruction {
   void X1T1() {}
   void X1T2() {
     alu1.IN1().pullFrom(belt.get(b1).data);
-    prog_cnt.latchFrom(alu1.OUT());
     alu1.perform(BusALU::op_rop1);
+    prog_cnt.latchFrom(alu1.OUT());
   }
   void print(ostream& s) {
     s << "LJUMP";
