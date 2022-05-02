@@ -87,7 +87,7 @@
 	call2
 		FP = SP + 3
 		SMem[SP + 2] = FP
-	
+
 	return1
 		FP = SMem[FP - 1]
 		PC = RA
@@ -99,7 +99,7 @@
 	IF: PC
 	X₁: FP, SP, RA
 	X₂: RFP
-	
+
 	return1
 		X₁
 			PC = RA
@@ -110,7 +110,7 @@
 			FP = RFP
 		X₂
 			RFP = SMem[FP - 2]
-	
+
 	call1
 		X₁
 			PC = Addr
@@ -123,7 +123,7 @@
 			RFP = FP
 		X₂
 			SMem[SP + 2] = RFP
-	
+
 	return
 		1-1: PC = RA
 		2-2: RA = SMem[FP - 1]
@@ -145,7 +145,7 @@
 			SP = FP - 2
 		3
 			RFP = SMem[FP - 2]
-	
+
 	call
 		1-1: PC = Addr
 		1-2: RA = PC + 2
@@ -169,7 +169,7 @@
 			SMem[SP + 1] = RFP
 		3
 			SMem[SP + 2] = RA
-	
+
 	SP - next free position
 
 2022-04-09

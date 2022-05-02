@@ -24,7 +24,7 @@ def immToBin(imm):
         return "{0}".format(s)
     else:
         return "{0:08b}".format(int(imm, 10))
-    
+
 
 def binaryToHex(bin):
     return hex(int(bin, 2)).replace("0x", "", 1)
@@ -82,7 +82,7 @@ def cleanInstruction(instruction):
     return instruction
 
 def assembleInstruction(instruction):
-    
+
     parts = cleanInstruction(instruction).split(" ")
     format = instrsFormat[parts[0]].replace(" ", "")
     argsIndex = 1
