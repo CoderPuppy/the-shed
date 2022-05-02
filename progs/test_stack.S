@@ -1,9 +1,8 @@
 const 0
-const 17
-ddump 1 0
-const 9
+const 10
+const 16
 alloc 1
-sdump 2 1
+nop
 sts 0 0
 sdump 2 1
 lcall1 0
