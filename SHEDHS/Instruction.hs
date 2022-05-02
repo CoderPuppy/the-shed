@@ -19,6 +19,8 @@ data Instr
   | Isra BeltOp BeltOp
   | Iaddc BeltOp BeltOp
   | Isub BeltOp BeltOp
+  | Iddump BeltOp BeltOp
+  | Isdump BeltOp BeltOp
   | Iinv BeltOp
   | Ineg BeltOp
   | Ilcall1 BeltOp
@@ -64,6 +66,8 @@ latency (Isrl   _ _) = 1
 latency (Isra   _ _) = 1
 latency (Iaddc  _ _) = 1
 latency (Isub   _ _) = 1
+latency (Iddump _ _) = 0
+latency (Isdump _ _) = 0
 latency (Iinv     _) = 1
 latency (Ineg     _) = 1
 latency (Ilcall1  _) = 2
@@ -108,6 +112,8 @@ numDrops (Isrl   _ _) = 1
 numDrops (Isra   _ _) = 1
 numDrops (Iaddc  _ _) = 1
 numDrops (Isub   _ _) = 1
+numDrops (Iddump _ _) = 0
+numDrops (Isdump _ _) = 0
 numDrops (Iinv     _) = 1
 numDrops (Ineg     _) = 1
 numDrops (Ilcall1  _) = 0

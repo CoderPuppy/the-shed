@@ -29,6 +29,7 @@ import SHEDHS.Assembler
 -- TODO: allow pending across jumps
 -- TODO: fall-through EBBs
 -- TODO: auto delay slots
+-- TODO: better errors
 
 beltSize :: Num a => a
 beltSize = 8
@@ -148,7 +149,7 @@ endOfControl = MaybeT $ pure Nothing
 -- getBelt = fmap (take beltSize . fst . snd) $ Code $ lift get
 
 st :: Operand b -> DAddr b -> Code p b ()
-st d (a, o) = fmap (\[] -> ()) $ basicInstr [d, a] \[d, a] -> Ist d a o
+st d (a, o) = fmap (\[] -> ()) $ basicInstr [d, a] \[d, a] -> Ist a d o
 add :: Operand b -> Operand b -> Code p b (Operand b)
 add a b = fmap (\[c] -> c) $ basicInstr [a, b] \[a, b] -> Iadd a b
 mul :: Operand b -> Operand b -> Code p b (Operand b, Operand b)
@@ -169,6 +170,10 @@ addc :: Operand b -> Operand b -> Code p b (Operand b)
 addc a b = fmap (\[c] -> c) $ basicInstr [a, b] \[a, b] -> Iaddc a b
 sub :: Operand b -> Operand b -> Code p b (Operand b)
 sub a b = fmap (\[c] -> c) $ basicInstr [a, b] \[a, b] -> Isub a b
+ddump :: Operand b -> Operand b -> Code p b ()
+ddump a b = fmap (\[] -> ()) $ basicInstr [a, b] \[a, b] -> Iddump a b
+sdump :: Operand b -> Operand b -> Code p b ()
+sdump a b = fmap (\[] -> ()) $ basicInstr [a, b] \[a, b] -> Isdump a b
 inv :: Operand b -> Code p b (Operand b)
 inv a = fmap (\[b] -> b) $ basicInstr [a] \[a] -> Iinv a
 neg :: Operand b -> Code p b (Operand b)

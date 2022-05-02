@@ -64,19 +64,44 @@ factorial = mdo
     f <- const 1
     jmp loop [Just f, Just n]
 
-test :: Prog p (EBB p)
-test = mdo
-  -- fibLoop' <- fibLoop
-  -- fibRec' <- fibRec
+test_fib_fact :: Prog p (EBB p)
+test_fib_fact = mdo
+  fibLoop' <- fibLoop
+  fibRec' <- fibRec
   fact <- factorial
-  ebb "start" \(_) -> do
-    n <- const 5
-    call fact [Just n]
-    -- alloc 2
-    -- sts n 1
-    -- (fl:_) <- call fibLoop' [Just n]
-    -- n <- lds 1
-    -- sts fl 0
-    -- (fr:_) <- call fibRec' [Just n]
-    -- sts fr 1
+
+  done <- ebb "done" \(_) -> do
+    lo <- const 0
+    hi <- const 43
+    ddump lo hi
     halt
+  loop <- ebb "loop" \(a:_) -> do
+    e <- addi a (-11 * 4)
+    bzero e done []
+
+    n <- srli a 2
+    (f:_) <- call fibRec' [Just n]
+    a <- lds 0
+    nop
+    st f (a, 0)
+
+    n <- srli a 2
+    (f:_) <- call fibLoop' [Just n]
+    a <- lds 0
+    nop
+    st f (a, 1)
+
+    n <- srli a 2
+    (f:_) <- call fact [Just n]
+    a <- lds 0
+    nop
+    st f (a, 2)
+
+    a' <- addi a 4
+    sts a' 0
+    jmp loop [Just a']
+  ebb "start" \(_) -> do
+    n <- const 0
+    alloc 1
+    sts n 0
+    jmp loop [Just n]
