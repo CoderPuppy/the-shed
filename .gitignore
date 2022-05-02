@@ -6,4 +6,4 @@ __latexindent_temp.tex
 src/bin/*
 progs/*.obj
 build/*
-shed
+CPU

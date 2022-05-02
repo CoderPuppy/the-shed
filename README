@@ -11,7 +11,7 @@
 The Shed is a pipelined belt based machine written using the Arch Package.
 Each instruction has a static latency, which is the number of cycles
 between when the instruction is issued and when the result becomes visible
-to the program. This is easy for a compiler to schedule around, but for a 
+to the program. This is easy for a compiler to schedule around, but for a
 human programmer it can introduce bugs.
 
 
@@ -41,7 +41,7 @@ To Run:
 - assembler.py : a very bad assembler
 
 ## Test Objects
- - test.{S,obj} : misc scratch test 
+ - test.{S,obj} : misc scratch test
  - test_store.{S,obj} : tests heap store and load
  - test_stack.{S,obj} : tests the stack and call and return
  - test_mul.{S,obj} : test multiply

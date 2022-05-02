@@ -3,17 +3,17 @@ CXX = g++
 CXXFLAGS = -g -I$(ARCHLIB)/include/arch2-5a
 LDFLAGS = $(ARCHLIB)/src/*.o
 
-SRCFILES = shed belt execute hardware helpers instruction multiplier trace
+SRCFILES = CPU belt execute hardware helpers instruction multiplier trace
 PROGFILES = test test_mul test_store test_callret1
 
-all: shed
+all: CPU
 
 progs: $(addprefix progs/, $(addsuffix .obj, $(PROGFILES)))
 
 .PHONY: all progs clean
 
-shed: $(addprefix build/, $(addsuffix .o, $(SRCFILES)))
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ 
+CPU: $(addprefix build/, $(addsuffix .o, $(SRCFILES)))
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 build: ; mkdir -p $@
 
