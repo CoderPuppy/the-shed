@@ -29,6 +29,7 @@ To run:
 
 		./CPU program-obj-file-name [data-obj-file-name]
 
+where `program-obj-file-name` is the object file to be loaded into instruction memory and `data-obj-file-name` is the object file to be loaded into data memory
 
 ---
 ### Files
