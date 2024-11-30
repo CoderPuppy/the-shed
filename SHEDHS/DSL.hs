@@ -19,6 +19,7 @@ import Data.Maybe
 import Data.Void
 import Data.Word
 import Numeric
+import GHC.Stack
 
 import Debug.Trace
 
@@ -82,12 +83,13 @@ operandIndex op = do
 reportError :: String -> Code p b ()
 reportError = Code . lift . lift . tell . pure
 
-accessOperand :: Operand b -> Code p b Int
+accessOperand :: HasCallStack => Operand b -> Code p b Int
 accessOperand op = do
   idx <- operandIndex op
   if idx >= beltSize
   then do
     reportError "operand dropped off belt"
+    -- error "fizbuz"
     pure (-1)
   else pure idx
 
@@ -106,7 +108,7 @@ createResults debug latency n = do
   else lift $ modify $ second $ modifyAt (latency - 1) (results <>)
   pure results
 
-basicInstr :: Traversable f => f (Operand b) -> (f Int -> Instr) -> Code p b [Operand b]
+basicInstr :: (HasCallStack, Traversable f) => f (Operand b) -> (f Int -> Instr) -> Code p b [Operand b]
 basicInstr ops instr = do
   ops <- traverse accessOperand ops
   instr <- pure $ instr ops
@@ -218,7 +220,7 @@ ret rets = do
     addInstr Iret1
     addInstr Iret2
     endOfControl
-addi :: Operand b -> SEImm -> Code p b (Operand b)
+addi :: HasCallStack => Operand b -> SEImm -> Code p b (Operand b)
 addi a i = fmap (\[b] -> b) $ basicInstr [a] \[a] -> Iaddi a i
 andi :: Operand b -> SEImm -> Code p b (Operand b)
 andi a i = fmap (\[b] -> b) $ basicInstr [a] \[a] -> Iandi a i

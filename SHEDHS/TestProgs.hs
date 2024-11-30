@@ -4,6 +4,8 @@ module SHEDHS.TestProgs where
 
 import Prelude hiding (const)
 
+import Debug.Trace
+
 import SHEDHS.DSL
 
 fibRec :: Prog p (EBB p)
@@ -105,3 +107,67 @@ test_fib_fact = mdo
     alloc 1
     sts n 0
     jmp loop [Just n]
+
+quicksort :: Prog p (EBB p)
+quicksort = mdo
+  skip <- ebb "quicksort.skip" \(_:hi:_:_:i:pivot:_:j:_) -> do
+    j <- addi j 0
+    pivot <- addi pivot 0
+    i <- addi i 0
+    hi <- addi hi 0
+    j' <- addi j 1
+    _ <- const 0
+    pivot <- addi pivot 0
+    i <- addi i 0
+    jmp loop [Just i, Just pivot, Nothing, Just j, Just hi]
+  loop <- ebb "quicksort.loop" \(i:pivot:_:j:hi:_) -> do
+    -- cmp <- sub hi j
+    -- bzero cmp recurse [Nothing, Just i, Nothing, Nothing, Nothing, Just hi]
+    --
+    -- v <- ld (j, 0)
+    -- hi <- addi hi 0
+    -- cmp <- sub pivot v
+    -- bneg cmp skip [Nothing, Just hi, Nothing, Nothing, Just i, Just pivot, Nothing, Just j]
+    --
+    -- j <- addi j 0
+    -- v' <- ld (i, 1)
+    -- st v (i, 1)
+    -- st v' (j, 0)
+    -- hi <- addi hi 0
+    j' <- addi j 1
+    -- _ <- const 0
+    -- pivot <- addi pivot 0
+    i' <- addi i 1
+    jmp loop [Just i', Just pivot, Nothing, Just j', Just hi]
+  traceShowM loop
+
+  recurse <- ebb "quicksort.recurse" \(_:i:_:_:_:hi:_) -> do
+    sts i 1
+    hi <- addi hi 0
+    lo' <- addi i 1
+    call quicksort [Just lo', Just hi]
+
+    i <- lds 1
+    nop
+    hi' <- addi i (-1)
+    lo <- lds 0
+    nop
+    call quicksort [Just lo, Just hi']
+
+    ret []
+
+  done <- ebb "quicksort.done" \(_) -> do
+    ret []
+  quicksort <- ebb "quicksort" \(lo:hi:_) -> do
+    cmp <- sub hi lo
+    bneg cmp done []
+
+    alloc 2
+    sts lo 0
+    sts hi 1
+
+    pivot <- ld (hi, 0)
+    i <- addi lo (-1)
+    let j = hi
+    jmp loop [Just j, Just i, Just pivot, Just hi]
+  pure $ traceShow skip $ quicksort
